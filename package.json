@@ -1,0 +1,37 @@
+{
+  "name": "seed_mh_utils",
+  "version": "0.1.0",
+  "description": "Maternal health js utilities",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/praekelt/seed-mh-utils.git"
+  },
+  "keywords": [
+      "vumi",
+      "sandbox"
+  ],
+  "author": "Praekelt Foundation",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/praekelt/seed-jsbox-utils/issues"
+  },
+  "homepage": "https://github.com/praekelt/seed-jsbox-utils",
+  "dependencies": {
+    "vumigo_v02": "~0.2",
+    "moment": "~2.5.1"
+  },
+  "devDependencies": {
+    "mocha": "~1.18",
+    "jshint": "~2.4.4",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-watch": "~0.6.0",
+    "grunt": "~0.4.4",
+    "grunt-mocha-test": "~0.10.0",
+    "grunt-contrib-jshint": "~0.9.2",
+    "grunt-cli": "~0.1.13"
+  }
+}
