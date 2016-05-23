@@ -1,14 +1,14 @@
 {
-  "name": "seed_mh_utils",
+  "name": "seed_jsbox_utils",
   "version": "0.1.0",
-  "description": "Maternal health js utilities",
+  "description": "JSbox specific functions",
   "main": "lib/index.js",
   "scripts": {
     "test": "grunt test"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/praekelt/seed-mh-utils.git"
+    "url": "git://github.com/praekelt/seed-jsbox-utils.git"
   },
   "keywords": [
       "vumi",
