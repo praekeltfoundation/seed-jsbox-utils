@@ -2,7 +2,16 @@ var Utils = require("../lib");
 var assert = require('assert');
 var moment = require('moment');
 var vumigo = require('vumigo_v02');
-//var AppTester = vumigo.AppTester;
+var _ = require('lodash');
+
+var fixtures = require('./fixtures');
+
+var Choice = vumigo.states.Choice;
+var ChoiceState = vumigo.states.ChoiceState;
+var EndState = vumigo.states.EndState;
+var FreeText = vumigo.states.FreeText;
+
+var AppTester = vumigo.AppTester;
 var App = vumigo.App;
 App.call(App);
 var $ = App.$;
@@ -15,39 +24,111 @@ describe("Testing Utils Functions", function() {
 
     var live_config = {};
 
-    /*var app;
+    var app;
     var tester;
-    var go = {};
-    go;
-    go.init = function() {
-        var vumigo = require('vumigo_v02');
-        var InteractionMachine = vumigo.InteractionMachine;
-        var GoApp = go.app.GoApp;
 
-        return {
-            im: new InteractionMachine(api, new GoApp())
-        };
-    }();
-
-    beforeEach(function() {
-        app = new go.app.GoApp();
+    beforeEach(function(){
+        app = new App("state_start");
         tester = new AppTester(app);
 
         tester
-            .setup.char_limit(182)
             .setup.config.app({
-                name: 'seed-jsbox-utils-test',
-                testing_today: '2015-04-03 06:07:08.999',
+                name: "JS-box-utils-tester",
+                testing_today: "2016-05-23",
+                services: {
+                    identities: {
+                        api_token: 'test_token_identities',
+                        url: "http://localhost:8001/api/v1/"
+                    },
+                    registrations: {
+                        api_token: 'test_token_registrations',
+                        url: "http://localhost:8002/api/v1/"
+                    },
+                    voice_content: {
+                        api_token: "test_token_voice_content",
+                        url: "http://localhost:8004/api/v1/"
+                    },
+                    subscriptions: {
+                        api_token: 'test_token_subscriptions',
+                        url: "http://localhost:8005/api/v1/"
+                    },
+                    message_sender: {
+                        api_token: 'test_token_message_sender',
+                        url: "http://localhost:8006/api/v1/"
+                    }
+                },
                 no_timeout_redirects: [
                     'state_start',
-                    'state_end_sms'
+                    'state_end'
                 ]
             })
             .setup(function(api) {
                 fixtures().forEach(api.http.fixtures.add);
             })
             ;
-    });*/
+
+        tester.data.opts = {};
+
+        // override normal state adding
+        app.add = function(name, creator) {
+            app.states.add(name, function(name, opts) {
+                if (!interrupt || !Utils.timed_out(self.im))
+                    return creator(name, opts);
+
+                interrupt = false;
+                opts = opts || {};
+                opts.name = name;
+                return self.states.create("state_timed_out", opts);
+            });
+        };
+
+        // timeout
+        app.states.add("state_timed_out", function(name, creator_opts) {
+            return new ChoiceState(name, {
+                question: "You timed out. What now?",
+                choices: [
+                    new Choice('continue', $("Continue")),
+                    new Choice('restart', $("Restart"))
+                ],
+                next: function(choice) {
+                    if (choice.value === 'continue') {
+                        return {
+                            name: creator_opts.name,
+                            creator_opts: creator_opts
+                        };
+                    } else if (choice.value === 'restart') {
+                        return 'state_start';
+                    }
+                }
+            });
+        });
+
+        app.add("state_start", function(name) {
+            _.defaults(tester.data.opts, {next:"state_one"});
+            return new FreeText(name, tester.data.opts);
+        });
+
+        app.add("state_one", function(name) {
+            _.defaults(tester.data.opts, {next:"state_two"});
+            return new FreeText(name, tester.data.opts);
+        });
+
+        app.add("state_two", function(name) {
+            _.defaults(tester.data.opts, {next:"state_three"});
+            return new FreeText(name, tester.data.opts);
+        });
+
+        app.add("state_three", function(name) {
+            _.defaults(tester.data.opts, {next:"state_end"});
+            return new FreeText(name, tester.data.opts);
+        });
+
+        app.add("state_end", function(name) {
+            return new EndState(name, {
+                text: 'This is the end state.'
+            });
+        });
+    });
 
     describe("is_valid_msisdn", function() {
         it("should not validate if passed a number that doesn't start with '0'", function() {
