@@ -2,7 +2,7 @@ var Utils = require("../lib");
 var assert = require('assert');
 var moment = require('moment');
 var vumigo = require('vumigo_v02');
-var _ = require('lodash');
+//var _ = require('lodash');
 
 var fixtures = require('./fixtures');
 
@@ -21,13 +21,12 @@ describe("Testing Utils Functions", function() {
     var testing_config = {
         "testing_today": "2016-05-23"
     };
-
     var live_config = {};
 
     var app;
     var tester;
 
-    beforeEach(function(){
+    beforeEach(function() {
         app = new App("state_start");
         tester = new AppTester(app);
 
@@ -39,27 +38,15 @@ describe("Testing Utils Functions", function() {
                     identities: {
                         api_token: 'test_token_identities',
                         url: "http://localhost:8001/api/v1/"
-                    },
-                    registrations: {
-                        api_token: 'test_token_registrations',
-                        url: "http://localhost:8002/api/v1/"
-                    },
-                    voice_content: {
-                        api_token: "test_token_voice_content",
-                        url: "http://localhost:8004/api/v1/"
-                    },
-                    subscriptions: {
-                        api_token: 'test_token_subscriptions',
-                        url: "http://localhost:8005/api/v1/"
-                    },
-                    message_sender: {
-                        api_token: 'test_token_message_sender',
-                        url: "http://localhost:8006/api/v1/"
                     }
                 },
                 no_timeout_redirects: [
                     'state_start',
+                    'state_two',
                     'state_end'
+                ],
+                timeout_redirects: [
+                    'state_three'
                 ]
             })
             .setup(function(api) {
@@ -67,18 +54,23 @@ describe("Testing Utils Functions", function() {
             })
             ;
 
-        tester.data.opts = {};
+        var interrupt = true;
 
         // override normal state adding
         app.add = function(name, creator) {
             app.states.add(name, function(name, opts) {
-                if (!interrupt || !Utils.timed_out(self.im))
+                if (!interrupt || !Utils.timed_out(app.im))
                     return creator(name, opts);
 
                 interrupt = false;
                 opts = opts || {};
                 opts.name = name;
-                return self.states.create("state_timed_out", opts);
+
+                if (Utils.timeout_redirect(app.im)) {
+                    return app.states.create("state_start");
+                } else {
+                    return app.states.create("state_timed_out", opts);
+                }
             });
         };
 
@@ -87,46 +79,319 @@ describe("Testing Utils Functions", function() {
             return new ChoiceState(name, {
                 question: "You timed out. What now?",
                 choices: [
-                    new Choice('continue', $("Continue")),
-                    new Choice('restart', $("Restart"))
+                    new Choice("continue", $("Continue")),
+                    new Choice("restart", $("Restart")),
+                    new Choice("exit", $("Exit"))
                 ],
                 next: function(choice) {
-                    if (choice.value === 'continue') {
+                    if (choice.value === "continue") {
                         return {
                             name: creator_opts.name,
                             creator_opts: creator_opts
                         };
-                    } else if (choice.value === 'restart') {
-                        return 'state_start';
+                    } else if (choice.value === "restart") {
+                        return "state_start";
+                    } else {
+                        return "state_end";
                     }
                 }
             });
         });
 
         app.add("state_start", function(name) {
-            _.defaults(tester.data.opts, {next:"state_one"});
-            return new FreeText(name, tester.data.opts);
+            return new FreeText(name, {
+                question: "This is the start state.",
+                next: "state_one"
+            });
         });
 
         app.add("state_one", function(name) {
-            _.defaults(tester.data.opts, {next:"state_two"});
-            return new FreeText(name, tester.data.opts);
+            return new FreeText(name, {
+                question: "This is the first state.",
+                next: function(content) {
+                    return Utils
+                        .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
+                        .then(function(response) {
+                            return "state_two";
+                        });
+                }
+            });
         });
 
         app.add("state_two", function(name) {
-            _.defaults(tester.data.opts, {next:"state_three"});
-            return new FreeText(name, tester.data.opts);
+            return new FreeText(name, {
+                question: "This is the second state.",
+                next: "state_three"
+            });
         });
 
         app.add("state_three", function(name) {
-            _.defaults(tester.data.opts, {next:"state_end"});
-            return new FreeText(name, tester.data.opts);
+            return new FreeText(name, {
+                question: "This is the third state.",
+                next: function(content) {
+                    return Utils
+                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
+                        .then(function(response) {
+                            return "state_end";
+                        });
+                }
+            });
         });
 
         app.add("state_end", function(name) {
             return new EndState(name, {
-                text: 'This is the end state.'
+                text: "This is the end state.",
+                next: "state_start"
             });
+        });
+    });
+
+    describe("check_fixtures_used", function() {
+        it("to state_start", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .start()
+                .check.interaction({
+                    state: "state_start",
+                    reply: "This is the start state."
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, []);
+                })
+                .run();
+        });
+        it("to state_one", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                )
+                .check.interaction({
+                    state: "state_one",
+                    reply: "This is the first state."
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, []);
+                })
+                .run();
+        });
+        it("to state_two", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                    , "blah"  // state_one
+                )
+                .check.interaction({
+                    state: "state_two",
+                    reply: "This is the second state."
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, [0]);
+                })
+                .run();
+        });
+        it("to state_three", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                    , "blah"  // state_one
+                    , "blah"  // state_two
+                )
+                .check.interaction({
+                    state: "state_three",
+                    reply: "This is the third state."
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, [0]);
+                })
+                .run();
+        });
+        it("to state_end", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                    , "blah"  // state_one
+                    , "blah"  // state_two
+                    , "blah"  // state_third
+                )
+                .check.interaction({
+                    state: "state_end",
+                    reply: "This is the end state."
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, [0,1]);
+                })
+                .run();
+        });
+    });
+
+    describe("timed_out", function() {
+        it("to state_start", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .start()
+                .check.interaction({
+                    state: "state_start",
+                    reply: "This is the start state."
+                })
+                .run();
+        });
+        it("to state_one", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                )
+                .check.interaction({
+                    state: "state_one",
+                    reply: "This is the first state."
+                })
+                .run();
+        });
+        it("to state_two (no time-out redirect)", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                    , "blah"  // state_one
+                    , {session_event: "close"}
+                    , {session_event: "new"}
+                )
+                .check.interaction({
+                    state: "state_two",
+                    reply: "This is the second state."
+                })
+                .run();
+        });
+        it("to state_timed_out", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                    , {session_event: "close"}
+                    , {session_event: "new"}
+                )
+                .check.interaction({
+                    state: "state_timed_out",
+                    reply: [
+                        "You timed out. What now?",
+                        "1. Continue",
+                        "2. Restart",
+                        "3. Exit"
+                    ].join("\n")
+                })
+                .run();
+        });
+        it("to state_end", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                    , {session_event: "close"}
+                    , {session_event: "new"}
+                    , "3"
+                )
+                .check.interaction({
+                    state: "state_end",
+                    reply: "This is the end state."
+                })
+                .run();
+        });
+    });
+
+    describe("timeout_redirect", function() {
+        it("to state_start (time-out redirect from state_three)", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    {session_event: "new"}
+                    , "blah"  // state_start
+                    , "blah"  // state_one
+                    , "blah"  // state_two
+                    , {session_event: "close"}
+                    , {session_event: "new"}
+                )
+                .check.interaction({
+                    state: "state_start",
+                    reply: "This is the start state."
+                })
+                .run();
+        });
+    });
+
+    describe("service_api_call", function() {
+        it("", function() {
+            //assert.equal();
+        });
+        it("", function() {
+            //assert.equal();
+        });
+    });
+
+    describe("log_service_api_call", function() {
+        it("to state_two (checking logging of http get request)", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                    , "blah"  // state_one
+                )
+                .check.interaction({
+                    state: "state_two",
+                    reply: "This is the second state."
+                })
+                .check(function(api) {
+                    var expected_log_entry = [
+                        'Request: get http://localhost:8001/api/v1/identity/08212345678/',
+                        'Payload: null',
+                        'Params: null',
+                        'Response: {"code":200,'+
+                                    '"request":{"url":"http://localhost:8001/api/v1/identity/08212345678/",'+
+                                    '"method":"GET"},'+
+                                    '"body":"{\\"count\\":0,\\"next\\":null,\\"previous\\":null,\\"results\\":[]}"}'
+                    ].join('\n');
+
+                    var log_string_array = api.log.store["20"];
+                    var last_entry_index = log_string_array.length;
+
+                    assert.equal(log_string_array[last_entry_index-1], expected_log_entry);
+                })
+                .run();
+        });
+        it("to state_end (checking logging of http post request)", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                    , "blah"  // state_one
+                    , "blah"  // state_two
+                    , "blah"  // state_third
+                )
+                .check.interaction({
+                    state: "state_end",
+                    reply: "This is the end state."
+                })
+                .check(function(api) {
+                    var expected_log_entry = [
+                        'Request: post http://localhost:8001/api/v1/',
+                        'Payload: {"msisdn":"08212345678"}',
+                        'Params: null',
+                        'Response: {"code":201,'+
+                            '"request":{"url":"http://localhost:8001/api/v1/",'+
+                            '"method":"POST",'+
+                            '"body":"{\\"msisdn\\":\\"08212345678\\"}"},'+
+                            '"body":"{}"}'
+                    ].join('\n');
+
+                    var log_string_array = api.log.store["20"];
+                    var last_entry_index = log_string_array.length;
+
+                    assert.equal(log_string_array[last_entry_index-1], expected_log_entry);
+                })
+                .run();
         });
     });
 

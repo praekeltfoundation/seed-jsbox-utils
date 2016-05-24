@@ -1,19 +1,16 @@
 module.exports = function() {
     return [
 
-        // 0: get identity 05059991111 by msisdn - no results
-        /*{
+        // 0: get identity 08212345678 by msisdn - no results
+        {
             'repeatable': true,
             'request': {
                 'method': 'GET',
-                'params': {
-                    'details__addresses__msisdn': '+2345059991111'
-                },
                 'headers': {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8001/api/v1/identities/search/',
+                'url': 'http://localhost:8001/api/v1/identity/08212345678/',
             },
             'response': {
                 "code": 200,
@@ -24,6 +21,26 @@ module.exports = function() {
                     "results": []
                 }
             }
-        },*/
+        },
+
+        // 1: post identity 08212345678
+        {
+            'request': {
+                'method': 'POST',
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': "http://localhost:8001/api/v1/",
+                'data':  {
+                    "msisdn": "08212345678"
+                }
+            },
+            'response': {
+                "code": 201,
+                "data": {}
+            }
+        },
+
     ];
 };
