@@ -2,7 +2,6 @@ var Utils = require("../lib");
 var assert = require('assert');
 var moment = require('moment');
 var vumigo = require('vumigo_v02');
-//var _ = require('lodash');
 
 var fixtures = require('./fixtures');
 
