@@ -323,11 +323,45 @@ describe("Testing Utils Functions", function() {
     });
 
     describe("service_api_call", function() {
-        it("", function() {
-            //assert.equal();
+        it("GET request", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .start()
+                .check(function(api) {
+                    return Utils
+                        .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
+                        .then(function(response) {
+                            assert.equal(response.code, "200");
+                        });
+                })
+                .run();
         });
-        it("", function() {
-            //assert.equal();
+        it("POST request", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .start()
+                .check(function(api) {
+                    return Utils
+                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
+                        .then(function(response) {
+                            assert.equal(response.code, "201");
+                        });
+                })
+                .run();
+        });
+        it("PATCH request", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .start()
+                .check(function(api) {
+                    var endpoint = "identity/"+app.im.user.addr+"/completed";
+                    return Utils
+                        .service_api_call("identities", "patch", null, { "completed": true }, endpoint, app.im)
+                        .then(function(response) {
+                            assert.equal(response.code, "200");
+                        });
+                })
+                .run();
         });
     });
 
