@@ -146,7 +146,7 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("check_fixtures_used", function() {
+    describe("check_fixtures_used (& service_api_call)", function() {
         it("to state_start", function() {
             return tester
                 .setup.user.addr('08212345678')
@@ -322,7 +322,7 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("service_api_call", function() {
+    describe("service_api_call (& check_fixtures_used)", function() {
         it("GET request", function() {
             return tester
                 .setup.user.addr('08212345678')
@@ -333,6 +333,9 @@ describe("Testing Utils Functions", function() {
                         .then(function(response) {
                             assert.equal(response.code, "200");
                         });
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, [0]);
                 })
                 .run();
         });
@@ -347,6 +350,9 @@ describe("Testing Utils Functions", function() {
                             assert.equal(response.code, "201");
                         });
                 })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, [1]);
+                })
                 .run();
         });
         it("PATCH request", function() {
@@ -360,6 +366,9 @@ describe("Testing Utils Functions", function() {
                         .then(function(response) {
                             assert.equal(response.code, "200");
                         });
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, [2]);
                 })
                 .run();
         });
