@@ -2,7 +2,6 @@ var Utils = require("../lib");
 var assert = require('assert');
 var moment = require('moment');
 var vumigo = require('vumigo_v02');
-//var _ = require('lodash');
 
 var fixtures = require('./fixtures');
 
@@ -146,7 +145,7 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("check_fixtures_used", function() {
+    describe("check_fixtures_used (& service_api_call)", function() {
         it("to state_start", function() {
             return tester
                 .setup.user.addr('08212345678')
@@ -322,12 +321,55 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("service_api_call", function() {
-        it("", function() {
-            //assert.equal();
+    describe("service_api_call (& check_fixtures_used)", function() {
+        it("GET request", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .start()
+                .check(function(api) {
+                    return Utils
+                        .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
+                        .then(function(response) {
+                            assert.equal(response.code, "200");
+                        });
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, [0]);
+                })
+                .run();
         });
-        it("", function() {
-            //assert.equal();
+        it("POST request", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .start()
+                .check(function(api) {
+                    return Utils
+                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
+                        .then(function(response) {
+                            assert.equal(response.code, "201");
+                        });
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, [1]);
+                })
+                .run();
+        });
+        it("PATCH request", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .start()
+                .check(function(api) {
+                    var endpoint = "identity/"+app.im.user.addr+"/completed";
+                    return Utils
+                        .service_api_call("identities", "patch", null, { "completed": true }, endpoint, app.im)
+                        .then(function(response) {
+                            assert.equal(response.code, "200");
+                        });
+                })
+                .check(function(api) {
+                    Utils.check_fixtures_used(api, [2]);
+                })
+                .run();
         });
     });
 

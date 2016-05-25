@@ -42,5 +42,25 @@ module.exports = function() {
             }
         },
 
+        // 2: patch identity 08212345678
+        {
+            'request': {
+                'method': 'PATCH',
+                'url': 'http://localhost:8001/api/v1/identity/08212345678/completed',
+                'data': {
+                    "completed": true
+                }
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "msisdn": "08212345678",
+                    "completed": true,
+                    "created_at":"2016-05-23T06:13:29.693272Z",
+                    "updated_at":"2016-05-23T06:13:29.693298Z"
+                }
+            }
+        },
+
     ];
 };
