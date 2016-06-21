@@ -27,34 +27,8 @@ describe("Testing Utils Functions", function() {
 
     beforeEach(function() {
         app = new App("state_start");
-        tester = new AppTester(app);
-
-        tester
-            .setup.config.app({
-                name: "JS-box-utils-tester",
-                testing_today: "2016-05-23",
-                services: {
-                    identities: {
-                        api_token: 'test_token_identities',
-                        url: "http://localhost:8001/api/v1/"
-                    }
-                },
-                no_timeout_redirects: [
-                    'state_start',
-                    'state_two',
-                    'state_end'
-                ],
-                timeout_redirects: [
-                    'state_three'
-                ]
-            })
-            .setup(function(api) {
-                fixtures().forEach(api.http.fixtures.add);
-            })
-            ;
 
         var interrupt = true;
-
         // override normal state adding
         app.add = function(name, creator) {
             app.states.add(name, function(name, opts) {
@@ -104,6 +78,7 @@ describe("Testing Utils Functions", function() {
             });
         });
 
+        // a HTTP GET request is made going from this state to the next
         app.add("state_one", function(name) {
             return new FreeText(name, {
                 question: "This is the first state.",
@@ -124,6 +99,7 @@ describe("Testing Utils Functions", function() {
             });
         });
 
+        // a HTTP POST request is made going from this state to the next/last
         app.add("state_three", function(name) {
             return new FreeText(name, {
                 question: "This is the third state.",
@@ -143,82 +119,75 @@ describe("Testing Utils Functions", function() {
                 next: "state_start"
             });
         });
+
+        tester = new AppTester(app);
+
+        tester
+            .setup.config.app({
+                name: "JS-box-utils-tester",
+                testing_today: "2016-05-23",
+                services: {
+                    identities: {
+                        api_token: 'test_token_identities',
+                        url: "http://localhost:8001/api/v1/"
+                    }
+                },
+                no_timeout_redirects: [
+                    'state_start',
+                    'state_two',
+                    'state_end'
+                ],
+                timeout_redirects: [
+                    'state_three'
+                ]
+            })
+            .setup(function(api) {
+                fixtures().forEach(api.http.fixtures.add);
+            })
+            ;
     });
 
     describe("check_fixtures_used (& service_api_call)", function() {
-        it("to state_start", function() {
+        it("to state_one (no fixtures used)", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .start()
+                .input(
+                    "blah"  // state_start
+                )
                 .check.interaction({
-                    state: "state_start",
-                    reply: "This is the start state."
+                    state: "state_one"
                 })
                 .check(function(api) {
                     Utils.check_fixtures_used(api, []);
                 })
                 .run();
         });
-        it("to state_one", function() {
+        it("to state_two (GET request performed; corresponding fixture used)", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
+                .setup.user.state('state_one')
+                .input(
+                    "blah"  // state_one
                 )
                 .check.interaction({
-                    state: "state_one",
-                    reply: "This is the first state."
-                })
-                .check(function(api) {
-                    Utils.check_fixtures_used(api, []);
-                })
-                .run();
-        });
-        it("to state_two", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
-                    , "blah"  // state_one
-                )
-                .check.interaction({
-                    state: "state_two",
-                    reply: "This is the second state."
+                    state: "state_two"
                 })
                 .check(function(api) {
                     Utils.check_fixtures_used(api, [0]);
                 })
                 .run();
         });
-        it("to state_three", function() {
+        it("to state_end (entire flow, GET and POST fixtures used)", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .inputs(
                     "blah"  // state_start
                     , "blah"  // state_one
                     , "blah"  // state_two
+                    , "blah"  // state_three
                 )
                 .check.interaction({
-                    state: "state_three",
-                    reply: "This is the third state."
-                })
-                .check(function(api) {
-                    Utils.check_fixtures_used(api, [0]);
-                })
-                .run();
-        });
-        it("to state_end", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
-                    , "blah"  // state_one
-                    , "blah"  // state_two
-                    , "blah"  // state_third
-                )
-                .check.interaction({
-                    state: "state_end",
-                    reply: "This is the end state."
+                    state: "state_end"
                 })
                 .check(function(api) {
                     Utils.check_fixtures_used(api, [0,1]);
@@ -228,40 +197,17 @@ describe("Testing Utils Functions", function() {
     });
 
     describe("timed_out", function() {
-        it("to state_start", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .start()
-                .check.interaction({
-                    state: "state_start",
-                    reply: "This is the start state."
-                })
-                .run();
-        });
-        it("to state_one", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
-                )
-                .check.interaction({
-                    state: "state_one",
-                    reply: "This is the first state."
-                })
-                .run();
-        });
         it("to state_two (no time-out redirect)", function() {
             return tester
                 .setup.user.addr('08212345678')
+                .setup.user.state('state_one')
                 .inputs(
-                    "blah"  // state_start
-                    , "blah"  // state_one
+                    "blah"  // state_one
                     , {session_event: "close"}
                     , {session_event: "new"}
                 )
                 .check.interaction({
-                    state: "state_two",
-                    reply: "This is the second state."
+                    state: "state_two"
                 })
                 .run();
         });
@@ -274,17 +220,39 @@ describe("Testing Utils Functions", function() {
                     , {session_event: "new"}
                 )
                 .check.interaction({
-                    state: "state_timed_out",
-                    reply: [
-                        "You timed out. What now?",
-                        "1. Continue",
-                        "2. Restart",
-                        "3. Exit"
-                    ].join("\n")
+                    state: "state_timed_out"
                 })
                 .run();
         });
-        it("to state_end", function() {
+        it("to state_end (choice made to 'Continue' after time out occured)", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_one')
+                .inputs(
+                    {session_event: "close"}
+                    , {session_event: "new"}
+                    , "1"
+                )
+                .check.interaction({
+                    state: "state_one"
+                })
+                .run();
+        });
+        it("to state_end (choice made to 'Restart' after time out occured)", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_start
+                    , {session_event: "close"}
+                    , {session_event: "new"}
+                    , "2"
+                )
+                .check.interaction({
+                    state: "state_start"
+                })
+                .run();
+        });
+        it("to state_end (choice made to 'Exit' after time out occured)", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .inputs(
@@ -294,8 +262,7 @@ describe("Testing Utils Functions", function() {
                     , "3"
                 )
                 .check.interaction({
-                    state: "state_end",
-                    reply: "This is the end state."
+                    state: "state_end"
                 })
                 .run();
         });
@@ -305,17 +272,14 @@ describe("Testing Utils Functions", function() {
         it("to state_start (time-out redirect from state_three)", function() {
             return tester
                 .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
                 .inputs(
-                    {session_event: "new"}
-                    , "blah"  // state_start
-                    , "blah"  // state_one
-                    , "blah"  // state_two
+                    "blah"  // state_two
                     , {session_event: "close"}
                     , {session_event: "new"}
                 )
                 .check.interaction({
-                    state: "state_start",
-                    reply: "This is the start state."
+                    state: "state_start"
                 })
                 .run();
         });
@@ -325,7 +289,6 @@ describe("Testing Utils Functions", function() {
         it("GET request", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .start()
                 .check(function(api) {
                     return Utils
                         .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
@@ -341,7 +304,6 @@ describe("Testing Utils Functions", function() {
         it("POST request", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .start()
                 .check(function(api) {
                     return Utils
                         .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
@@ -357,7 +319,6 @@ describe("Testing Utils Functions", function() {
         it("PATCH request", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .start()
                 .check(function(api) {
                     var endpoint = "identity/"+app.im.user.addr+"/completed";
                     return Utils
@@ -377,13 +338,12 @@ describe("Testing Utils Functions", function() {
         it("to state_two (checking logging of http get request)", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
-                    , "blah"  // state_one
+                .setup.user.state('state_one')
+                .input(
+                    "blah"  // state_one
                 )
                 .check.interaction({
-                    state: "state_two",
-                    reply: "This is the second state."
+                    state: "state_two"
                 })
                 .check(function(api) {
                     var expected_log_entry = [
@@ -406,15 +366,12 @@ describe("Testing Utils Functions", function() {
         it("to state_end (checking logging of http post request)", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
-                    , "blah"  // state_one
-                    , "blah"  // state_two
-                    , "blah"  // state_third
+                .setup.user.state('state_three')
+                .input(
+                    "blah"  // state_three
                 )
                 .check.interaction({
-                    state: "state_end",
-                    reply: "This is the end state."
+                    state: "state_end"
                 })
                 .check(function(api) {
                     var expected_log_entry = [
