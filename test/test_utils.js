@@ -560,4 +560,162 @@ describe("Testing Utils Functions", function() {
         });
     });
 
+    describe("IDENTITY-specfic util functions", function() {
+        describe("Testing get_identity_by_address function", function() {
+            it("returns corresponding identity to msisdn passed in", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_identity_by_address({"msisdn": "08212345678"}, app.im)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [3]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_identity function", function() {
+            it("returns corresponding identity by identity id passed in", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_identity("cb245673-aa41-4302-ac47-00000000001", app.im)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                                assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "+8212345678");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [4]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing create_identity function", function() {
+            it("returns identity object; no communicate_through or operator_id provided", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_identity(app.im, {"msisdn": "08212345678"}, null, null)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [5]);
+                    })
+                    .run();
+            });
+            it("returns identity object; operator_id provided", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_identity(app.im, {"msisdn": "08212345678"}, null, "cb245673-aa41-4302-ac47-00000000002")
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [6]);
+                    })
+                    .run();
+            });
+            it("returns identity object; communicate_through_id provided", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_identity(app.im, {"msisdn": "08212345678"}, "cb245673-aa41-4302-ac47-00000000003", null)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [7]);
+                    })
+                    .run();
+            });
+            it("returns identity object; communicate_through and operator_id provided", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_identity(app.im, {"msisdn": "08212345678"}, "cb245673-aa41-4302-ac47-00000000003", "cb245673-aa41-4302-ac47-00000000002")
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [8]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_or_create_identity function", function() {
+            it("gets existing identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_or_create_identity({"msisdn": "08212345678"}, app.im, null)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [3]);
+                    })
+                    .run();
+            });
+            it("creates new identity", function() {
+                return tester
+                    .setup.user.addr('08211111111')
+                    .check(function(api) {
+                        return Utils
+                            .get_or_create_identity({"msisdn": "08211111111"}, app.im, null)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00011111111");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [9,10]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing update_identity function", function() {
+            it("return identity id on update of identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .update_identity(app.im, {
+                                "id": "cb245673-aa41-4302-ac47-00000000001",
+                                "details": {
+                                    "addresses": {
+                                        "msisdn": {
+                                            "08212345679": {}
+                                        }
+                                    }
+                                }
+                            })
+                            .then(function(identity_id) {
+                                assert.equal(identity_id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [11]);
+                    })
+                    .run();
+            });
+        });
+    });
+
 });
