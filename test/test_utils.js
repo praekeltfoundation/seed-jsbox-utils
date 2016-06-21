@@ -147,8 +147,8 @@ describe("Testing Utils Functions", function() {
             ;
     });
 
-    describe("check_fixtures_used (& service_api_call)", function() {
-        it("to state_one (no fixtures used)", function() {
+    describe("Tests check_fixtures_used (& service_api_call) function", function() {
+        it("no fixtures used", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .input(
@@ -162,7 +162,7 @@ describe("Testing Utils Functions", function() {
                 })
                 .run();
         });
-        it("to state_two (GET request performed; corresponding fixture used)", function() {
+        it("one fixture used; GET request performed", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .setup.user.state('state_one')
@@ -177,7 +177,7 @@ describe("Testing Utils Functions", function() {
                 })
                 .run();
         });
-        it("to state_end (entire flow, GET and POST fixtures used)", function() {
+        it("multiple fixtures used; GET and POST requests", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .inputs(
@@ -196,8 +196,8 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("timed_out", function() {
-        it("to state_two (no time-out redirect)", function() {
+    describe("Tests timed_out function", function() {
+        it("no time-out redirect; move on to next state", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .setup.user.state('state_one')
@@ -211,7 +211,7 @@ describe("Testing Utils Functions", function() {
                 })
                 .run();
         });
-        it("to state_timed_out", function() {
+        it("timed out; to state_timed_out", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .inputs(
@@ -224,7 +224,7 @@ describe("Testing Utils Functions", function() {
                 })
                 .run();
         });
-        it("to state_end (choice made to 'Continue' after time out occured)", function() {
+        it("choice made to 'Continue' after time out occured; go on to next state", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .setup.user.state('state_one')
@@ -238,7 +238,7 @@ describe("Testing Utils Functions", function() {
                 })
                 .run();
         });
-        it("to state_end (choice made to 'Restart' after time out occured)", function() {
+        it("choice made to 'Restart' after time out occured; go to start state", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .inputs(
@@ -252,7 +252,7 @@ describe("Testing Utils Functions", function() {
                 })
                 .run();
         });
-        it("to state_end (choice made to 'Exit' after time out occured)", function() {
+        it("choice made to 'Exit' after time out occured; go to end state", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .inputs(
@@ -268,8 +268,8 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("timeout_redirect", function() {
-        it("to state_start (time-out redirect from state_three)", function() {
+    describe("Tests timeout_redirect function", function() {
+        it("time-out redirect; from state_three to state_start)", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .setup.user.state('state_two')
@@ -285,7 +285,7 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("service_api_call (& check_fixtures_used)", function() {
+    describe("Tests service_api_call (& check_fixtures_used) function", function() {
         it("GET request", function() {
             return tester
                 .setup.user.addr('08212345678')
@@ -334,8 +334,8 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("log_service_api_call", function() {
-        it("to state_two (checking logging of http get request)", function() {
+    describe("Tests log_service_api_call function", function() {
+        it("logging of http GET request", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .setup.user.state('state_one')
@@ -363,7 +363,7 @@ describe("Testing Utils Functions", function() {
                 })
                 .run();
         });
-        it("to state_end (checking logging of http post request)", function() {
+        it("logging of http POST request", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .setup.user.state('state_three')
@@ -394,7 +394,7 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("is_valid_msisdn", function() {
+    describe("Tests is_valid_msisdn function", function() {
         it("should not validate if passed a number that doesn't start with '0'", function() {
             assert.equal(Utils.is_valid_msisdn("12345"), false);
         });
@@ -402,13 +402,13 @@ describe("Testing Utils Functions", function() {
             assert.equal(Utils.is_valid_msisdn("012345"), false);  // < 10
             assert.equal(Utils.is_valid_msisdn("01234567890123"), false);  // > 13
         });
-        it("validatea if number starts with '0' and of correct length", function() {
+        it("validate if number starts with '0' and of correct length", function() {
             assert(Utils.is_valid_msisdn("01234567890"));
             assert(Utils.is_valid_msisdn("0123456789012"));
         });
     });
 
-    describe("get_today", function() {
+    describe("Tests get_today function", function() {
         it("when date passed in, return the same as moment object", function() {
             assert.deepEqual(Utils.get_today(testing_config).format("YYYY-MM-DD"),
                 moment("2016-05-23").format("YYYY-MM-DD"));
@@ -419,14 +419,14 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("get_january", function() {
+    describe("Tests get_january function", function() {
         it("get 1st jan moment date of current year", function() {
             assert.deepEqual(Utils.get_january(testing_config).format("YYYY-MM-DD"),
                 moment("2016-01-01").format("YYYY-MM-DD"));
         });
     });
 
-    describe("make_month_choices", function() {
+    describe("Tests make_month_choices function", function() {
         it('should return a Choice array of correct size - forward in same year', function() {
             // test data
             var testDate = moment("2015-04-26");
