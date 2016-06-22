@@ -126,6 +126,10 @@ describe("Testing Utils Functions", function() {
             .setup.config.app({
                 name: "JS-box-utils-tester",
                 testing_today: "2016-05-23",
+                channel: '2341234',
+                transport_name: 'aggregator_sms',
+                transport_type: 'sms',
+                testing_message_id: '0170b7bb-978e-4b8a-35d2-662af5b6daee',  // testing only
                 services: {
                     identities: {
                         api_token: 'test_token_identities',
@@ -134,6 +138,10 @@ describe("Testing Utils Functions", function() {
                     subscriptions: {
                         api_token: 'test_token_subscriptions',
                         url: "http://localhost:8005/api/v1/"
+                    },
+                    message_sender: {
+                        api_token: 'test_token_message_sender',
+                        url: "http://localhost:8006/api/v1/"
                     }
                 },
                 no_timeout_redirects: [
@@ -787,6 +795,47 @@ describe("Testing Utils Functions", function() {
                     })
                     .check(function(api) {
                         Utils.check_fixtures_used(api, [14]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("MESSAGESET-specfic util functions", function() {
+        describe("Testing get_messageset function", function() {
+            it("returns messageset object", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_messageset(app.im, 2)
+                            .then(function(messageset) {
+                                assert.equal(messageset.id, 2);
+                                assert.equal(messageset.next_set, 3);
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [16]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("MESSAGE-SENDER-specfic util functions", function() {
+        describe("Testing save_inbound_message function", function() {
+            it("returns inbound id", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .save_inbound_message(app.im, "08212345678", "Testing... 1,2,3")
+                            .then(function(inbound_id) {
+                                assert.equal(inbound_id, "1");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [17]);
                     })
                     .run();
             });

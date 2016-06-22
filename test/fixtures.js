@@ -524,7 +524,7 @@ module.exports = function() {
             }
         },
 
-        // 13: get subscription for identity cb245673-aa41-4302-ac47-00000000002
+        // 15: get subscription for identity cb245673-aa41-4302-ac47-00000000002
         {
             'request': {
                 'method': 'GET',
@@ -551,6 +551,61 @@ module.exports = function() {
                     'metadata': {},
                     'created_at': "2016-06-21T06:13:29.693272Z",
                     'updated_at': "2016-06-22T06:13:29.693272Z"
+                }
+            }
+        },
+
+        // 16: get messageset 2
+        {
+            'request': {
+                'method': 'GET',
+                'params': {},
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://localhost:8005/api/v1/messageset/2/'
+            },
+            'response': {
+                'code': 200,
+                'data': {
+                    'id': 2,
+                    'short_name': 'postbirth_mother_text_0_12',
+                    'notes': null,
+                    'next_set': 3,
+                    'default_schedule': 1,
+                    'content_type': 'text',
+                    'created_at': "2016-06-22T06:13:29.693272Z",
+                    'updated_at': "2016-06-22T06:13:29.693272Z"
+                }
+            }
+        },
+
+        // 17: post inbound message
+        {
+            'request': {
+                'method': 'POST',
+                'params': {},
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://localhost:8006/api/v1/inbound/',
+                'data': {
+                    "message_id": "0170b7bb-978e-4b8a-35d2-662af5b6daee",
+                    "content": "Testing... 1,2,3",
+                    "in_reply_to": null,
+                    "to_addr": "2341234",
+                    "from_addr": "08212345678",
+                    "transport_name": "aggregator_sms",
+                    "transport_type": "sms",
+                    "helper_metadata": {}
+                }
+            },
+            'response': {
+                "code": 201,
+                "data": {
+                    "id": 1
                 }
             }
         },
