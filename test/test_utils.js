@@ -841,4 +841,31 @@ describe("Testing Utils Functions", function() {
             });
         });
     });
+
+    describe("OPTOUT-specfic util functions", function() {
+        describe("Testing optout function", function() {
+            it("returns perform optout", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .optout(app.im,
+                                "cb245673-aa41-4302-ac47-00000000001",
+                                "miscarriage",
+                                null,
+                                "08212345678",
+                                "seed-jsbox-utils",
+                                app.im.config.testing_message_id
+                            )
+                            .then(function(response) {
+                                assert.equal(response.code, "201");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [18]);
+                    })
+                    .run();
+            });
+        });
+    });
 });

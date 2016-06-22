@@ -610,5 +610,32 @@ module.exports = function() {
             }
         },
 
+        // 18: Optout - miscarriage
+        {
+            'request': {
+                'method': 'POST',
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://localhost:8001/api/v1/optout/',
+                'data': {
+                    "optout_type": "stop",
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "reason": "miscarriage",
+                    "address_type": "msisdn",
+                    "address": "08212345678",
+                    "request_source": "seed-jsbox-utils",
+                    "requestor_source_id": "0170b7bb-978e-4b8a-35d2-662af5b6daee"
+                }
+            },
+            'response': {
+                'code': 201,
+                'data': {
+                    'id': 1
+                }
+            }
+        },
+
     ];
 };
