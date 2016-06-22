@@ -135,6 +135,10 @@ describe("Testing Utils Functions", function() {
                         api_token: 'test_token_identities',
                         url: "http://localhost:8001/api/v1/"
                     },
+                    registrations: {
+                        api_token: 'test_token_registrations',
+                        url: "http://localhost:8002/api/v1/"
+                    },
                     subscriptions: {
                         api_token: 'test_token_subscriptions',
                         url: "http://localhost:8005/api/v1/"
@@ -863,6 +867,37 @@ describe("Testing Utils Functions", function() {
                     })
                     .check(function(api) {
                         Utils.check_fixtures_used(api, [18]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("REGISTRATION-specfic util functions", function() {
+        describe("Testing create_registration function", function() {
+            it("returns registration id on performing optout", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_registration(app.im, {
+                                stage: "prebirth",
+                                mother_id: "cb245673-aa41-4302-ac47-1234567890",
+                                data: {
+                                    msg_receiver: "friend_only",
+                                    receiver_id: "cb245673-aa41-4302-ac47-00000000002",
+                                    operator_id: "cb245673-aa41-4302-ac47-00000000007",
+                                    gravida: "3",
+                                    language: "ibo_NG",
+                                    msg_type: "text"
+                                }
+                            })
+                            .then(function(registration_id) {
+                                assert.equal(registration_id, "reg_for_00000000002_uuid");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [19]);
                     })
                     .run();
             });

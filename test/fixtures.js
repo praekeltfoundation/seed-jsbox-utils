@@ -637,5 +637,50 @@ module.exports = function() {
             }
         },
 
+        // 19: create registration cb245673-aa41-4302-ac47-00000000002 - friend_only / family_member - sms
+        {
+            'request': {
+                'method': 'POST',
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': "http://localhost:8002/api/v1/registration/",
+                'data':  {
+                    "stage": "prebirth",
+                    "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                    "data": {
+                        "msg_receiver": "friend_only",
+                        "receiver_id": "cb245673-aa41-4302-ac47-00000000002",
+                        "operator_id": "cb245673-aa41-4302-ac47-00000000007",
+                        "gravida": "3",
+                        "language": "ibo_NG",
+                        "msg_type": "text"
+                    }
+                }
+            },
+            'response': {
+                "code": 201,
+                "data": {
+                    "id": "reg_for_00000000002_uuid",
+                    "stage": "prebirth",
+                    "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                    "data": {
+                        "msg_receiver": "friend_only",
+                        "receiver_id": "cb245673-aa41-4302-ac47-00000000002",
+                        "operator_id": "cb245673-aa41-4302-ac47-00000000007",
+                        "language": "ibo_NG",
+                        "msg_type": "text"
+                    },
+                    "validated": false,
+                    "source": "source",
+                    "created_at": "2015-07-10T06:13:29.693272Z",
+                    "updated_at": "2016-06-22T06:13:29.693298Z",
+                    "created_by": "user",
+                    "updated_by": "user"
+                }
+            }
+        },
+
     ];
 };
