@@ -37,6 +37,10 @@ describe("Testing Utils Functions", function() {
                     identities: {
                         api_token: 'test_token_identities',
                         url: "http://localhost:8001/api/v1/"
+                    },
+                    subscriptions: {
+                        api_token: 'test_token_subscriptions',
+                        url: "http://localhost:8005/api/v1/"
                     }
                 },
                 no_timeout_redirects: [
@@ -718,4 +722,117 @@ describe("Testing Utils Functions", function() {
         });
     });
 
+    describe("SUBSCRIPTION-specfic util functions", function() {
+        describe("Testing get_subscription function", function() {
+            it("returns subscription object", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_subscription(app.im, "51fcca25-2e85-4c44-subscription-1112")
+                            .then(function(subscription) {
+                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1112");
+                                assert.equal(subscription.identity, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [15]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_active_subscriptions_by_identity function", function() {
+            it("returns subscriptions for identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_active_subscriptions_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
+                            .then(function(subscriptions) {
+                                assert.equal(subscriptions[0].id, "51fcca25-2e85-4c44-subscription-1111");
+                                assert.equal(subscriptions[1].id, "51fcca25-2e85-4c44-subscription-1112");
+                                assert.equal(subscriptions.length, "2");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [12]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_active_subscription_by_identity function", function() {
+            it("returns subscription for identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_active_subscription_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
+                            .then(function(subscription) {
+                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1111");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [12]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing has_active_subscription function", function() {
+            it("returns true for active subscription", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .has_active_subscription("cb245673-aa41-4302-ac47-00000000001", app.im)
+                            .then(function(subscription) {
+                                assert(subscription);
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [12]);
+                    })
+                    .run();
+            });
+            it("returns false for no active subscription", function() {
+                return tester
+                    .setup.user.addr('08287654321')
+                    .check(function(api) {
+                        return Utils
+                            .has_active_subscription("cb245673-aa41-4302-ac47-00000000002", app.im)
+                            .then(function(subscription) {
+                                assert.ifError(subscription);
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [13]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing update_subscription function", function() {
+            it("returns same subscription id as passed in", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .update_subscription(app.im, {
+                                'id': "51fcca25-2e85-4c44-subscription-1111",
+                                'identity': 'cb245673-aa41-4302-ac47-00000000001',
+                                'messageset': 1,
+                                'next_sequence_number': 2,
+                                'lang': "ibo_NG",
+                                'active': true,
+                                'completed': true
+                            })
+                            .then(function(subscription_id) {
+                                assert.equal(subscription_id, "51fcca25-2e85-4c44-subscription-1111");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [14]);
+                    })
+                    .run();
+            });
+        });
+    });
 });

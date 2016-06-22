@@ -398,5 +398,162 @@ module.exports = function() {
             }
         },
 
+        // 12: get subscription for identity cb245673-aa41-4302-ac47-00000000001
+        {
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'identity': 'cb245673-aa41-4302-ac47-00000000001',
+                    'active': 'true'
+                },
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://localhost:8005/api/v1/subscriptions/'
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 2,
+                    "next": null,
+                    "previous": null,
+                    "results": [
+                        {
+                            'url': 'http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111',
+                            'id': '51fcca25-2e85-4c44-subscription-1111',
+                            'version': 1,
+                            'identity': 'cb245673-aa41-4302-ac47-00000000001',
+                            'messageset': 1,
+                            'next_sequence_number': 1,
+                            'lang': "ibo_NG",
+                            'active': true,
+                            'completed': false,
+                            'schedule': 1,
+                            'process_status': 0,
+                            'metadata': {},
+                            'created_at': "2015-07-10T06:13:29.693272Z",
+                            'updated_at': "2015-07-10T06:13:29.693272Z"
+                        },
+                        {
+                            'url': 'http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112',
+                            'id': '51fcca25-2e85-4c44-subscription-1112',
+                            'version': 1,
+                            'identity': 'cb245673-aa41-4302-ac47-00000000001',
+                            'messageset': 1,
+                            'next_sequence_number': 1,
+                            'lang': "ibo_NG",
+                            'active': true,
+                            'completed': false,
+                            'schedule': 1,
+                            'process_status': 0,
+                            'metadata': {},
+                            'created_at': "2015-07-10T06:13:29.693272Z",
+                            'updated_at': "2015-07-10T06:13:29.693272Z"
+                        }
+                    ]
+
+                }
+            }
+        },
+
+        // 13: get subscription for identity cb245673-aa41-4302-ac47-00000000002
+        {
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'identity': 'cb245673-aa41-4302-ac47-00000000002',
+                    'active': 'true'
+                },
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://localhost:8005/api/v1/subscriptions/'
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 0,
+                    "next": null,
+                    "previous": null,
+                    "results": []
+                }
+            }
+        },
+
+        // 14: patch subscription 51fcca25-2e85-4c44-subscription-1111 (completed = true)
+        {
+            'request': {
+                'method': 'PATCH',
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': "http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
+                "data": {
+                    "id": "51fcca25-2e85-4c44-subscription-1111",
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "messageset": 1,
+                    "next_sequence_number": 2,
+                    "lang": "ibo_NG",
+                    "active": true,
+                    "completed": true
+                }
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "url": "http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
+                    "id": "51fcca25-2e85-4c44-subscription-1111",
+                    "version": 1,
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "messageset": 1,
+                    "next_sequence_number": 2,
+                    "lang": "ibo_NG",
+                    "active": true,
+                    "completed": true,
+                    "schedule": 3,
+                    "process_status": 0,
+                    "metadata":{
+                        "msg_type": "audio"
+                    },
+                    "created_at": "2016-06-21T15:19:01.734812Z",
+                    "updated_at": "2016-06-22T07:00:00.826924Z"
+                }
+            }
+        },
+
+        // 13: get subscription for identity cb245673-aa41-4302-ac47-00000000002
+        {
+            'request': {
+                'method': 'GET',
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/'
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    'url': 'http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/',
+                    'id': '51fcca25-2e85-4c44-subscription-1112',
+                    'version': 1,
+                    'identity': 'cb245673-aa41-4302-ac47-00000000001',
+                    'messageset': 1,
+                    'next_sequence_number': 1,
+                    'lang': "ibo_NG",
+                    'active': true,
+                    'completed': false,
+                    'schedule': 1,
+                    'process_status': 0,
+                    'metadata': {},
+                    'created_at': "2016-06-21T06:13:29.693272Z",
+                    'updated_at': "2016-06-22T06:13:29.693272Z"
+                }
+            }
+        },
+
     ];
 };
