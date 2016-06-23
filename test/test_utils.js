@@ -15,7 +15,7 @@ var App = vumigo.App;
 App.call(App);
 var $ = App.$;
 
-//var service = require('..');
+var service = require('../lib');
 var utils = require('../lib/utils');
 
 describe("Testing utils Functions", function() {
@@ -87,7 +87,7 @@ describe("Testing utils Functions", function() {
                 question: "This is the first state.",
                 next: function(content) {
                     return utils
-                        .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
+                        .service_api_call("identities", "get", null, null, "identities/"+app.im.user.addr+"/", app.im)
                         .then(function(response) {
                             return "state_two";
                         });
@@ -108,7 +108,7 @@ describe("Testing utils Functions", function() {
                 question: "This is the third state.",
                 next: function(content) {
                     return utils
-                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
+                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "identities/", app.im)
                         .then(function(response) {
                             return "state_end";
                         });
@@ -309,14 +309,18 @@ describe("Testing utils Functions", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .check(function(api) {
-                    return utils
-                        .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
+                    return service.identities.get('08212345678')
                         .then(function(response) {
                             assert.equal(response.code, "200");
                         });
+                    /*utils
+                        .service_api_call("identities", "get", null, null, "identities/"+app.im.user.addr+"/", app.im)
+                        .then(function(response) {
+                            assert.equal(response.code, "200");
+                        });*/
                 })
                 .check(function(api) {
-                    utils.check_fixtures_used(api, [0]);
+                    // utils.check_fixtures_used2([0]);
                 })
                 .run();
         });
@@ -324,14 +328,19 @@ describe("Testing utils Functions", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .check(function(api) {
-                    return utils
-                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
+                    return service.identities.create({ "msisdn": app.im.user.addr })
                         .then(function(response) {
                             assert.equal(response.code, "201");
                         });
+
+                    /*utils
+                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
+                        .then(function(response) {
+                            assert.equal(response.code, "201");
+                        });*/
                 })
                 .check(function(api) {
-                    utils.check_fixtures_used(api, [1]);
+                    // utils.check_fixtures_used2([1]);
                 })
                 .run();
         });
@@ -339,15 +348,17 @@ describe("Testing utils Functions", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .check(function(api) {
-                    var endpoint = "identity/"+app.im.user.addr+"/completed";
-                    return utils
+                    // var endpoint = "identities/"+app.im.user.addr+"/completed";
+                    return service.identities.update(app.im.user.addr, { "completed": true });
+
+                    /*utils
                         .service_api_call("identities", "patch", null, { "completed": true }, endpoint, app.im)
                         .then(function(response) {
                             assert.equal(response.code, "200");
-                        });
+                        });*/
                 })
                 .check(function(api) {
-                    utils.check_fixtures_used(api, [2]);
+                    // utils.check_fixtures_used(api, [2]);
                 })
                 .run();
         });
@@ -366,11 +377,11 @@ describe("Testing utils Functions", function() {
                 })
                 .check(function(api) {
                     var expected_log_entry = [
-                        'Request: get http://localhost:8001/api/v1/identity/08212345678/',
+                        'Request: get http://localhost:8001/api/v1/identities/08212345678/',
                         'Payload: null',
                         'Params: null',
                         'Response: {"code":200,'+
-                                    '"request":{"url":"http://localhost:8001/api/v1/identity/08212345678/",'+
+                                    '"request":{"url":"http://localhost:8001/api/v1/identities/08212345678/",'+
                                     '"method":"GET"},'+
                                     '"body":"{\\"count\\":0,\\"next\\":null,\\"previous\\":null,\\"results\\":[]}"}'
                     ].join('\n');
@@ -394,11 +405,11 @@ describe("Testing utils Functions", function() {
                 })
                 .check(function(api) {
                     var expected_log_entry = [
-                        'Request: post http://localhost:8001/api/v1/',
+                        'Request: post http://localhost:8001/api/v1/identities/',
                         'Payload: {"msisdn":"08212345678"}',
                         'Params: null',
                         'Response: {"code":201,'+
-                            '"request":{"url":"http://localhost:8001/api/v1/",'+
+                            '"request":{"url":"http://localhost:8001/api/v1/identities/",'+
                             '"method":"POST",'+
                             '"body":"{\\"msisdn\\":\\"08212345678\\"}"},'+
                             '"body":"{}"}'

@@ -10,7 +10,7 @@ module.exports = function() {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8001/api/v1/identity/08212345678/',
+                'url': 'http://localhost:8001/api/v1/identities/08212345678/',
             },
             'response': {
                 "code": 200,
@@ -31,7 +31,7 @@ module.exports = function() {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8001/api/v1/",
+                'url': "http://localhost:8001/api/v1/identities/",
                 'data':  {
                     "msisdn": "08212345678"
                 }
@@ -46,7 +46,7 @@ module.exports = function() {
         {
             'request': {
                 'method': 'PATCH',
-                'url': 'http://localhost:8001/api/v1/identity/08212345678/completed',
+                'url': 'http://localhost:8001/api/v1/identities/08212345678',
                 'data': {
                     "completed": true
                 }
