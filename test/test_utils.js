@@ -1,4 +1,4 @@
-var Utils = require("../lib");
+
 var assert = require('assert');
 var moment = require('moment');
 var vumigo = require('vumigo_v02');
@@ -15,7 +15,10 @@ var App = vumigo.App;
 App.call(App);
 var $ = App.$;
 
-describe("Testing Utils Functions", function() {
+//var service = require('..');
+var utils = require('../lib/utils');
+
+describe("Testing utils Functions", function() {
 
     var testing_config = {
         "testing_today": "2016-05-23"
@@ -32,14 +35,14 @@ describe("Testing Utils Functions", function() {
         // override normal state adding
         app.add = function(name, creator) {
             app.states.add(name, function(name, opts) {
-                if (!interrupt || !Utils.timed_out(app.im))
+                if (!interrupt || !utils.timed_out(app.im))
                     return creator(name, opts);
 
                 interrupt = false;
                 opts = opts || {};
                 opts.name = name;
 
-                if (Utils.timeout_redirect(app.im)) {
+                if (utils.timeout_redirect(app.im)) {
                     return app.states.create("state_start");
                 } else {
                     return app.states.create("state_timed_out", opts);
@@ -83,7 +86,7 @@ describe("Testing Utils Functions", function() {
             return new FreeText(name, {
                 question: "This is the first state.",
                 next: function(content) {
-                    return Utils
+                    return utils
                         .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
                         .then(function(response) {
                             return "state_two";
@@ -104,7 +107,7 @@ describe("Testing Utils Functions", function() {
             return new FreeText(name, {
                 question: "This is the third state.",
                 next: function(content) {
-                    return Utils
+                    return utils
                         .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
                         .then(function(response) {
                             return "state_end";
@@ -174,7 +177,7 @@ describe("Testing Utils Functions", function() {
                     state: "state_one"
                 })
                 .check(function(api) {
-                    Utils.check_fixtures_used(api, []);
+                    utils.check_fixtures_used(api, []);
                 })
                 .run();
         });
@@ -189,7 +192,7 @@ describe("Testing Utils Functions", function() {
                     state: "state_two"
                 })
                 .check(function(api) {
-                    Utils.check_fixtures_used(api, [0]);
+                    utils.check_fixtures_used(api, [0]);
                 })
                 .run();
         });
@@ -206,7 +209,7 @@ describe("Testing Utils Functions", function() {
                     state: "state_end"
                 })
                 .check(function(api) {
-                    Utils.check_fixtures_used(api, [0,1]);
+                    utils.check_fixtures_used(api, [0,1]);
                 })
                 .run();
         });
@@ -306,14 +309,14 @@ describe("Testing Utils Functions", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .check(function(api) {
-                    return Utils
+                    return utils
                         .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
                         .then(function(response) {
                             assert.equal(response.code, "200");
                         });
                 })
                 .check(function(api) {
-                    Utils.check_fixtures_used(api, [0]);
+                    utils.check_fixtures_used(api, [0]);
                 })
                 .run();
         });
@@ -321,14 +324,14 @@ describe("Testing Utils Functions", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .check(function(api) {
-                    return Utils
+                    return utils
                         .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
                         .then(function(response) {
                             assert.equal(response.code, "201");
                         });
                 })
                 .check(function(api) {
-                    Utils.check_fixtures_used(api, [1]);
+                    utils.check_fixtures_used(api, [1]);
                 })
                 .run();
         });
@@ -337,14 +340,14 @@ describe("Testing Utils Functions", function() {
                 .setup.user.addr('08212345678')
                 .check(function(api) {
                     var endpoint = "identity/"+app.im.user.addr+"/completed";
-                    return Utils
+                    return utils
                         .service_api_call("identities", "patch", null, { "completed": true }, endpoint, app.im)
                         .then(function(response) {
                             assert.equal(response.code, "200");
                         });
                 })
                 .check(function(api) {
-                    Utils.check_fixtures_used(api, [2]);
+                    utils.check_fixtures_used(api, [2]);
                 })
                 .run();
         });
@@ -412,32 +415,32 @@ describe("Testing Utils Functions", function() {
 
     describe("Tests is_valid_msisdn function", function() {
         it("should not validate if passed a number that doesn't start with '0'", function() {
-            assert.equal(Utils.is_valid_msisdn("12345"), false);
+            assert.equal(utils.is_valid_msisdn("12345"), false);
         });
         it("should not validate if number starts with '0' but of incorrect length", function() {
-            assert.equal(Utils.is_valid_msisdn("012345"), false);  // < 10
-            assert.equal(Utils.is_valid_msisdn("01234567890123"), false);  // > 13
+            assert.equal(utils.is_valid_msisdn("012345"), false);  // < 10
+            assert.equal(utils.is_valid_msisdn("01234567890123"), false);  // > 13
         });
         it("validate if number starts with '0' and of correct length", function() {
-            assert(Utils.is_valid_msisdn("01234567890"));
-            assert(Utils.is_valid_msisdn("0123456789012"));
+            assert(utils.is_valid_msisdn("01234567890"));
+            assert(utils.is_valid_msisdn("0123456789012"));
         });
     });
 
     describe("Tests get_today function", function() {
         it("when date passed in, return the same as moment object", function() {
-            assert.deepEqual(Utils.get_today(testing_config).format("YYYY-MM-DD"),
+            assert.deepEqual(utils.get_today(testing_config).format("YYYY-MM-DD"),
                 moment("2016-05-23").format("YYYY-MM-DD"));
         });
         it("no date passed, return current moment object", function() {
-            assert.deepEqual(Utils.get_today(live_config).format("YYYY-MM-DD"),
+            assert.deepEqual(utils.get_today(live_config).format("YYYY-MM-DD"),
                 new moment().format("YYYY-MM-DD"));
         });
     });
 
     describe("Tests get_january function", function() {
         it("get 1st jan moment date of current year", function() {
-            assert.deepEqual(Utils.get_january(testing_config).format("YYYY-MM-DD"),
+            assert.deepEqual(utils.get_january(testing_config).format("YYYY-MM-DD"),
                 moment("2016-01-01").format("YYYY-MM-DD"));
         });
     });
@@ -450,7 +453,7 @@ describe("Testing Utils Functions", function() {
             var increment = 1; // should determine subsequent direction of array elements
 
             // function call
-            var expectedChoiceArray = Utils
+            var expectedChoiceArray = utils
                 .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
 
             // expected results
@@ -469,7 +472,7 @@ describe("Testing Utils Functions", function() {
             var increment = -1; // should determine subsequent direction of array elements
 
             // function call
-            var expectedChoiceArray = Utils
+            var expectedChoiceArray = utils
                 .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
 
             // expected results
@@ -489,7 +492,7 @@ describe("Testing Utils Functions", function() {
             var increment = 1; // should determine subsequent direction of array elements
 
             // function call
-            var expectedChoiceArray = Utils
+            var expectedChoiceArray = utils
                 .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
 
             // expected results
@@ -506,7 +509,7 @@ describe("Testing Utils Functions", function() {
             var increment = -1; // should determine subsequent direction of array elements
 
             // function call
-            var expectedChoiceArray = Utils
+            var expectedChoiceArray = utils
                 .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
 
             // expected results
@@ -522,7 +525,7 @@ describe("Testing Utils Functions", function() {
             var increment = 3; // should determine subsequent direction of array elements
 
             // function call
-            var expectedChoiceArray = Utils
+            var expectedChoiceArray = utils
                 .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
 
             // expected results
@@ -539,14 +542,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .get_identity_by_address({"msisdn": "08212345678"}, app.im)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [3]);
+                        utils.check_fixtures_used(api, [3]);
                     })
                     .run();
             });
@@ -556,7 +559,7 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .get_identity("cb245673-aa41-4302-ac47-00000000001", app.im)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
@@ -564,7 +567,7 @@ describe("Testing Utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [4]);
+                        utils.check_fixtures_used(api, [4]);
                     })
                     .run();
             });
@@ -574,14 +577,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .create_identity(app.im, {"msisdn": "08212345678"}, null, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [5]);
+                        utils.check_fixtures_used(api, [5]);
                     })
                     .run();
             });
@@ -589,14 +592,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .create_identity(app.im, {"msisdn": "08212345678"}, null, "cb245673-aa41-4302-ac47-00000000002")
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [6]);
+                        utils.check_fixtures_used(api, [6]);
                     })
                     .run();
             });
@@ -604,14 +607,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .create_identity(app.im, {"msisdn": "08212345678"}, "cb245673-aa41-4302-ac47-00000000003", null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [7]);
+                        utils.check_fixtures_used(api, [7]);
                     })
                     .run();
             });
@@ -619,14 +622,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .create_identity(app.im, {"msisdn": "08212345678"}, "cb245673-aa41-4302-ac47-00000000003", "cb245673-aa41-4302-ac47-00000000002")
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [8]);
+                        utils.check_fixtures_used(api, [8]);
                     })
                     .run();
             });
@@ -636,14 +639,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .get_or_create_identity({"msisdn": "08212345678"}, app.im, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [3]);
+                        utils.check_fixtures_used(api, [3]);
                     })
                     .run();
             });
@@ -651,14 +654,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08211111111')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .get_or_create_identity({"msisdn": "08211111111"}, app.im, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00011111111");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [9,10]);
+                        utils.check_fixtures_used(api, [9,10]);
                     })
                     .run();
             });
@@ -668,7 +671,7 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .update_identity(app.im, {
                                 "id": "cb245673-aa41-4302-ac47-00000000001",
                                 "details": {
@@ -684,7 +687,7 @@ describe("Testing Utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [11]);
+                        utils.check_fixtures_used(api, [11]);
                     })
                     .run();
             });
@@ -697,7 +700,7 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .get_subscription(app.im, "51fcca25-2e85-4c44-subscription-1112")
                             .then(function(subscription) {
                                 assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1112");
@@ -705,7 +708,7 @@ describe("Testing Utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [15]);
+                        utils.check_fixtures_used(api, [15]);
                     })
                     .run();
             });
@@ -715,7 +718,7 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .get_active_subscriptions_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
                             .then(function(subscriptions) {
                                 assert.equal(subscriptions[0].id, "51fcca25-2e85-4c44-subscription-1111");
@@ -724,7 +727,7 @@ describe("Testing Utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [12]);
+                        utils.check_fixtures_used(api, [12]);
                     })
                     .run();
             });
@@ -734,14 +737,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .get_active_subscription_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
                             .then(function(subscription) {
                                 assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1111");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [12]);
+                        utils.check_fixtures_used(api, [12]);
                     })
                     .run();
             });
@@ -751,14 +754,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .has_active_subscription("cb245673-aa41-4302-ac47-00000000001", app.im)
                             .then(function(subscription) {
                                 assert(subscription);
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [12]);
+                        utils.check_fixtures_used(api, [12]);
                     })
                     .run();
             });
@@ -766,14 +769,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08287654321')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .has_active_subscription("cb245673-aa41-4302-ac47-00000000002", app.im)
                             .then(function(subscription) {
                                 assert.ifError(subscription);
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [13]);
+                        utils.check_fixtures_used(api, [13]);
                     })
                     .run();
             });
@@ -783,7 +786,7 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .update_subscription(app.im, {
                                 'id': "51fcca25-2e85-4c44-subscription-1111",
                                 'identity': 'cb245673-aa41-4302-ac47-00000000001',
@@ -798,7 +801,7 @@ describe("Testing Utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [14]);
+                        utils.check_fixtures_used(api, [14]);
                     })
                     .run();
             });
@@ -811,7 +814,7 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .get_messageset(app.im, 2)
                             .then(function(messageset) {
                                 assert.equal(messageset.id, 2);
@@ -819,7 +822,7 @@ describe("Testing Utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [16]);
+                        utils.check_fixtures_used(api, [16]);
                     })
                     .run();
             });
@@ -832,14 +835,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .save_inbound_message(app.im, "08212345678", "Testing... 1,2,3")
                             .then(function(inbound_id) {
                                 assert.equal(inbound_id, "1");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [17]);
+                        utils.check_fixtures_used(api, [17]);
                     })
                     .run();
             });
@@ -852,7 +855,7 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .optout(app.im,
                                 "cb245673-aa41-4302-ac47-00000000001",
                                 "miscarriage",
@@ -866,7 +869,7 @@ describe("Testing Utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [18]);
+                        utils.check_fixtures_used(api, [18]);
                     })
                     .run();
             });
@@ -879,7 +882,7 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
+                        return utils
                             .create_registration(app.im, {
                                 stage: "prebirth",
                                 mother_id: "cb245673-aa41-4302-ac47-1234567890",
@@ -897,7 +900,7 @@ describe("Testing Utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [19]);
+                        utils.check_fixtures_used(api, [19]);
                     })
                     .run();
             });
