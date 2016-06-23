@@ -126,10 +126,26 @@ describe("Testing Utils Functions", function() {
             .setup.config.app({
                 name: "JS-box-utils-tester",
                 testing_today: "2016-05-23",
+                channel: '2341234',
+                transport_name: 'aggregator_sms',
+                transport_type: 'sms',
+                testing_message_id: '0170b7bb-978e-4b8a-35d2-662af5b6daee',  // testing only
                 services: {
                     identities: {
                         api_token: 'test_token_identities',
                         url: "http://localhost:8001/api/v1/"
+                    },
+                    registrations: {
+                        api_token: 'test_token_registrations',
+                        url: "http://localhost:8002/api/v1/"
+                    },
+                    subscriptions: {
+                        api_token: 'test_token_subscriptions',
+                        url: "http://localhost:8005/api/v1/"
+                    },
+                    message_sender: {
+                        api_token: 'test_token_message_sender',
+                        url: "http://localhost:8006/api/v1/"
                     }
                 },
                 no_timeout_redirects: [
@@ -517,4 +533,374 @@ describe("Testing Utils Functions", function() {
         });
     });
 
+    describe("IDENTITY-specfic util functions", function() {
+        describe("Testing get_identity_by_address function", function() {
+            it("returns corresponding identity to msisdn passed in", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_identity_by_address({"msisdn": "08212345678"}, app.im)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [3]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_identity function", function() {
+            it("returns corresponding identity by identity id passed in", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_identity("cb245673-aa41-4302-ac47-00000000001", app.im)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                                assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "+8212345678");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [4]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing create_identity function", function() {
+            it("returns identity object; no communicate_through or operator_id provided", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_identity(app.im, {"msisdn": "08212345678"}, null, null)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [5]);
+                    })
+                    .run();
+            });
+            it("returns identity object; operator_id provided", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_identity(app.im, {"msisdn": "08212345678"}, null, "cb245673-aa41-4302-ac47-00000000002")
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [6]);
+                    })
+                    .run();
+            });
+            it("returns identity object; communicate_through_id provided", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_identity(app.im, {"msisdn": "08212345678"}, "cb245673-aa41-4302-ac47-00000000003", null)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [7]);
+                    })
+                    .run();
+            });
+            it("returns identity object; communicate_through and operator_id provided", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_identity(app.im, {"msisdn": "08212345678"}, "cb245673-aa41-4302-ac47-00000000003", "cb245673-aa41-4302-ac47-00000000002")
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [8]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_or_create_identity function", function() {
+            it("gets existing identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_or_create_identity({"msisdn": "08212345678"}, app.im, null)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [3]);
+                    })
+                    .run();
+            });
+            it("creates new identity", function() {
+                return tester
+                    .setup.user.addr('08211111111')
+                    .check(function(api) {
+                        return Utils
+                            .get_or_create_identity({"msisdn": "08211111111"}, app.im, null)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00011111111");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [9,10]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing update_identity function", function() {
+            it("return identity id on update of identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .update_identity(app.im, {
+                                "id": "cb245673-aa41-4302-ac47-00000000001",
+                                "details": {
+                                    "addresses": {
+                                        "msisdn": {
+                                            "08212345679": {}
+                                        }
+                                    }
+                                }
+                            })
+                            .then(function(identity_id) {
+                                assert.equal(identity_id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [11]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("SUBSCRIPTION-specfic util functions", function() {
+        describe("Testing get_subscription function", function() {
+            it("returns subscription object", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_subscription(app.im, "51fcca25-2e85-4c44-subscription-1112")
+                            .then(function(subscription) {
+                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1112");
+                                assert.equal(subscription.identity, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [15]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_active_subscriptions_by_identity function", function() {
+            it("returns subscriptions for identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_active_subscriptions_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
+                            .then(function(subscriptions) {
+                                assert.equal(subscriptions[0].id, "51fcca25-2e85-4c44-subscription-1111");
+                                assert.equal(subscriptions[1].id, "51fcca25-2e85-4c44-subscription-1112");
+                                assert.equal(subscriptions.length, "2");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [12]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_active_subscription_by_identity function", function() {
+            it("returns subscription for identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_active_subscription_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
+                            .then(function(subscription) {
+                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1111");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [12]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing has_active_subscription function", function() {
+            it("returns true for active subscription", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .has_active_subscription("cb245673-aa41-4302-ac47-00000000001", app.im)
+                            .then(function(subscription) {
+                                assert(subscription);
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [12]);
+                    })
+                    .run();
+            });
+            it("returns false for no active subscription", function() {
+                return tester
+                    .setup.user.addr('08287654321')
+                    .check(function(api) {
+                        return Utils
+                            .has_active_subscription("cb245673-aa41-4302-ac47-00000000002", app.im)
+                            .then(function(subscription) {
+                                assert.ifError(subscription);
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [13]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing update_subscription function", function() {
+            it("returns same subscription id as passed in", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .update_subscription(app.im, {
+                                'id': "51fcca25-2e85-4c44-subscription-1111",
+                                'identity': 'cb245673-aa41-4302-ac47-00000000001',
+                                'messageset': 1,
+                                'next_sequence_number': 2,
+                                'lang': "ibo_NG",
+                                'active': true,
+                                'completed': true
+                            })
+                            .then(function(subscription_id) {
+                                assert.equal(subscription_id, "51fcca25-2e85-4c44-subscription-1111");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [14]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("MESSAGESET-specfic util functions", function() {
+        describe("Testing get_messageset function", function() {
+            it("returns messageset object", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .get_messageset(app.im, 2)
+                            .then(function(messageset) {
+                                assert.equal(messageset.id, 2);
+                                assert.equal(messageset.next_set, 3);
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [16]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("MESSAGE-SENDER-specfic util functions", function() {
+        describe("Testing save_inbound_message function", function() {
+            it("returns inbound id", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .save_inbound_message(app.im, "08212345678", "Testing... 1,2,3")
+                            .then(function(inbound_id) {
+                                assert.equal(inbound_id, "1");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [17]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("OPTOUT-specfic util functions", function() {
+        describe("Testing optout function", function() {
+            it("returns perform optout", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .optout(app.im,
+                                "cb245673-aa41-4302-ac47-00000000001",
+                                "miscarriage",
+                                null,
+                                "08212345678",
+                                "seed-jsbox-utils",
+                                app.im.config.testing_message_id
+                            )
+                            .then(function(response) {
+                                assert.equal(response.code, "201");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [18]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("REGISTRATION-specfic util functions", function() {
+        describe("Testing create_registration function", function() {
+            it("returns registration id on performing optout", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return Utils
+                            .create_registration(app.im, {
+                                stage: "prebirth",
+                                mother_id: "cb245673-aa41-4302-ac47-1234567890",
+                                data: {
+                                    msg_receiver: "friend_only",
+                                    receiver_id: "cb245673-aa41-4302-ac47-00000000002",
+                                    operator_id: "cb245673-aa41-4302-ac47-00000000007",
+                                    gravida: "3",
+                                    language: "ibo_NG",
+                                    msg_type: "text"
+                                }
+                            })
+                            .then(function(registration_id) {
+                                assert.equal(registration_id, "reg_for_00000000002_uuid");
+                            });
+                    })
+                    .check(function(api) {
+                        Utils.check_fixtures_used(api, [19]);
+                    })
+                    .run();
+            });
+        });
+    });
 });
