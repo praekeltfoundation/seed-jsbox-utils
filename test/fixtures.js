@@ -23,7 +23,7 @@ module.exports = function() {
             }
         },
 
-        // 1: post identity 08212345678
+        // 1: create identity 08212345678
         {
             'request': {
                 'method': 'POST',
@@ -42,22 +42,31 @@ module.exports = function() {
             }
         },
 
-        // 2: patch identity 08212345678
+        // 2: update identity 08212345678
         {
             'request': {
                 'method': 'PATCH',
-                'url': 'http://localhost:8001/api/v1/identities/08212345678',
+                'url': 'http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/',
                 'data': {
-                    "completed": true
+                    "id": "cb245673-aa41-4302-ac47-00000000001",
+                    "details": {
+                        "addresses": {
+                            "msisdn": { "08212345679":{}}
+                        },
+                        "completed":true
+                    }
                 }
             },
             'response': {
                 "code": 200,
                 "data": {
-                    "msisdn": "08212345678",
-                    "completed": true,
-                    "created_at":"2016-05-23T06:13:29.693272Z",
-                    "updated_at":"2016-05-23T06:13:29.693298Z"
+                    "id": "cb245673-aa41-4302-ac47-00000000001",
+                    "details": {
+                        "addresses": {
+                            "msisdn": { "08212345679":{}}
+                        },
+                        "completed":true
+                    }
                 }
             }
         },
@@ -360,7 +369,7 @@ module.exports = function() {
             }
         },
 
-        // 11: patch identity cb245673-aa41-4302-ac47-00000000001
+        // 11: update identity cb245673-aa41-4302-ac47-00000000001
         {
             'request': {
                 'method': 'PATCH',
@@ -410,7 +419,7 @@ module.exports = function() {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8005/api/v1/subscriptions/'
+                'url': 'http://localhost:8003/api/v1/subscriptions/'
             },
             'response': {
                 "code": 200,
@@ -420,7 +429,7 @@ module.exports = function() {
                     "previous": null,
                     "results": [
                         {
-                            'url': 'http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111',
+                            'url': 'http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111',
                             'id': '51fcca25-2e85-4c44-subscription-1111',
                             'version': 1,
                             'identity': 'cb245673-aa41-4302-ac47-00000000001',
@@ -436,7 +445,7 @@ module.exports = function() {
                             'updated_at': "2015-07-10T06:13:29.693272Z"
                         },
                         {
-                            'url': 'http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112',
+                            'url': 'http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112',
                             'id': '51fcca25-2e85-4c44-subscription-1112',
                             'version': 1,
                             'identity': 'cb245673-aa41-4302-ac47-00000000001',
@@ -469,7 +478,7 @@ module.exports = function() {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8005/api/v1/subscriptions/'
+                'url': 'http://localhost:8003/api/v1/subscriptions/'
             },
             'response': {
                 "code": 200,
@@ -482,7 +491,7 @@ module.exports = function() {
             }
         },
 
-        // 14: patch subscription 51fcca25-2e85-4c44-subscription-1111 (completed = true)
+        // 14: update subscription 51fcca25-2e85-4c44-subscription-1111 (completed = true)
         {
             'request': {
                 'method': 'PATCH',
@@ -490,7 +499,7 @@ module.exports = function() {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
+                'url': "http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
                 "data": {
                     "id": "51fcca25-2e85-4c44-subscription-1111",
                     "identity": "cb245673-aa41-4302-ac47-00000000001",
@@ -504,7 +513,7 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "url": "http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
+                    "url": "http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
                     "id": "51fcca25-2e85-4c44-subscription-1111",
                     "version": 1,
                     "identity": "cb245673-aa41-4302-ac47-00000000001",
@@ -532,12 +541,12 @@ module.exports = function() {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/'
+                'url': 'http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/'
             },
             'response': {
                 "code": 200,
                 "data": {
-                    'url': 'http://localhost:8005/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/',
+                    'url': 'http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/',
                     'id': '51fcca25-2e85-4c44-subscription-1112',
                     'version': 1,
                     'identity': 'cb245673-aa41-4302-ac47-00000000001',
@@ -564,7 +573,7 @@ module.exports = function() {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8005/api/v1/messageset/2/'
+                'url': 'http://localhost:8003/api/v1/messageset/2/'
             },
             'response': {
                 'code': 200,
@@ -581,7 +590,7 @@ module.exports = function() {
             }
         },
 
-        // 17: post inbound message
+        // 17: create inbound message
         {
             'request': {
                 'method': 'POST',
@@ -590,7 +599,7 @@ module.exports = function() {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8006/api/v1/inbound/',
+                'url': 'http://localhost:8004/api/v1/inbound/',
                 'data': {
                     "message_id": "0170b7bb-978e-4b8a-35d2-662af5b6daee",
                     "content": "Testing... 1,2,3",
