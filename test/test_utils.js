@@ -312,11 +312,6 @@ describe("Testing utils Functions", function() {
                         .then(function(identity) {
                             assert.equal(identity.id, undefined);
                         });
-                    /*utils
-                        .service_api_call("identities", "get", null, null, "identities/"+app.im.user.addr+"/", app.im)
-                        .then(function(response) {
-                            assert.equal(response.code, "200");
-                        });*/
                 })
                 .check(function(api) {
                     // utils.check_fixtures_used2([0]);
@@ -331,12 +326,6 @@ describe("Testing utils Functions", function() {
                         .then(function(identity) {
                             //assert.equal(identity, "");
                         });
-
-                    /*utils,
-                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
-                        .then(function(response) {
-                            assert.equal(response.code, "201");
-                        });*/
                 })
                 .check(function(api) {
                     // utils.check_fixtures_used2([1]);
