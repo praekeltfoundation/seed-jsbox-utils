@@ -711,21 +711,22 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return utils
-                            .optout(app.im,
-                                "cb245673-aa41-4302-ac47-00000000001",
-                                "miscarriage",
-                                null,
-                                "08212345678",
-                                "seed-jsbox-utils",
-                                app.im.config.testing_message_id
-                            )
+                        var optout_info = {
+                            "optout_type": "stop",
+                            "identity": "cb245673-aa41-4302-ac47-00000000001",
+                            "reason": "miscarriage",
+                            "address_type": "msisdn",
+                            "address": "08212345678",
+                            "request_source": "seed-jsbox-utils",
+                            "requestor_source_id": app.im.config.testing_message_id
+                        };
+                        return service.identities.optout(optout_info)
                             .then(function(response) {
                                 assert.equal(response.code, "201");
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [18]);
+                        // utils.check_fixtures_used(api, [18]);
                     })
                     .run();
             });
@@ -873,15 +874,14 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return utils
-                            .get_messageset(app.im, 2)
+                        return service.subscriptions.get_messageset(2)
                             .then(function(messageset) {
                                 assert.equal(messageset.id, 2);
                                 assert.equal(messageset.next_set, 3);
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [16]);
+                        // utils.check_fixtures_used(api, [16]);
                     })
                     .run();
             });
@@ -894,14 +894,23 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return utils
-                            .save_inbound_message(app.im, "08212345678", "Testing... 1,2,3")
+                        var msg_data = {
+                            "message_id": app.im.config.testing_message_id,
+                            "in_reply_to": null,
+                            "to_addr": app.im.config.channel,
+                            "from_addr": "08212345678",
+                            "content": "Testing... 1,2,3",
+                            "transport_name": app.im.config.transport_name,
+                            "transport_type": app.im.config.transport_type,
+                            "helper_metadata": {}
+                        };
+                        return service.messages.save(msg_data)
                             .then(function(inbound_id) {
                                 assert.equal(inbound_id, "1");
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [17]);
+                        // utils.check_fixtures_used(api, [17]);
                     })
                     .run();
             });
