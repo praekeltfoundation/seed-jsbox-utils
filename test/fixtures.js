@@ -655,7 +655,7 @@ module.exports = function() {
                     'Authorization': ['Token test_key'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8002/api/v1/registration/",
+                'url': "http://localhost:8002/api/v1/registrations/",
                 'data':  {
                     "stage": "prebirth",
                     "mother_id": "cb245673-aa41-4302-ac47-1234567890",
