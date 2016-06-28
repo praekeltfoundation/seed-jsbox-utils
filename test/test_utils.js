@@ -732,8 +732,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return utils
-                            .get_active_subscriptions_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
+                        return service.subscriptions.list_active("cb245673-aa41-4302-ac47-00000000001")
                             .then(function(subscriptions) {
                                 assert.equal(subscriptions[0].id, "51fcca25-2e85-4c44-subscription-1111");
                                 assert.equal(subscriptions[1].id, "51fcca25-2e85-4c44-subscription-1112");
@@ -741,7 +740,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [12]);
+                        // utils.check_fixtures_used(api, [12]);
                     })
                     .run();
             });
@@ -751,14 +750,13 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return utils
-                            .get_active_subscription_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
+                        return service.subscriptions.get_active("cb245673-aa41-4302-ac47-00000000001")
                             .then(function(subscription) {
                                 assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1111");
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [12]);
+                        // utils.check_fixtures_used(api, [12]);
                     })
                     .run();
             });
@@ -768,14 +766,13 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return utils
-                            .has_active_subscription("cb245673-aa41-4302-ac47-00000000001", app.im)
+                        return service.subscriptions.has_active("cb245673-aa41-4302-ac47-00000000001")
                             .then(function(subscription) {
                                 assert(subscription);
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [12]);
+                        // utils.check_fixtures_used(api, [12]);
                     })
                     .run();
             });
@@ -783,14 +780,13 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08287654321')
                     .check(function(api) {
-                        return utils
-                            .has_active_subscription("cb245673-aa41-4302-ac47-00000000002", app.im)
+                        return service.subscriptions.has_active("cb245673-aa41-4302-ac47-00000000002")
                             .then(function(subscription) {
                                 assert.ifError(subscription);
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [13]);
+                        // utils.check_fixtures_used(api, [13]);
                     })
                     .run();
             });
@@ -800,8 +796,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return utils
-                            .update_subscription(app.im, {
+                        return service.subscriptions.update({
                                 'id': "51fcca25-2e85-4c44-subscription-1111",
                                 'identity': 'cb245673-aa41-4302-ac47-00000000001',
                                 'messageset': 1,
@@ -815,7 +810,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [14]);
+                        // utils.check_fixtures_used(api, [14]);
                     })
                     .run();
             });

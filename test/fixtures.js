@@ -409,6 +409,7 @@ module.exports = function() {
 
         // 12: get subscription for identity cb245673-aa41-4302-ac47-00000000001
         {
+            'repeatable' : true,
             'request': {
                 'method': 'GET',
                 'params': {
