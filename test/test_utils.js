@@ -706,6 +706,60 @@ describe("Testing utils Functions", function() {
                     .run();
             });
         });
+        describe("Testing optout function", function() {
+            it("performs optout", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return utils
+                            .optout(app.im,
+                                "cb245673-aa41-4302-ac47-00000000001",
+                                "miscarriage",
+                                null,
+                                "08212345678",
+                                "seed-jsbox-utils",
+                                app.im.config.testing_message_id
+                            )
+                            .then(function(response) {
+                                assert.equal(response.code, "201");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [18]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("REGISTRATION-specfic util functions", function() {
+        describe("Testing create_registration function", function() {
+            it("returns registration id on performing optout", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return service.registrations.create({
+                                stage: "prebirth",
+                                mother_id: "cb245673-aa41-4302-ac47-1234567890",
+                                data: {
+                                    msg_receiver: "friend_only",
+                                    receiver_id: "cb245673-aa41-4302-ac47-00000000002",
+                                    operator_id: "cb245673-aa41-4302-ac47-00000000007",
+                                    gravida: "3",
+                                    language: "ibo_NG",
+                                    msg_type: "text"
+                                }
+                            })
+                            .then(function(registration_id) {
+                                assert.equal(registration_id, "reg_for_00000000002_uuid");
+                            });
+                    })
+                    .check(function(api) {
+                        // utils.check_fixtures_used(api, [19]);
+                    })
+                    .run();
+            });
+        });
     });
 
     describe("SUBSCRIPTION-specfic util functions", function() {
@@ -814,9 +868,6 @@ describe("Testing utils Functions", function() {
                     .run();
             });
         });
-    });
-
-    describe("MESSAGESET-specfic util functions", function() {
         describe("Testing get_messageset function", function() {
             it("returns messageset object", function() {
                 return tester
@@ -857,60 +908,4 @@ describe("Testing utils Functions", function() {
         });
     });
 
-    describe("OPTOUT-specfic util functions", function() {
-        describe("Testing optout function", function() {
-            it("returns perform optout", function() {
-                return tester
-                    .setup.user.addr('08212345678')
-                    .check(function(api) {
-                        return utils
-                            .optout(app.im,
-                                "cb245673-aa41-4302-ac47-00000000001",
-                                "miscarriage",
-                                null,
-                                "08212345678",
-                                "seed-jsbox-utils",
-                                app.im.config.testing_message_id
-                            )
-                            .then(function(response) {
-                                assert.equal(response.code, "201");
-                            });
-                    })
-                    .check(function(api) {
-                        utils.check_fixtures_used(api, [18]);
-                    })
-                    .run();
-            });
-        });
-    });
-
-    describe("REGISTRATION-specfic util functions", function() {
-        describe("Testing create_registration function", function() {
-            it("returns registration id on performing optout", function() {
-                return tester
-                    .setup.user.addr('08212345678')
-                    .check(function(api) {
-                        return service.registrations.create({
-                                stage: "prebirth",
-                                mother_id: "cb245673-aa41-4302-ac47-1234567890",
-                                data: {
-                                    msg_receiver: "friend_only",
-                                    receiver_id: "cb245673-aa41-4302-ac47-00000000002",
-                                    operator_id: "cb245673-aa41-4302-ac47-00000000007",
-                                    gravida: "3",
-                                    language: "ibo_NG",
-                                    msg_type: "text"
-                                }
-                            })
-                            .then(function(registration_id) {
-                                assert.equal(registration_id, "reg_for_00000000002_uuid");
-                            });
-                    })
-                    .check(function(api) {
-                        // utils.check_fixtures_used(api, [19]);
-                    })
-                    .run();
-            });
-        });
-    });
 });
