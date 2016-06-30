@@ -657,7 +657,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.get_or_create({"msisdn": "08212345678"}, null, is)
+                        return is.get_or_create({"msisdn": "08212345678"}, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
@@ -671,7 +671,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08211111111')
                     .check(function(api) {
-                        return is.get_or_create({"msisdn": "08211111111"}, null, is)
+                        return is.get_or_create({"msisdn": "08211111111"}, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00011111111");
                             });
