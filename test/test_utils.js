@@ -31,9 +31,11 @@ describe("Testing utils Functions", function() {
 
     var IdentityStore = service.IdentityStore;
     var Hub = service.Hub;
+    var StageBasedMessaging = service.StageBasedMessaging;
 
     var is;
     var hub;
+    var sbm;
 
     var conf = require("../lib/conf");
 
@@ -50,6 +52,10 @@ describe("Testing utils Functions", function() {
             base_url = conf.hub.prefix;
             auth_token = conf.hub.token;
             hub = new Hub(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = conf.staged_based_messaging.prefix;
+            auth_token = conf.staged_based_messaging.token;
+            sbm = new StageBasedMessaging(new JsonApi(app.im, null), auth_token, base_url);
         };
 
         // override normal state adding
@@ -779,7 +785,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return service.subscriptions.get("51fcca25-2e85-4c44-subscription-1112")
+                        return sbm.get_subscription("51fcca25-2e85-4c44-subscription-1112")
                             .then(function(subscription) {
                                 assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1112");
                                 assert.equal(subscription.identity, "cb245673-aa41-4302-ac47-00000000001");
@@ -796,7 +802,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return service.subscriptions.list_active("cb245673-aa41-4302-ac47-00000000001")
+                        return sbm.list_active_subscriptions("cb245673-aa41-4302-ac47-00000000001")
                             .then(function(subscriptions) {
                                 assert.equal(subscriptions[0].id, "51fcca25-2e85-4c44-subscription-1111");
                                 assert.equal(subscriptions[1].id, "51fcca25-2e85-4c44-subscription-1112");
@@ -814,7 +820,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return service.subscriptions.get_active("cb245673-aa41-4302-ac47-00000000001")
+                        return sbm.get_active_subscription("cb245673-aa41-4302-ac47-00000000001")
                             .then(function(subscription) {
                                 assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1111");
                             });
@@ -830,7 +836,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return service.subscriptions.has_active("cb245673-aa41-4302-ac47-00000000001")
+                        return sbm.has_active_subscription("cb245673-aa41-4302-ac47-00000000001")
                             .then(function(subscription) {
                                 assert(subscription);
                             });
@@ -844,7 +850,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08287654321')
                     .check(function(api) {
-                        return service.subscriptions.has_active("cb245673-aa41-4302-ac47-00000000002")
+                        return sbm.has_active_subscription("cb245673-aa41-4302-ac47-00000000002")
                             .then(function(subscription) {
                                 assert.ifError(subscription);
                             });
@@ -860,7 +866,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return service.subscriptions.update({
+                        return sbm.update_subscription({
                                 'id': "51fcca25-2e85-4c44-subscription-1111",
                                 'identity': 'cb245673-aa41-4302-ac47-00000000001',
                                 'messageset': 1,
@@ -884,7 +890,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return service.subscriptions.get_messageset(2)
+                        return sbm.get_messageset(2)
                             .then(function(messageset) {
                                 assert.equal(messageset.id, 2);
                                 assert.equal(messageset.next_set, 3);
