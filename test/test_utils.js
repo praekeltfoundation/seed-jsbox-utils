@@ -28,11 +28,14 @@ describe("Testing utils Functions", function() {
     var app;
     var tester;
 
-    var base_url = require("../lib/conf").identities.prefix;
-    var auth_token = require("../lib/conf").identities.token;
+
     var IdentityStore = service.IdentityStore;
+    var Hub = service.Hub;
 
     var is;
+    var hub;
+
+    var conf = require("../lib/conf");
 
     beforeEach(function() {
         app = new App("state_start");
@@ -40,7 +43,13 @@ describe("Testing utils Functions", function() {
         var interrupt = true;
 
         app.init = function(){
+            var base_url = conf.identities.prefix;
+            var auth_token = conf.identities.token;
             is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = conf.hub.prefix;
+            auth_token = conf.hub.token;
+            hub = new Hub(new JsonApi(app.im, null), auth_token, base_url);
         };
 
         // override normal state adding
@@ -740,7 +749,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return service.registrations.create_registration({
+                        return hub.create_registration({
                                 stage: "prebirth",
                                 mother_id: "cb245673-aa41-4302-ac47-1234567890",
                                 data: {
