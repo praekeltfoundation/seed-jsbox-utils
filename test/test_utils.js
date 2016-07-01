@@ -32,10 +32,12 @@ describe("Testing utils Functions", function() {
     var IdentityStore = service.IdentityStore;
     var Hub = service.Hub;
     var StageBasedMessaging = service.StageBasedMessaging;
+    var MessageSender = service.MessageSender;
 
     var is;
     var hub;
     var sbm;
+    var ms;
 
     var conf = require("../lib/conf");
 
@@ -45,8 +47,8 @@ describe("Testing utils Functions", function() {
         var interrupt = true;
 
         app.init = function(){
-            var base_url = conf.identities.prefix;
-            var auth_token = conf.identities.token;
+            var base_url = conf.identity_store.prefix;
+            var auth_token = conf.identity_store.token;
             is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
 
             base_url = conf.hub.prefix;
@@ -56,6 +58,10 @@ describe("Testing utils Functions", function() {
             base_url = conf.staged_based_messaging.prefix;
             auth_token = conf.staged_based_messaging.token;
             sbm = new StageBasedMessaging(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = conf.message_sender.prefix;
+            auth_token = conf.message_sender.token;
+            ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
         };
 
         // override normal state adding
@@ -792,7 +798,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, []);
+                        utils.check_fixtures_used(api, [15]);  // how come this works?!
                     })
                     .run();
             });
@@ -920,7 +926,7 @@ describe("Testing utils Functions", function() {
                             "transport_type": app.im.config.transport_type,
                             "helper_metadata": {}
                         };
-                        return service.messages.save(msg_data)
+                        return ms.save_inbound_message(msg_data)
                             .then(function(inbound_id) {
                                 assert.equal(inbound_id, "1");
                             });
