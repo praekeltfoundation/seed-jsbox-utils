@@ -1,48 +1,7 @@
 module.exports = function() {
     return [
 
-        // 0: get identity 08212345678 by msisdn - no results
-        {
-            'repeatable': true,
-            'request': {
-                'method': 'GET',
-                'headers': {
-                    'Authorization': ['Token test_key'],
-                    'Content-Type': ['application/json']
-                },
-                'url': 'http://localhost:8001/api/v1/identities/08212345678/',
-            },
-            'response': {
-                "code": 200,
-                "data": {
-                    "count": 0,
-                    "next": null,
-                    "previous": null,
-                    "results": []
-                }
-            }
-        },
-
-        // 1: create identity 08212345678
-        {
-            'request': {
-                'method': 'POST',
-                'headers': {
-                    'Authorization': ['Token test_key'],
-                    'Content-Type': ['application/json']
-                },
-                'url': "http://localhost:8001/api/v1/identities/",
-                'data':  {
-                    "msisdn": "08212345678"
-                }
-            },
-            'response': {
-                "code": 201,
-                "data": {}
-            }
-        },
-
-        // 2: update identity 08212345678
+        // 0: update identity 08212345678
         {
             'request': {
                 'method': 'PATCH',
@@ -71,7 +30,7 @@ module.exports = function() {
             }
         },
 
-        // 3: get identity 08212345678 by msisdn
+        // 1: get identity 08212345678 by msisdn
         {
             'repeatable': true,
             'request': {
@@ -110,7 +69,7 @@ module.exports = function() {
             }
         },
 
-        // 4: get identity cb245673-aa41-4302-ac47-00000000001
+        // 2: get identity cb245673-aa41-4302-ac47-00000000001
         {
             'repeatable': true,
             'request': {
@@ -142,7 +101,7 @@ module.exports = function() {
             }
         },
 
-        // 5: create identity 08212345678
+        // 3: create identity 08212345678
         {
             'request': {
                 'method': 'POST',
@@ -182,7 +141,7 @@ module.exports = function() {
             }
         },
 
-        // 6: create identity 08212345678; operater_id provided
+        // 4: create identity 08212345678; operater_id provided
         {
             'request': {
                 'method': 'POST',
@@ -224,7 +183,7 @@ module.exports = function() {
             }
         },
 
-        // 7: create identity 08212345678; communicate_through provided
+        // 5: create identity 08212345678; communicate_through provided
         {
             'request': {
                 'method': 'POST',
@@ -266,7 +225,7 @@ module.exports = function() {
             }
         },
 
-        // 8: create identity 08212345678; communicate_through & operator_id provided
+        // 6: create identity 08212345678; communicate_through & operator_id provided
         {
             'request': {
                 'method': 'POST',
@@ -304,7 +263,7 @@ module.exports = function() {
             }
         },
 
-        // 9: get identity 08211111111 by msisdn
+        // 7: get identity 08211111111 by msisdn
         {
             'repeatable': true,
             'request': {
@@ -329,7 +288,7 @@ module.exports = function() {
             }
         },
 
-        // 10: create identity 08211111111
+        // 8: create identity 08211111111
         {
             'request': {
                 'method': 'POST',
@@ -369,7 +328,7 @@ module.exports = function() {
             }
         },
 
-        // 11: update identity cb245673-aa41-4302-ac47-00000000001
+        // 9: update identity cb245673-aa41-4302-ac47-00000000001
         {
             'request': {
                 'method': 'PATCH',
@@ -407,7 +366,7 @@ module.exports = function() {
             }
         },
 
-        // 12: get subscription for identity cb245673-aa41-4302-ac47-00000000001
+        // 10: get subscription for identity cb245673-aa41-4302-ac47-00000000001
         {
             'repeatable' : true,
             'request': {
@@ -467,7 +426,7 @@ module.exports = function() {
             }
         },
 
-        // 13: get subscription for identity cb245673-aa41-4302-ac47-00000000002
+        // 11: get subscription for identity cb245673-aa41-4302-ac47-00000000002
         {
             'request': {
                 'method': 'GET',
@@ -492,7 +451,7 @@ module.exports = function() {
             }
         },
 
-        // 14: update subscription 51fcca25-2e85-4c44-subscription-1111 (completed = true)
+        // 12: update subscription 51fcca25-2e85-4c44-subscription-1111 (completed = true)
         {
             'request': {
                 'method': 'PATCH',
@@ -534,7 +493,7 @@ module.exports = function() {
             }
         },
 
-        // 15: get subscription for identity cb245673-aa41-4302-ac47-00000000002
+        // 13: get subscription for identity cb245673-aa41-4302-ac47-00000000002
         {
             'request': {
                 'method': 'GET',
@@ -565,7 +524,7 @@ module.exports = function() {
             }
         },
 
-        // 16: get messageset 2
+        // 14: get messageset 2
         {
             'request': {
                 'method': 'GET',
@@ -591,7 +550,7 @@ module.exports = function() {
             }
         },
 
-        // 17: create inbound message
+        // 15: create inbound message
         {
             'request': {
                 'method': 'POST',
@@ -620,7 +579,7 @@ module.exports = function() {
             }
         },
 
-        // 18: Optout - miscarriage
+        // 16: Optout - miscarriage
         {
             'request': {
                 'method': 'POST',
@@ -647,7 +606,7 @@ module.exports = function() {
             }
         },
 
-        // 19: create registration cb245673-aa41-4302-ac47-00000000002 - friend_only / family_member - sms
+        // 17: create registration cb245673-aa41-4302-ac47-00000000002 - friend_only / family_member - sms
         {
             'request': {
                 'method': 'POST',
