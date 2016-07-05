@@ -28,7 +28,7 @@ describe("Testing utils Functions", function() {
     var app;
     var tester;
 
-
+    // initialising services
     var IdentityStore = service.IdentityStore;
     var Hub = service.Hub;
     var StageBasedMessaging = service.StageBasedMessaging;
