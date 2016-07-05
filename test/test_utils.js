@@ -118,7 +118,7 @@ describe("Testing utils Functions", function() {
             return new FreeText(name, {
                 question: "This is the first state.",
                 next: function(content) {
-                    return is.get("cb245673-aa41-4302-ac47-00000000001")
+                    return is.get_identity("cb245673-aa41-4302-ac47-00000000001")
                         .then(function(response) {
                             return "state_two";
                         });
@@ -138,7 +138,7 @@ describe("Testing utils Functions", function() {
             return new FreeText(name, {
                 question: "This is the third state.",
                 next: function(content) {
-                    return is.create({ "msisdn": app.im.user.addr })
+                    return is.create_identity({ "msisdn": app.im.user.addr })
                         .then(function(response) {
                             return "state_end";
                         });
@@ -523,7 +523,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.search({"msisdn": "08212345678"})
+                        return is.search_by_address({"msisdn": "08212345678"})
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
@@ -539,7 +539,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.get("cb245673-aa41-4302-ac47-00000000001", app.im)
+                        return is.get_identity("cb245673-aa41-4302-ac47-00000000001", app.im)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                                 assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "+8212345678");
@@ -556,7 +556,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.create({"msisdn": "08212345678"}, null)
+                        return is.create_identity({"msisdn": "08212345678"}, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
@@ -570,7 +570,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.create({"msisdn": "08212345678"},
+                        return is.create_identity({"msisdn": "08212345678"},
                             {"operator_id": "cb245673-aa41-4302-ac47-00000000002"})
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
@@ -586,7 +586,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.create({"msisdn": "08212345678"},
+                        return is.create_identity({"msisdn": "08212345678"},
                             {"communicate_through_id": "cb245673-aa41-4302-ac47-00000000003"})
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
@@ -602,7 +602,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.create({"msisdn": "08212345678"},
+                        return is.create_identity({"msisdn": "08212345678"},
                                 {"operator_id": "cb245673-aa41-4302-ac47-00000000002",
                                 "communicate_through_id": "cb245673-aa41-4302-ac47-00000000003"})
                             .then(function(identity) {
@@ -622,7 +622,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.get_or_create({"msisdn": "08212345678"}, null)
+                        return is.get_or_create_identity({"msisdn": "08212345678"}, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
@@ -636,7 +636,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08211111111')
                     .check(function(api) {
-                        return is.get_or_create({"msisdn": "08211111111"}, null)
+                        return is.get_or_create_identity({"msisdn": "08211111111"}, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00011111111");
                             });
@@ -652,7 +652,7 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.update("cb245673-aa41-4302-ac47-00000000001", {
+                        return is.update_identity("cb245673-aa41-4302-ac47-00000000001", {
                                 "id": "cb245673-aa41-4302-ac47-00000000001",
                                 "details": {
                                     "addresses": {
