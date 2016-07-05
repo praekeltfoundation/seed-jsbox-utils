@@ -347,7 +347,7 @@ describe("Testing utils Functions", function() {
                         });
                 })
                 .check(function(api) {
-                    // utils.check_fixtures_used2([0]);
+                    utils.check_fixtures_used(api, [0]);
                 })
                 .run();
         });
@@ -357,11 +357,11 @@ describe("Testing utils Functions", function() {
                 .check(function(api) {
                     return is.create({ "msisdn": app.im.user.addr })
                         .then(function(identity) {
-                            //assert.equal(identity, "");
+                            assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                         });
                 })
                 .check(function(api) {
-                    // utils.check_fixtures_used2([1]);
+                    utils.check_fixtures_used(api, [5]);
                 })
                 .run();
         });
@@ -384,7 +384,7 @@ describe("Testing utils Functions", function() {
                         });
                 })
                 .check(function(api) {
-                    // utils.check_fixtures_used(api, [2]);
+                    utils.check_fixtures_used(api, [2]);
                 })
                 .run();
         });
@@ -585,7 +585,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [3]);
+                        utils.check_fixtures_used(api, [3]);
                     })
                     .run();
             });
@@ -602,7 +602,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [4]);
+                        utils.check_fixtures_used(api, [4]);
                     })
                     .run();
             });
@@ -618,7 +618,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [5]);
+                        utils.check_fixtures_used(api, [5]);
                     })
                     .run();
             });
@@ -634,7 +634,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [6]);
+                        utils.check_fixtures_used(api, [6]);
                     })
                     .run();
             });
@@ -650,7 +650,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [7]);
+                        utils.check_fixtures_used(api, [7]);
                     })
                     .run();
             });
@@ -668,7 +668,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [8]);
+                        utils.check_fixtures_used(api, [8]);
                     })
                     .run();
             });
@@ -684,7 +684,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [3]);
+                        utils.check_fixtures_used(api, [3]);
                     })
                     .run();
             });
@@ -698,7 +698,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [9,10]);
+                        utils.check_fixtures_used(api, [9,10]);
                     })
                     .run();
             });
@@ -723,7 +723,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [11]);
+                        utils.check_fixtures_used(api, [11]);
                     })
                     .run();
             });
@@ -748,7 +748,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [18]);
+                        utils.check_fixtures_used(api, [18]);
                     })
                     .run();
             });
@@ -778,7 +778,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [19]);
+                        utils.check_fixtures_used(api, [19]);
                     })
                     .run();
             });
@@ -798,7 +798,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [15]);  // how come this works?!
+                        utils.check_fixtures_used(api, [15]);
                     })
                     .run();
             });
@@ -816,7 +816,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [12]);
+                        utils.check_fixtures_used(api, [12]);
                     })
                     .run();
             });
@@ -832,7 +832,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [12]);
+                        utils.check_fixtures_used(api, [12]);
                     })
                     .run();
             });
@@ -848,7 +848,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [12]);
+                        utils.check_fixtures_used(api, [12]);
                     })
                     .run();
             });
@@ -862,7 +862,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [13]);
+                        utils.check_fixtures_used(api, [13]);
                     })
                     .run();
             });
@@ -886,7 +886,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [14]);
+                        utils.check_fixtures_used(api, [14]);
                     })
                     .run();
             });
@@ -903,7 +903,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [16]);
+                        utils.check_fixtures_used(api, [16]);
                     })
                     .run();
             });
@@ -932,7 +932,7 @@ describe("Testing utils Functions", function() {
                             });
                     })
                     .check(function(api) {
-                        // utils.check_fixtures_used(api, [17]);
+                        utils.check_fixtures_used(api, [17]);
                     })
                     .run();
             });
