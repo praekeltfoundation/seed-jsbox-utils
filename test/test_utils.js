@@ -774,9 +774,9 @@ describe("Testing utils Functions", function() {
                     .check(function(api) {
                         return sbm.list_active_subscriptions("cb245673-aa41-4302-ac47-00000000001")
                             .then(function(subscriptions) {
-                                assert.equal(subscriptions[0].id, "51fcca25-2e85-4c44-subscription-1111");
-                                assert.equal(subscriptions[1].id, "51fcca25-2e85-4c44-subscription-1112");
-                                assert.equal(subscriptions.length, "2");
+                                assert.equal(subscriptions.results[0].id, "51fcca25-2e85-4c44-subscription-1111");
+                                assert.equal(subscriptions.results[1].id, "51fcca25-2e85-4c44-subscription-1112");
+                                assert.equal(subscriptions.results.length, "2");
                             });
                     })
                     .check(function(api) {
@@ -845,8 +845,8 @@ describe("Testing utils Functions", function() {
                                 'active': true,
                                 'completed': true
                             })
-                            .then(function(subscription_id) {
-                                assert.equal(subscription_id, "51fcca25-2e85-4c44-subscription-1111");
+                            .then(function(subscription) {
+                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1111");
                             });
                     })
                     .check(function(api) {
