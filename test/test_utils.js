@@ -891,8 +891,8 @@ describe("Testing utils Functions", function() {
                             "helper_metadata": {}
                         };
                         return ms.save_inbound_message(msg_data)
-                            .then(function(inbound_id) {
-                                assert.equal(inbound_id, "1");
+                            .then(function(inbound_message) {
+                                assert.equal(inbound_message.id, "1");
                             });
                     })
                     .check(function(api) {
