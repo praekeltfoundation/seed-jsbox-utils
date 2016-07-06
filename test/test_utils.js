@@ -47,6 +47,7 @@ describe("Testing utils Functions", function() {
         var interrupt = true;
 
         app.init = function(){
+            // initialising services
             var base_url = conf.identity_store.prefix;
             var auth_token = conf.identity_store.token;
             is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
@@ -163,24 +164,7 @@ describe("Testing utils Functions", function() {
                 transport_name: 'aggregator_sms',
                 transport_type: 'sms',
                 testing_message_id: '0170b7bb-978e-4b8a-35d2-662af5b6daee',  // testing only
-                services: {
-                    identities: {
-                        api_token: 'test_token_identities',
-                        url: "http://localhost:8001/api/v1/"
-                    },
-                    registrations: {
-                        api_token: 'test_token_registrations',
-                        url: "http://localhost:8002/api/v1/"
-                    },
-                    subscriptions: {
-                        api_token: 'test_token_subscriptions',
-                        url: "http://localhost:8003/api/v1/"
-                    },
-                    message_sender: {
-                        api_token: 'test_token_message_sender',
-                        url: "http://localhost:8004/api/v1/"
-                    }
-                },
+                logging: null,  // 'test' outputs to console.log, 'production' to im.log
                 no_timeout_redirects: [
                     'state_start',
                     'state_two',
@@ -524,7 +508,12 @@ describe("Testing utils Functions", function() {
                     .setup.user.addr('08212345678')
                     .check(function(api) {
                         return is.search_by_address({"msisdn": "08212345678"})
-                            .then(function(identity) {
+                            .then(function(identities_found) {
+                                // get the first identity in the list of identities
+                                var identity = (identities_found.results.length > 0)
+                                    ? identities_found.results[0]
+                                    : null;
+
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
@@ -662,8 +651,8 @@ describe("Testing utils Functions", function() {
                                     }
                                 }
                             })
-                            .then(function(identity_id) {
-                                assert.equal(identity_id, "cb245673-aa41-4302-ac47-00000000001");
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
@@ -694,6 +683,37 @@ describe("Testing utils Functions", function() {
                     .check(function(api) {
                         utils.check_fixtures_used(api, [16]);
                     })
+                    // uncomment when wanting to test logging in 'prod' log mode
+                    /*.check(function(api) {
+                        var expected_log_entry = [
+                            'Request: POST http://localhost:8001/api/v1/optout/',
+                            'Payload: {"optout_type":"stop",'+
+                                    '"identity":"cb245673-aa41-4302-ac47-00000000001",'+
+                                    '"reason":"miscarriage",'+
+                                    '"address_type":"msisdn",'+
+                                    '"address":"08212345678",'+
+                                    '"request_source":"seed-jsbox-utils",'+
+                                    '"requestor_source_id":"0170b7bb-978e-4b8a-35d2-662af5b6daee"}',
+                            'Params: null',
+                            'Response: {"code":201,'+
+                                    '"request":{"url":"http://localhost:8001/api/v1/optout/",'+
+                                    '"method":"POST",'+
+                                    '"body":'+
+                                        '"{\\"optout_type\\":\\"stop\\",'+
+                                        '\\"identity\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
+                                        '\\"reason\\":\\"miscarriage\\",'+
+                                        '\\"address_type\\":\\"msisdn\\",'+
+                                        '\\"address\\":\\"08212345678\\",'+
+                                        '\\"request_source\\":\\"seed-jsbox-utils\\",'+
+                                        '\\"requestor_source_id\\":\\"0170b7bb-978e-4b8a-35d2-662af5b6daee\\"}"},'+
+                                            '"body":"{\\"id\\":1}"}'
+                        ].join('\n');
+
+                        var log_string_array = api.log.store["20"];
+                        var last_entry_index = log_string_array.length;
+
+                        assert.equal(log_string_array[last_entry_index-1], expected_log_entry);
+                    })*/
                     .run();
             });
         });
