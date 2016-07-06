@@ -502,7 +502,7 @@ describe("Testing utils Functions", function() {
     });
 
     describe("IDENTITY-specfic util functions", function() {
-        describe("Testing get_identity_by_address function", function() {
+        describe("Testing search_by_address function", function() {
             it("returns corresponding identity to msisdn passed in", function() {
                 return tester
                     .setup.user.addr('08212345678')
@@ -721,7 +721,7 @@ describe("Testing utils Functions", function() {
 
     describe("REGISTRATION-specfic util functions", function() {
         describe("Testing create_registration function", function() {
-            it("returns registration id on performing optout", function() {
+            it("returns registration data on performing optout", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
@@ -737,8 +737,8 @@ describe("Testing utils Functions", function() {
                                     msg_type: "text"
                                 }
                             })
-                            .then(function(registration_id) {
-                                assert.equal(registration_id, "reg_for_00000000002_uuid");
+                            .then(function(registration) {
+                                assert.equal(registration.id, "reg_for_00000000002_uuid");
                             });
                     })
                     .check(function(api) {
@@ -785,7 +785,7 @@ describe("Testing utils Functions", function() {
                     .run();
             });
         });
-        describe("Testing get_active_subscription_by_identity function", function() {
+        describe("Testing get_active_subscription by identity function", function() {
             it("returns subscription for identity", function() {
                 return tester
                     .setup.user.addr('08212345678')
