@@ -162,7 +162,7 @@ describe("Testing utils Functions", function() {
                 transport_name: 'aggregator_sms',
                 transport_type: 'sms',
                 testing_message_id: '0170b7bb-978e-4b8a-35d2-662af5b6daee',  // testing only
-                logging: null,  // 'test' outputs to console.log, 'production' to im.log
+                logging: 'off', //'off' is default; 'test' outputs to console.log, 'prod' to im.log
                 services: {
                     identity_store: {
                         prefix: 'http://localhost:8001/api/v1/',
