@@ -39,8 +39,6 @@ describe("Testing utils Functions", function() {
     var sbm;
     var ms;
 
-    var conf = require("../lib/conf");
-
     beforeEach(function() {
         app = new App("state_start");
 
@@ -48,20 +46,20 @@ describe("Testing utils Functions", function() {
 
         app.init = function(){
             // initialising services
-            var base_url = conf.identity_store.prefix;
-            var auth_token = conf.identity_store.token;
+            var base_url = app.im.config.services.identity_store.prefix;
+            var auth_token = app.im.config.services.identity_store.token;
             is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = conf.hub.prefix;
-            auth_token = conf.hub.token;
+            base_url = app.im.config.services.hub.prefix;
+            auth_token = app.im.config.services.hub.token;
             hub = new Hub(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = conf.staged_based_messaging.prefix;
-            auth_token = conf.staged_based_messaging.token;
+            base_url = app.im.config.services.staged_based_messaging.prefix;
+            auth_token = app.im.config.services.staged_based_messaging.token;
             sbm = new StageBasedMessaging(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = conf.message_sender.prefix;
-            auth_token = conf.message_sender.token;
+            base_url = app.im.config.services.message_sender.prefix;
+            auth_token = app.im.config.services.message_sender.token;
             ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
         };
 
@@ -165,6 +163,24 @@ describe("Testing utils Functions", function() {
                 transport_type: 'sms',
                 testing_message_id: '0170b7bb-978e-4b8a-35d2-662af5b6daee',  // testing only
                 logging: null,  // 'test' outputs to console.log, 'production' to im.log
+                services: {
+                    identity_store: {
+                        prefix: 'http://localhost:8001/api/v1/',
+                        token: 'test IdentityStore'
+                    },
+                    hub: {
+                        prefix: 'http://localhost:8002/api/v1/',
+                        token: 'test Hub'
+                    },
+                    staged_based_messaging: {
+                        prefix: 'http://localhost:8003/api/v1/',
+                        token: 'test Staged-based Messaging'
+                    },
+                    message_sender: {
+                        prefix: 'http://localhost:8004/api/v1/',
+                        token: 'test Message-sender'
+                    }
+                },
                 no_timeout_redirects: [
                     'state_start',
                     'state_two',
