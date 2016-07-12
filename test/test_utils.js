@@ -19,6 +19,9 @@ var service = require('../lib');
 var utils = require('../lib/utils');
 
 describe("Testing utils functions", function() {
+    var testing_config = {
+        "testing_today": "2016-05-23"
+    };
 
     describe("check_valid_number", function() {
         it("only numbers is valid", function() {
@@ -67,7 +70,7 @@ describe("Testing utils functions", function() {
         it("return raw number unchanged if shortcode", function() {
             assert.deepEqual(utils.normalize_msisdn("0123", "123"), "0123");
         });
-        it.skip("remove chars that are not numbers or + from raw nuumber", function() {
+        it.skip("remove chars that are not numbers or + from raw number", function() {
             assert.deepEqual(utils.normalize_msisdn("012abc345", "123"), "+12312345");
         });
         it("starts with '00'; replace with '+', don't prepend country_code", function() {
@@ -338,12 +341,9 @@ describe("Testing utils functions", function() {
             assert.equal(expectedChoiceArray[2].value, "201507");
         });
     });
+});
 
-    var testing_config = {
-        "testing_today": "2016-05-23"
-    };
-    // var live_config = {};
-
+describe("Testing app- and service call functions", function() {
     var app;
     var tester;
 
@@ -485,19 +485,19 @@ describe("Testing utils functions", function() {
                 logging: 'off',  // 'off' is default; 'test' outputs to console.log, 'prod' to im.log
                 services: {
                     identity_store: {
-                        prefix: 'http://localhost:8001/api/v1/',
+                        prefix: 'http://is.localhost:8001/api/v1/',
                         token: 'test IdentityStore'
                     },
                     hub: {
-                        prefix: 'http://localhost:8002/api/v1/',
+                        prefix: 'http://hub.localhost:8002/api/v1/',
                         token: 'test Hub'
                     },
                     staged_based_messaging: {
-                        prefix: 'http://localhost:8003/api/v1/',
+                        prefix: 'http://sbm.localhost:8003/api/v1/',
                         token: 'test Staged-based Messaging'
                     },
                     message_sender: {
-                        prefix: 'http://localhost:8004/api/v1/',
+                        prefix: 'http://ms.localhost:8004/api/v1/',
                         token: 'test Message-sender'
                     }
                 },
@@ -655,7 +655,7 @@ describe("Testing utils functions", function() {
         });
     });
 
-    describe("log_service_call function", function() {
+    describe("log_service_call function (IdentityStore's)", function() {
         it("logging of http GET request", function() {
             return tester
                 .setup.user.addr('08212345678')
@@ -669,14 +669,14 @@ describe("Testing utils functions", function() {
                 })
                 .check(function(api) {
                     var expected_log_entry = [
-                        'Request: GET http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/',
+                        'Request: GET http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/',
                         'Payload: null',
                         'Params: null',
                         'Response: {"code":200,'+
-                                    '"request":{"url":"http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",'+
+                                    '"request":{"url":"http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",'+
                                     '"method":"GET"},'+
                                     '"body":"{'+
-                                        '\\"url\\":\\"http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
+                                        '\\"url\\":\\"http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
                                         '\\"id\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
                                         '\\"version\\":1,'+
                                         '\\"details\\":{'+
@@ -710,11 +710,11 @@ describe("Testing utils functions", function() {
                 })
                 .check(function(api) {
                     var expected_log_entry = [
-                        'Request: POST http://localhost:8001/api/v1/identities/',
+                        'Request: POST http://is.localhost:8001/api/v1/identities/',
                         'Payload: {"details":{"default_addr_type":"msisdn","addresses":{"msisdn":{"08212345678":{}}}}}',
                         'Params: null',
                         'Response: {"code":201,'+
-                            '"request":{"url":"http://localhost:8001/api/v1/identities/",'+
+                            '"request":{"url":"http://is.localhost:8001/api/v1/identities/",'+
                             '"method":"POST",'+
                             '"body":'+
                             '"{\\"details\\":{'+
@@ -724,7 +724,7 @@ describe("Testing utils functions", function() {
                                     '\\"msisdn\\":{'+
                                         '\\"08212345678\\":{}}}}}"},'+
                             '"body":'+
-                                '"{\\"url\\":\\"http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
+                                '"{\\"url\\":\\"http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
                                 '\\"id\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
                                 '\\"version\\":1,'+
                                 '\\"details\\":'+
@@ -750,7 +750,7 @@ describe("Testing utils functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.search_by_address({"msisdn": "08212345678"})
+                        return is.list_by_address({"msisdn": "08212345678"})
                             .then(function(identities_found) {
                                 // get the first identity in the list of identities
                                 var identity = identities_found.results[0];

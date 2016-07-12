@@ -5,7 +5,7 @@ module.exports = function() {
         {
             'request': {
                 'method': 'PATCH',
-                'url': 'http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/',
+                'url': 'http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/',
                 'data': {
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "details": {
@@ -39,10 +39,10 @@ module.exports = function() {
                     'details__addresses__msisdn': '08212345678'
                 },
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8001/api/v1/identities/search/',
+                'url': 'http://is.localhost:8001/api/v1/identities/search/',
             },
             'response': {
                 "code": 200,
@@ -51,7 +51,7 @@ module.exports = function() {
                     "next": null,
                     "previous": null,
                     "results": [{
-                        "url": "http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                        "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
                         "id": "cb245673-aa41-4302-ac47-00000000001",
                         "version": 1,
                         "details": {
@@ -76,15 +76,15 @@ module.exports = function() {
                 'method': 'GET',
                 'params': {},
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/',
+                'url': 'http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/',
             },
             'response': {
                 "code": 200,
                 "data": {
-                    "url": "http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                    "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "version": 1,
                     "details": {
@@ -106,10 +106,10 @@ module.exports = function() {
             'request': {
                 'method': 'POST',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8001/api/v1/identities/",
+                'url': "http://is.localhost:8001/api/v1/identities/",
                 'data':  {
                     "details": {
                         "default_addr_type": "msisdn",
@@ -124,7 +124,7 @@ module.exports = function() {
             'response': {
                 "code": 201,
                 "data": {
-                    "url": "http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                    "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "version": 1,
                     "details": {
@@ -146,10 +146,10 @@ module.exports = function() {
             'request': {
                 'method': 'POST',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8001/api/v1/identities/",
+                'url': "http://is.localhost:8001/api/v1/identities/",
                 'data':  {
                     "details": {
                         "default_addr_type": "msisdn",
@@ -165,7 +165,7 @@ module.exports = function() {
             'response': {
                 "code": 201,
                 "data": {
-                    "url": "http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                    "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "version": 1,
                     "details": {
@@ -188,10 +188,10 @@ module.exports = function() {
             'request': {
                 'method': 'POST',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8001/api/v1/identities/",
+                'url': "http://is.localhost:8001/api/v1/identities/",
                 'data':  {
                     "details": {
                         "default_addr_type": "msisdn",
@@ -207,7 +207,7 @@ module.exports = function() {
             'response': {
                 "code": 201,
                 "data": {
-                    "url": "http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                    "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "version": 1,
                     "details": {
@@ -230,10 +230,10 @@ module.exports = function() {
             'request': {
                 'method': 'POST',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8001/api/v1/identities/",
+                'url': "http://is.localhost:8001/api/v1/identities/",
                 'data': {
                     "details": {
                         "default_addr_type": "msisdn",
@@ -248,7 +248,7 @@ module.exports = function() {
             'response': {
                 "code": 201,
                 "data": {
-                    "url": "http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                    "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "version": 1,
                     "details": {
@@ -272,10 +272,10 @@ module.exports = function() {
                     'details__addresses__msisdn': '08211111111'
                 },
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8001/api/v1/identities/search/',
+                'url': 'http://is.localhost:8001/api/v1/identities/search/',
             },
             'response': {
                 "code": 200,
@@ -293,10 +293,10 @@ module.exports = function() {
             'request': {
                 'method': 'POST',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8001/api/v1/identities/",
+                'url': "http://is.localhost:8001/api/v1/identities/",
                 'data':  {
                     "details": {
                         "default_addr_type": "msisdn",
@@ -311,7 +311,7 @@ module.exports = function() {
             'response': {
                 "code": 201,
                 "data": {
-                    "url": "http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00011111111/",
+                    "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00011111111/",
                     "id": "cb245673-aa41-4302-ac47-00011111111",
                     "version": 1,
                     "details": {
@@ -334,10 +334,10 @@ module.exports = function() {
                 'method': 'PATCH',
                 'params': {},
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                'url': "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
                 'data':  {
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "details": {
@@ -376,10 +376,10 @@ module.exports = function() {
                     'active': 'true'
                 },
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test Staged-based Messaging'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8003/api/v1/subscriptions/'
+                'url': 'http://sbm.localhost:8003/api/v1/subscriptions/'
             },
             'response': {
                 "code": 200,
@@ -389,7 +389,7 @@ module.exports = function() {
                     "previous": null,
                     "results": [
                         {
-                            'url': 'http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111',
+                            'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111',
                             'id': '51fcca25-2e85-4c44-subscription-1111',
                             'version': 1,
                             'identity': 'cb245673-aa41-4302-ac47-00000000001',
@@ -405,7 +405,7 @@ module.exports = function() {
                             'updated_at': "2015-07-10T06:13:29.693272Z"
                         },
                         {
-                            'url': 'http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112',
+                            'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112',
                             'id': '51fcca25-2e85-4c44-subscription-1112',
                             'version': 1,
                             'identity': 'cb245673-aa41-4302-ac47-00000000001',
@@ -435,10 +435,10 @@ module.exports = function() {
                     'active': 'true'
                 },
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test Staged-based Messaging'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8003/api/v1/subscriptions/'
+                'url': 'http://sbm.localhost:8003/api/v1/subscriptions/'
             },
             'response': {
                 "code": 200,
@@ -456,10 +456,10 @@ module.exports = function() {
             'request': {
                 'method': 'PATCH',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test Staged-based Messaging'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
+                'url': "http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
                 "data": {
                     "id": "51fcca25-2e85-4c44-subscription-1111",
                     "identity": "cb245673-aa41-4302-ac47-00000000001",
@@ -473,7 +473,7 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "url": "http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
+                    "url": "http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111/",
                     "id": "51fcca25-2e85-4c44-subscription-1111",
                     "version": 1,
                     "identity": "cb245673-aa41-4302-ac47-00000000001",
@@ -498,15 +498,15 @@ module.exports = function() {
             'request': {
                 'method': 'GET',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test Staged-based Messaging'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/'
+                'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/'
             },
             'response': {
                 "code": 200,
                 "data": {
-                    'url': 'http://localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/',
+                    'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112/',
                     'id': '51fcca25-2e85-4c44-subscription-1112',
                     'version': 1,
                     'identity': 'cb245673-aa41-4302-ac47-00000000001',
@@ -530,10 +530,10 @@ module.exports = function() {
                 'method': 'GET',
                 'params': {},
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test Staged-based Messaging'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8003/api/v1/messageset/2/'
+                'url': 'http://sbm.localhost:8003/api/v1/messageset/2/'
             },
             'response': {
                 'code': 200,
@@ -556,10 +556,10 @@ module.exports = function() {
                 'method': 'POST',
                 'params': {},
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test Message-sender'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8004/api/v1/inbound/',
+                'url': 'http://ms.localhost:8004/api/v1/inbound/',
                 'data': {
                     "message_id": "0170b7bb-978e-4b8a-35d2-662af5b6daee",
                     "content": "Testing... 1,2,3",
@@ -584,10 +584,10 @@ module.exports = function() {
             'request': {
                 'method': 'POST',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test IdentityStore'],
                     'Content-Type': ['application/json']
                 },
-                'url': 'http://localhost:8001/api/v1/optout/',
+                'url': 'http://is.localhost:8001/api/v1/optout/',
                 'data': {
                     "optout_type": "stop",
                     "identity": "cb245673-aa41-4302-ac47-00000000001",
@@ -611,10 +611,10 @@ module.exports = function() {
             'request': {
                 'method': 'POST',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test Hub'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8002/api/v1/registrations/",
+                'url': "http://hub.localhost:8002/api/v1/registration/",
                 'data':  {
                     "stage": "prebirth",
                     "mother_id": "cb245673-aa41-4302-ac47-1234567890",
@@ -656,10 +656,10 @@ module.exports = function() {
             'request': {
                 'method': 'PATCH',
                 'headers': {
-                    'Authorization': ['Token test_key'],
+                    'Authorization': ['Token test Hub'],
                     'Content-Type': ['application/json']
                 },
-                'url': "http://localhost:8002/api/v1/change/",
+                'url': "http://hub.localhost:8002/api/v1/change/",
                 'data':  {
                     "stage": "postbirth",
                     "mother_id": "cb245673-aa41-4302-ac47-1234567890"
