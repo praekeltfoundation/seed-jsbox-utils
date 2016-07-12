@@ -651,5 +651,42 @@ module.exports = function() {
             }
         },
 
+        // 18: update registration cb245673-aa41-4302-ac47-00000000002
+        {
+            'request': {
+                'method': 'PATCH',
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': "http://localhost:8002/api/v1/change/",
+                'data':  {
+                    "stage": "postbirth",
+                    "mother_id": "cb245673-aa41-4302-ac47-1234567890"
+                }
+            },
+            'response': {
+                "code": 201,
+                "data": {
+                    "id": "reg_for_00000000002_uuid",
+                    "stage": "postbirth",
+                    "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                    "data": {
+                        "msg_receiver": "friend_only",
+                        "receiver_id": "cb245673-aa41-4302-ac47-00000000002",
+                        "operator_id": "cb245673-aa41-4302-ac47-00000000007",
+                        "language": "ibo_NG",
+                        "msg_type": "text"
+                    },
+                    "validated": false,
+                    "source": "source",
+                    "created_at": "2015-07-10T06:13:29.693272Z",
+                    "updated_at": "2016-06-22T06:13:29.693298Z",
+                    "created_by": "user",
+                    "updated_by": "user"
+                }
+            }
+        }
+
     ];
 };

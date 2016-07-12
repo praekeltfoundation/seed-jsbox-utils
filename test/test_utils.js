@@ -20,380 +20,6 @@ var utils = require('../lib/utils');
 
 describe("Testing utils Functions", function() {
 
-    var testing_config = {
-        "testing_today": "2016-05-23"
-    };
-    var live_config = {};
-
-    var app;
-    var tester;
-
-    // initialising services
-    var IdentityStore = service.IdentityStore;
-    var Hub = service.Hub;
-    var StageBasedMessaging = service.StageBasedMessaging;
-    var MessageSender = service.MessageSender;
-
-    var is;
-    var hub;
-    var sbm;
-    var ms;
-
-    beforeEach(function() {
-        app = new App("state_start");
-
-        var interrupt = true;
-
-        app.init = function(){
-            // initialising services
-            var base_url = app.im.config.services.identity_store.prefix;
-            var auth_token = app.im.config.services.identity_store.token;
-            is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
-
-            base_url = app.im.config.services.hub.prefix;
-            auth_token = app.im.config.services.hub.token;
-            hub = new Hub(new JsonApi(app.im, null), auth_token, base_url);
-
-            base_url = app.im.config.services.staged_based_messaging.prefix;
-            auth_token = app.im.config.services.staged_based_messaging.token;
-            sbm = new StageBasedMessaging(new JsonApi(app.im, null), auth_token, base_url);
-
-            base_url = app.im.config.services.message_sender.prefix;
-            auth_token = app.im.config.services.message_sender.token;
-            ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
-        };
-
-        // override normal state adding
-        app.add = function(name, creator) {
-            app.states.add(name, function(name, opts) {
-                if (!interrupt || !utils.timed_out(app.im))
-                    return creator(name, opts);
-
-                interrupt = false;
-                opts = opts || {};
-                opts.name = name;
-
-                if (utils.timeout_redirect(app.im)) {
-                    return app.states.create("state_start");
-                } else {
-                    return app.states.create("state_timed_out", opts);
-                }
-            });
-        };
-
-        // timeout
-        app.states.add("state_timed_out", function(name, creator_opts) {
-            return new ChoiceState(name, {
-                question: "You timed out. What now?",
-                choices: [
-                    new Choice("continue", $("Continue")),
-                    new Choice("restart", $("Restart")),
-                    new Choice("exit", $("Exit"))
-                ],
-                next: function(choice) {
-                    if (choice.value === "continue") {
-                        return {
-                            name: creator_opts.name,
-                            creator_opts: creator_opts
-                        };
-                    } else if (choice.value === "restart") {
-                        return "state_start";
-                    } else {
-                        return "state_end";
-                    }
-                }
-            });
-        });
-
-        app.add("state_start", function(name) {
-            return new FreeText(name, {
-                question: "This is the start state.",
-                next: "state_one"
-            });
-        });
-
-        // a HTTP GET request is made going from this state to the next
-        app.add("state_one", function(name) {
-            return new FreeText(name, {
-                question: "This is the first state.",
-                next: function(content) {
-                    return is.get_identity("cb245673-aa41-4302-ac47-00000000001")
-                        .then(function(response) {
-                            return "state_two";
-                        });
-                }
-            });
-        });
-
-        app.add("state_two", function(name) {
-            return new FreeText(name, {
-                question: "This is the second state.",
-                next: "state_three"
-            });
-        });
-
-        // a HTTP POST request is made going from this state to the next/last
-        app.add("state_three", function(name) {
-            return new FreeText(name, {
-                question: "This is the third state.",
-                next: function(content) {
-                    return is.create_identity({ "msisdn": app.im.user.addr })
-                        .then(function(response) {
-                            return "state_end";
-                        });
-                }
-            });
-        });
-
-        app.add("state_end", function(name) {
-            return new EndState(name, {
-                text: "This is the end state.",
-                next: "state_start"
-            });
-        });
-
-        tester = new AppTester(app);
-
-        tester
-            .setup.config.app({
-                name: "JS-box-utils-tester",
-                testing_today: "2016-05-23",
-                channel: '2341234',
-                transport_name: 'aggregator_sms',
-                transport_type: 'sms',
-                testing_message_id: '0170b7bb-978e-4b8a-35d2-662af5b6daee',  // testing only
-                logging: 'off', //'off' is default; 'test' outputs to console.log, 'prod' to im.log
-                services: {
-                    identity_store: {
-                        prefix: 'http://localhost:8001/api/v1/',
-                        token: 'test IdentityStore'
-                    },
-                    hub: {
-                        prefix: 'http://localhost:8002/api/v1/',
-                        token: 'test Hub'
-                    },
-                    staged_based_messaging: {
-                        prefix: 'http://localhost:8003/api/v1/',
-                        token: 'test Staged-based Messaging'
-                    },
-                    message_sender: {
-                        prefix: 'http://localhost:8004/api/v1/',
-                        token: 'test Message-sender'
-                    }
-                },
-                no_timeout_redirects: [
-                    'state_start',
-                    'state_two',
-                    'state_end'
-                ],
-                timeout_redirects: [
-                    'state_three'
-                ]
-            })
-            .setup(function(api) {
-                fixtures().forEach(api.http.fixtures.add);
-            })
-            ;
-    });
-
-    describe("Tests check_fixtures_used function", function() {
-        it("no fixtures used", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .input(
-                    "blah"  // state_start
-                )
-                .check.interaction({
-                    state: "state_one"
-                })
-                .check(function(api) {
-                    utils.check_fixtures_used(api, []);
-                })
-                .run();
-        });
-        it("one fixture used; GET request performed", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .setup.user.state('state_one')
-                .input(
-                    "blah"  // state_one
-                )
-                .check.interaction({
-                    state: "state_two"
-                })
-                .check(function(api) {
-                    utils.check_fixtures_used(api, [2]);
-                })
-                .run();
-        });
-        it("multiple fixtures used; GET and POST requests", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
-                    , "blah"  // state_one
-                    , "blah"  // state_two
-                    , "blah"  // state_three
-                )
-                .check.interaction({
-                    state: "state_end"
-                })
-                .check(function(api) {
-                    utils.check_fixtures_used(api, [2,3]);
-                })
-                .run();
-        });
-    });
-
-    describe("Tests timed_out function", function() {
-        it("no time-out redirect; move on to next state", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .setup.user.state('state_one')
-                .inputs(
-                    "blah"  // state_one
-                    , {session_event: "close"}
-                    , {session_event: "new"}
-                )
-                .check.interaction({
-                    state: "state_two"
-                })
-                .run();
-        });
-        it("timed out; to state_timed_out", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
-                    , {session_event: "close"}
-                    , {session_event: "new"}
-                )
-                .check.interaction({
-                    state: "state_timed_out"
-                })
-                .run();
-        });
-        it("choice made to 'Continue' after time out occured; go on to next state", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .setup.user.state('state_one')
-                .inputs(
-                    {session_event: "close"}
-                    , {session_event: "new"}
-                    , "1"
-                )
-                .check.interaction({
-                    state: "state_one"
-                })
-                .run();
-        });
-        it("choice made to 'Restart' after time out occured; go to start state", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
-                    , {session_event: "close"}
-                    , {session_event: "new"}
-                    , "2"
-                )
-                .check.interaction({
-                    state: "state_start"
-                })
-                .run();
-        });
-        it("choice made to 'Exit' after time out occured; go to end state", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .inputs(
-                    "blah"  // state_start
-                    , {session_event: "close"}
-                    , {session_event: "new"}
-                    , "3"
-                )
-                .check.interaction({
-                    state: "state_end"
-                })
-                .run();
-        });
-    });
-
-    describe("Tests timeout_redirect function", function() {
-        it("time-out redirect; from state_three to state_start)", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .setup.user.state('state_two')
-                .inputs(
-                    "blah"  // state_two
-                    , {session_event: "close"}
-                    , {session_event: "new"}
-                )
-                .check.interaction({
-                    state: "state_start"
-                })
-                .run();
-        });
-    });
-
-    describe.skip("Tests log_service_api_call function", function() {
-        it("logging of http GET request", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .setup.user.state('state_one')
-                .input(
-                    "blah"  // state_one
-                )
-                .check.interaction({
-                    state: "state_two"
-                })
-                .check(function(api) {
-                    var expected_log_entry = [
-                        'Request: get http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001//',
-                        'Payload: null',
-                        'Params: null',
-                        'Response: {"code":200,'+
-                                    '"request":{"url":"http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001//",'+
-                                    '"method":"GET"},'+
-                                    '"body":"{\\"count\\":0,\\"next\\":null,\\"previous\\":null,\\"results\\":[]}"}'
-                    ].join('\n');
-
-                    var log_string_array = api.log.store["20"];
-                    var last_entry_index = log_string_array.length;
-
-                    assert.equal(log_string_array[last_entry_index-1], expected_log_entry);
-                })
-                .run();
-        });
-        it("logging of http POST request", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .setup.user.state('state_three')
-                .input(
-                    "blah"  // state_three
-                )
-                .check.interaction({
-                    state: "state_end"
-                })
-                .check(function(api) {
-                    var expected_log_entry = [
-                        'Request: post http://localhost:8001/api/v1/identities/',
-                        'Payload: {"msisdn":"08212345678"}',
-                        'Params: null',
-                        'Response: {"code":201,'+
-                            '"request":{"url":"http://localhost:8001/api/v1/identities/",'+
-                            '"method":"POST",'+
-                            '"body":"{\\"msisdn\\":\\"08212345678\\"}"},'+
-                            '"body":"{}"}'
-                    ].join('\n');
-
-                    var log_string_array = api.log.store["20"];
-                    var last_entry_index = log_string_array.length;
-
-                    assert.equal(log_string_array[last_entry_index-1], expected_log_entry);
-                })
-                .run();
-        });
-    });
-
     describe("Tests is_valid_msisdn function", function() {
         it("should not validate if passed a number that doesn't start with '0'", function() {
             assert.equal(utils.is_valid_msisdn("12345"), false);
@@ -517,7 +143,412 @@ describe("Testing utils Functions", function() {
         });
     });
 
-    describe("IDENTITY-specfic util functions", function() {
+    var testing_config = {
+        "testing_today": "2016-05-23"
+    };
+    var live_config = {};
+
+    var app;
+    var tester;
+
+    // initialising services
+    var IdentityStore = service.IdentityStore;
+    var Hub = service.Hub;
+    var StageBasedMessaging = service.StageBasedMessaging;
+    var MessageSender = service.MessageSender;
+
+    var is;
+    var hub;
+    var sbm;
+    var ms;
+
+    beforeEach(function() {
+        app = new App("state_one");
+
+        var interrupt = true;
+
+        app.init = function(){
+            // initialising services
+            var base_url = app.im.config.services.identity_store.prefix;
+            var auth_token = app.im.config.services.identity_store.token;
+            is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = app.im.config.services.hub.prefix;
+            auth_token = app.im.config.services.hub.token;
+            hub = new Hub(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = app.im.config.services.staged_based_messaging.prefix;
+            auth_token = app.im.config.services.staged_based_messaging.token;
+            sbm = new StageBasedMessaging(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = app.im.config.services.message_sender.prefix;
+            auth_token = app.im.config.services.message_sender.token;
+            ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
+        };
+
+        // override normal state adding
+        app.add = function(name, creator) {
+            app.states.add(name, function(name, opts) {
+                if (!interrupt || !utils.timed_out(app.im))
+                    return creator(name, opts);
+
+                interrupt = false;
+                opts = opts || {};
+                opts.name = name;
+
+                if (utils.timeout_redirect(app.im)) {
+                    return app.states.create(name, opts);
+                    // return app.states.create("state_one"); if you want to redirect to the start state
+                } else {
+                    return app.states.create("state_timed_out", opts);
+                }
+            });
+        };
+
+        // timeout
+        app.states.add("state_timed_out", function(name, creator_opts) {
+            return new ChoiceState(name, {
+                question: "You timed out. What now?",
+                choices: [
+                    new Choice("continue", $("Continue")),
+                    new Choice("restart", $("Restart")),
+                    new Choice("exit", $("Exit"))
+                ],
+                next: function(choice) {
+                    if (choice.value === "continue") {
+                        return {
+                            name: creator_opts.name,
+                            creator_opts: creator_opts
+                        };
+                    } else if (choice.value === "restart") {
+                        return "state_one";
+                    } else {
+                        return "state_end";
+                    }
+                }
+            });
+        });
+
+        app.add("state_one", function(name) {
+            return new FreeText(name, {
+                question: "This is the first state.",
+                next: "state_two"
+            });
+        });
+
+        // a HTTP GET request is made going from this state to the next
+        app.add("state_two", function(name) {
+            return new FreeText(name, {
+                question: "This is the second state.",
+                next: function(content) {
+                    return is.get_identity("cb245673-aa41-4302-ac47-00000000001")
+                        .then(function(response) {
+                            return "state_three";
+                        });
+                }
+            });
+        });
+
+        app.add("state_three", function(name) {
+            return new FreeText(name, {
+                question: "This is the third state.",
+                next: "state_four"
+            });
+        });
+
+        // a HTTP POST request is made going from this state to the next/last
+        app.add("state_four", function(name) {
+            return new FreeText(name, {
+                question: "This is the forth state.",
+                next: function(content) {
+                    return is.create_identity({ "msisdn": app.im.user.addr })
+                        .then(function(response) {
+                            return "state_end";
+                        });
+                }
+            });
+        });
+
+        app.add("state_end", function(name) {
+            return new EndState(name, {
+                text: "This is the end state.",
+                next: "state_one"
+            });
+        });
+
+        tester = new AppTester(app);
+
+        tester
+            .setup.config.app({
+                name: "JS-box-utils-tester",
+                testing_today: "2016-05-23",
+                channel: '2341234',
+                transport_name: 'aggregator_sms',
+                transport_type: 'sms',
+                testing_message_id: '0170b7bb-978e-4b8a-35d2-662af5b6daee',  // testing only
+                logging: 'off',  // 'off' is default; 'test' outputs to console.log, 'prod' to im.log
+                services: {
+                    identity_store: {
+                        prefix: 'http://localhost:8001/api/v1/',
+                        token: 'test IdentityStore'
+                    },
+                    hub: {
+                        prefix: 'http://localhost:8002/api/v1/',
+                        token: 'test Hub'
+                    },
+                    staged_based_messaging: {
+                        prefix: 'http://localhost:8003/api/v1/',
+                        token: 'test Staged-based Messaging'
+                    },
+                    message_sender: {
+                        prefix: 'http://localhost:8004/api/v1/',
+                        token: 'test Message-sender'
+                    }
+                },
+                no_timeout_redirects: [
+                    'state_one',
+                    'state_three',
+                    'state_end'
+                ],
+                timeout_redirects: [
+                    'state_four'
+                ]
+            })
+            .setup(function(api) {
+                fixtures().forEach(api.http.fixtures.add);
+            })
+            ;
+    });
+
+    describe("Tests check_fixtures_used function", function() {
+        it("no fixtures used", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .input(
+                    "blah"  // state_one
+                )
+                .check.interaction({
+                    state: "state_two"
+                })
+                .check(function(api) {
+                    utils.check_fixtures_used(api, []);
+                })
+                .run();
+        });
+        it("one fixture used; GET request performed", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
+                .input(
+                    "blah"  // state_two
+                )
+                .check.interaction({
+                    state: "state_three"
+                })
+                .check(function(api) {
+                    utils.check_fixtures_used(api, [2]);
+                })
+                .run();
+        });
+        it("multiple fixtures used; GET and POST requests", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .inputs(
+                    "blah"  // state_one
+                    , "blah"  // state_two
+                    , "blah"  // state_three
+                    , "blah"  // state_four
+                )
+                .check.interaction({
+                    state: "state_end"
+                })
+                .check(function(api) {
+                    utils.check_fixtures_used(api, [2,3]);
+                })
+                .run();
+        });
+    });
+
+    describe("Tests timed_out function", function() {
+        it("no time-out redirect; move on to next state", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
+                .inputs(
+                    "blah"  // state_two
+                    , {session_event: "close"}
+                    , {session_event: "new"}
+                )
+                .check.interaction({
+                    state: "state_three"
+                })
+                .run();
+        });
+        it("timed out; to state_timed_out", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
+                .inputs(
+                    {session_event: "close"}
+                    , {session_event: "new"}
+                )
+                .check.interaction({
+                    state: "state_timed_out"
+                })
+                .run();
+        });
+        // use same setup initially
+        it("choice made to 'Continue' after time out occurred; go on to next state", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
+                .inputs(
+                    {session_event: "close"}
+                    , {session_event: "new"}
+                    , "1"  // state_two
+                )
+                .check.interaction({
+                    state: "state_two"
+                })
+                .run();
+        });
+        it("choice made to 'Restart' after time out occured; go to start state", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
+                .inputs(
+                    {session_event: "close"}
+                    , {session_event: "new"}
+                    , "2"
+                )
+                .check.interaction({
+                    state: "state_one"
+                })
+                .run();
+        });
+        it("choice made to 'Exit' after time out occured; go to end state", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
+                .inputs(
+                    {session_event: "close"}
+                    , {session_event: "new"}
+                    , "3"
+                )
+                .check.interaction({
+                    state: "state_end"
+                })
+                .run();
+        });
+    });
+
+    describe("Tests timeout_redirect function", function() {
+        it("time-out redirect; from state_four to state_one)", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_three')
+                .inputs(
+                    "blah"  // state_three
+                    , {session_event: "close"}
+                    , {session_event: "new"}
+                )
+                .check.interaction({
+                    state: "state_four"
+                })
+                .run();
+        });
+    });
+
+    describe("Tests log_service_call function", function() {
+        it("logging of http GET request", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
+                .setup.config.app({logging: "prod"})
+                .input(
+                    "blah"  // state_two
+                )
+                .check.interaction({
+                    state: "state_three"
+                })
+                .check(function(api) {
+                    var expected_log_entry = [
+                        'Request: GET http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/',
+                        'Payload: null',
+                        'Params: null',
+                        'Response: {"code":200,'+
+                                    '"request":{"url":"http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",'+
+                                    '"method":"GET"},'+
+                                    '"body":"{'+
+                                        '\\"url\\":\\"http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
+                                        '\\"id\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
+                                        '\\"version\\":1,'+
+                                        '\\"details\\":{'+
+                                            '\\"default_addr_type\\":\\"msisdn\\",'+
+                                            '\\"addresses\\":{'+
+                                                '\\"msisdn\\":{\\"+8212345678\\":{}}'+
+                                            '}'+
+                                        '},'+
+                                        '\\"created_at\\":\\"2016-06-21T06:13:29.693272Z\\",'+
+                                        '\\"updated_at\\":\\"2016-06-21T06:13:29.693298Z\\"}"'+
+                                    '}'
+                    ].join('\n');
+
+                    var log_string_array = api.log.store["20"];
+                    var last_entry_index = log_string_array.length;
+
+                    assert.equal(log_string_array[last_entry_index-1], expected_log_entry);
+                })
+                .run();
+        });
+        it("logging of http POST request", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_four')
+                .setup.config.app({logging: "prod"})
+                .input(
+                    "blah"  // state_four
+                )
+                .check.interaction({
+                    state: "state_end"
+                })
+                .check(function(api) {
+                    var expected_log_entry = [
+                        'Request: POST http://localhost:8001/api/v1/identities/',
+                        'Payload: {"details":{"default_addr_type":"msisdn","addresses":{"msisdn":{"08212345678":{}}}}}',
+                        'Params: null',
+                        'Response: {"code":201,'+
+                            '"request":{"url":"http://localhost:8001/api/v1/identities/",'+
+                            '"method":"POST",'+
+                            '"body":'+
+                            '"{\\"details\\":{'+
+                                '\\"default_addr_type\\":'+
+                                '\\"msisdn\\",'+
+                                '\\"addresses\\":{'+
+                                    '\\"msisdn\\":{'+
+                                        '\\"08212345678\\":{}}}}}"},'+
+                            '"body":'+
+                                '"{\\"url\\":\\"http://localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
+                                '\\"id\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
+                                '\\"version\\":1,'+
+                                '\\"details\\":'+
+                                    '{\\"default_addr_type\\":\\"msisdn\\",'+
+                                    '\\"addresses\\":'+
+                                        '{\\"msisdn\\":{\\"08212345678\\":{}}}},'+
+                            '\\"created_at\\":\\"2016-06-21T06:13:29.693272Z\\",'+
+                            '\\"updated_at\\":\\"2016-06-21T06:13:29.693298Z\\"}"}'
+                    ].join('\n');
+
+                    var log_string_array = api.log.store["20"];
+                    var last_entry_index = log_string_array.length;
+
+                    assert.equal(log_string_array[last_entry_index-1], expected_log_entry);
+                })
+                .run();
+        });
+    });
+
+    describe("IDENTITY_STORE util functions", function() {
         describe("Testing search_by_address function", function() {
             it("returns corresponding identity to msisdn passed in", function() {
                 return tester
@@ -526,11 +557,9 @@ describe("Testing utils Functions", function() {
                         return is.search_by_address({"msisdn": "08212345678"})
                             .then(function(identities_found) {
                                 // get the first identity in the list of identities
-                                var identity = (identities_found.results.length > 0)
-                                    ? identities_found.results[0]
-                                    : null;
-
+                                var identity = identities_found.results[0];
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                                assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "08212345678");
                             });
                     })
                     .check(function(api) {
@@ -575,8 +604,10 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.create_identity({"msisdn": "08212345678"},
-                            {"operator_id": "cb245673-aa41-4302-ac47-00000000002"})
+                        return is.create_identity(
+                                {"msisdn": "08212345678"},
+                                {"operator_id": "cb245673-aa41-4302-ac47-00000000002"}
+                            )
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                                 assert.equal(identity.operator, "cb245673-aa41-4302-ac47-00000000002");
@@ -591,8 +622,10 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.create_identity({"msisdn": "08212345678"},
-                            {"communicate_through_id": "cb245673-aa41-4302-ac47-00000000003"})
+                        return is.create_identity(
+                                {"msisdn": "08212345678"},
+                                {"communicate_through_id": "cb245673-aa41-4302-ac47-00000000003"}
+                            )
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                                 assert.equal(identity.communicate_through, "cb245673-aa41-4302-ac47-00000000003");
@@ -607,9 +640,13 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.create_identity({"msisdn": "08212345678"},
-                                {"operator_id": "cb245673-aa41-4302-ac47-00000000002",
-                                "communicate_through_id": "cb245673-aa41-4302-ac47-00000000003"})
+                        return is.create_identity(
+                                {"msisdn": "08212345678"},
+                                {
+                                    "operator_id": "cb245673-aa41-4302-ac47-00000000002",
+                                    "communicate_through_id": "cb245673-aa41-4302-ac47-00000000003"
+                                }
+                            )
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                                 assert.equal(identity.operator, "cb245673-aa41-4302-ac47-00000000002");
@@ -657,7 +694,9 @@ describe("Testing utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.update_identity("cb245673-aa41-4302-ac47-00000000001", {
+                        return is.update_identity(
+                            "cb245673-aa41-4302-ac47-00000000001",
+                            {
                                 "id": "cb245673-aa41-4302-ac47-00000000001",
                                 "details": {
                                     "addresses": {
@@ -693,51 +732,20 @@ describe("Testing utils Functions", function() {
                         };
                         return is.optout(optout_info)
                             .then(function(response) {
-                                assert.equal(response.code, "201");
+                                assert.equal(response.id, 1);
                             });
                     })
                     .check(function(api) {
                         utils.check_fixtures_used(api, [16]);
                     })
-                    // uncomment when wanting to test logging in 'prod' log mode
-                    /*.check(function(api) {
-                        var expected_log_entry = [
-                            'Request: POST http://localhost:8001/api/v1/optout/',
-                            'Payload: {"optout_type":"stop",'+
-                                    '"identity":"cb245673-aa41-4302-ac47-00000000001",'+
-                                    '"reason":"miscarriage",'+
-                                    '"address_type":"msisdn",'+
-                                    '"address":"08212345678",'+
-                                    '"request_source":"seed-jsbox-utils",'+
-                                    '"requestor_source_id":"0170b7bb-978e-4b8a-35d2-662af5b6daee"}',
-                            'Params: null',
-                            'Response: {"code":201,'+
-                                    '"request":{"url":"http://localhost:8001/api/v1/optout/",'+
-                                    '"method":"POST",'+
-                                    '"body":'+
-                                        '"{\\"optout_type\\":\\"stop\\",'+
-                                        '\\"identity\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
-                                        '\\"reason\\":\\"miscarriage\\",'+
-                                        '\\"address_type\\":\\"msisdn\\",'+
-                                        '\\"address\\":\\"08212345678\\",'+
-                                        '\\"request_source\\":\\"seed-jsbox-utils\\",'+
-                                        '\\"requestor_source_id\\":\\"0170b7bb-978e-4b8a-35d2-662af5b6daee\\"}"},'+
-                                            '"body":"{\\"id\\":1}"}'
-                        ].join('\n');
-
-                        var log_string_array = api.log.store["20"];
-                        var last_entry_index = log_string_array.length;
-
-                        assert.equal(log_string_array[last_entry_index-1], expected_log_entry);
-                    })*/
                     .run();
             });
         });
     });
 
-    describe("REGISTRATION-specfic util functions", function() {
+    describe("HUB util functions", function() {
         describe("Testing create_registration function", function() {
-            it("returns registration data on performing optout", function() {
+            it("returns registration data", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
@@ -763,9 +771,28 @@ describe("Testing utils Functions", function() {
                     .run();
             });
         });
+        describe("Testing update_registration function", function() {
+            it("returns registration data", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return hub.update_registration({
+                                "stage": "postbirth",
+                                "mother_id": "cb245673-aa41-4302-ac47-1234567890"
+                            })
+                            .then(function(registration) {
+                                assert.equal(registration.id, "reg_for_00000000002_uuid");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [18]);
+                    })
+                    .run();
+            });
+        });
     });
 
-    describe("SUBSCRIPTION-specfic util functions", function() {
+    describe("STAGED-BASED_MESSAGING util functions", function() {
         describe("Testing get_subscription function", function() {
             it("returns subscription object", function() {
                 return tester
@@ -890,7 +917,7 @@ describe("Testing utils Functions", function() {
         });
     });
 
-    describe("MESSAGE-SENDER-specfic util functions", function() {
+    describe("MESSAGE-SENDER util functions", function() {
         describe("Testing save_inbound_message function", function() {
             it("returns inbound id", function() {
                 return tester
