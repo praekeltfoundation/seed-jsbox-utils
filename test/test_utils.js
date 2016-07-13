@@ -52,6 +52,21 @@ describe("Testing utils functions", function() {
         });
     });
 
+    describe("check_number_in_range", function() {
+        it("should return true", function() {
+            assert(utils.check_number_in_range(5, 1, 10));
+            assert(utils.check_number_in_range(72, 1, 100));
+        });
+        it("should return true for min/max boundaries ", function() {
+            assert(utils.check_number_in_range(1, 1, 10));
+            assert(utils.check_number_in_range(10, 1, 10));
+        });
+        it("should return false", function() {
+            assert.ifError(utils.check_number_in_range(11, 1, 10));
+            assert.ifError(utils.check_number_in_range(77, 7, 17));
+        });
+    });
+
     describe("is_valid_msisdn function", function() {
         it("should not validate if passed a number that doesn't start with '0'", function() {
             assert.equal(utils.is_valid_msisdn("12345"), false);
@@ -132,16 +147,16 @@ describe("Testing utils functions", function() {
 
     describe("is_valid_date", function() {
         it("returns true for valid YYYY-MM-DD dates", function() {
-            assert(utils.is_valid_date("2016-05-19", "YYYY-MM-DD"), true);
+            assert(utils.is_valid_date("2016-05-19", "YYYY-MM-DD"));
         });
         it("returns true for valid YYYY/MM/DD dates", function() {
-            assert(utils.is_valid_date("2016/05/19", "YYYY/MM/DD"), true);
+            assert(utils.is_valid_date("2016/05/19", "YYYY/MM/DD"));
         });
         it("returns true for valid YYYY/DD/MM dates", function() {
-            assert(utils.is_valid_date("2016/19/05", "YYYY/DD/MM"), true);
+            assert(utils.is_valid_date("2016/19/05", "YYYY/DD/MM"));
         });
         it("returns true for valid DD MMMM 'YY dates", function() {
-            assert(utils.is_valid_date("05 May '16", "DD MMMM 'YY"), true);
+            assert(utils.is_valid_date("05 May '16", "DD MMMM 'YY"));
         });
         it("returns false for valid date specified with unmatching format", function() {
             assert.ifError(utils.is_valid_date("2016-05-19", "YYYY/MM/DD"));
@@ -160,11 +175,11 @@ describe("Testing utils functions", function() {
 
     describe("is_valid_year", function() {
         it("valid; year within bounds", function() {
-            assert(utils.is_valid_year("2016", "1990", "2030"), true);
-            assert(utils.is_valid_year("2016", "2015", "2017"), true);
-            assert(utils.is_valid_year("2016", "2016", "2017"), true);
-            assert(utils.is_valid_year("2016", "2015", "2016"), true);
-            assert(utils.is_valid_year("2016", "2016", "2016"), true);
+            assert(utils.is_valid_year("2016", "1990", "2030"));
+            assert(utils.is_valid_year("2016", "2015", "2017"));
+            assert(utils.is_valid_year("2016", "2016", "2017"));
+            assert(utils.is_valid_year("2016", "2015", "2016"));
+            assert(utils.is_valid_year("2016", "2016", "2016"));
         });
         it("invalid; year outside bounds", function() {
             assert.equal(utils.is_valid_year("2016", "2010", "2015"), false);
@@ -174,16 +189,55 @@ describe("Testing utils functions", function() {
 
     describe("is_valid_day_of_month", function() {
         it("valid day of the month", function() {
-            assert(utils.is_valid_day_of_month("1"), true);
-            assert(utils.is_valid_day_of_month("5"), true);
-            assert(utils.is_valid_day_of_month("15"), true);
-            assert(utils.is_valid_day_of_month("28"), true);
-            assert(utils.is_valid_day_of_month("30"), true);
-            assert(utils.is_valid_day_of_month("31"), true);
+            assert(utils.is_valid_day_of_month("1"));
+            assert(utils.is_valid_day_of_month("5"));
+            assert(utils.is_valid_day_of_month("15"));
+            assert(utils.is_valid_day_of_month("28"));
+            assert(utils.is_valid_day_of_month("30"));
+            assert(utils.is_valid_day_of_month("31"));
         });
         it("invalid day of the month", function() {
             assert.equal(utils.is_valid_day_of_month("0"), false);
             assert.equal(utils.is_valid_day_of_month("32"), false);
+        });
+    });
+
+    describe("is_weekend", function() {
+        it("should return false", function() {
+            assert.ifError(utils.is_weekend("2016-07-12"));  // wed
+            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
+        });
+        it("should return true", function() {
+            assert.ifError(utils.is_weekend("2016-07-15"));  // sat
+            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
+        });
+    });
+
+    /*describe("is_public_holiday", function() {
+        it("should return false", function() {
+            assert.ifError(utils.is_public_holiday("2016-07-12"));
+            assert.ifError(utils.is_public_holiday("2016/07/12", "YYYY/MM/DD"));
+        });
+        it("should return true", function() {
+
+        });
+    });*/
+
+    /*describe("is_out_of_hours", function() {
+        it("", function() {
+
+        });
+        it("", function() {
+
+        });
+    });*/
+
+    describe("get_entered_birth_date", function() {
+        it("without date separators specified", function() {
+            assert(utils.get_entered_birth_date("1982", "2", "1"), "1982-02-01");
+        });
+        it("with date separators specified", function() {
+            assert(utils.get_entered_birth_date("1982", "2", "1", "/"), "1982/02/01");
         });
     });
 
