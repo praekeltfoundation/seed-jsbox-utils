@@ -69,15 +69,15 @@ describe("Testing utils functions", function() {
 
     describe("is_valid_msisdn function", function() {
         it("should not validate if passed a number that doesn't start with '0'", function() {
-            assert.equal(utils.is_valid_msisdn("12345"), false);
+            assert.equal(utils.is_valid_msisdn("12345", 10, 13), false);
         });
         it("should not validate if number starts with '0' but of incorrect length", function() {
-            assert.equal(utils.is_valid_msisdn("012345"), false);  // < 10
-            assert.equal(utils.is_valid_msisdn("01234567890123"), false);  // > 13
+            assert.equal(utils.is_valid_msisdn("012345", 10, 13), false);  // < 10
+            assert.equal(utils.is_valid_msisdn("01234567890123", 10, 13), false);  // > 13
         });
         it("validate if number starts with '0' and of correct length", function() {
-            assert(utils.is_valid_msisdn("01234567890"));
-            assert(utils.is_valid_msisdn("0123456789012"));
+            assert(utils.is_valid_msisdn("01234567890", 10, 13));
+            assert(utils.is_valid_msisdn("0123456789012", 10, 13));
         });
     });
 
