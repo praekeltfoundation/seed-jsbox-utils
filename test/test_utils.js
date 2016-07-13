@@ -19,7 +19,7 @@ var service = require('../lib');
 var utils = require('../lib/utils');
 
 describe("Testing utils functions", function() {
-    var testing_config = {
+    var config = {
         "testing_today": "2016-05-23"
     };
 
@@ -114,12 +114,8 @@ describe("Testing utils functions", function() {
     });
 
     describe("get_today", function() {
-        it("when date passed in, return the same as moment object", function() {
-            assert.deepEqual(utils.get_today("2016-05-19").format("YYYY-MM-DD"),
-                moment("2016-05-19").format("YYYY-MM-DD"));
-        });
         it("when date (config) passed in, return the same as moment object", function() {
-            assert.deepEqual(utils.get_today(testing_config.testing_today, "YYYY-MM-DD").format("YYYY-MM-DD"),
+            assert.deepEqual(utils.get_today(config).format("YYYY-MM-DD"),
                 moment("2016-05-23").format("YYYY-MM-DD"));
         });
         it("no date passed, return current moment object", function() {
@@ -130,13 +126,7 @@ describe("Testing utils functions", function() {
 
     describe("get_january", function() {
         it("get 1st jan moment date of any given year (test date)", function() {
-            assert.deepEqual(utils.get_january("2016-05-19").format("YYYY-MM-DD"),
-                moment("2016-01-01").format("YYYY-MM-DD"));
-            assert.deepEqual(utils.get_january("2013-08-24").format("YYYY-MM-DD"),
-                moment("2013-01-01").format("YYYY-MM-DD"));
-        });
-        it("get 1st jan moment date of current year", function() {
-            assert.deepEqual(utils.get_january(testing_config.testing_today, "YYYY-MM-DD").format("YYYY-MM-DD"),
+            assert.deepEqual(utils.get_january(config).format("YYYY-MM-DD"),
                 moment("2016-01-01").format("YYYY-MM-DD"));
         });
         it("get 1st jan moment date of current year", function() {
