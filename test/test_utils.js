@@ -1,7 +1,7 @@
-var Utils = require("../lib");
 var assert = require('assert');
 var moment = require('moment');
 var vumigo = require('vumigo_v02');
+var JsonApi = vumigo.http.api.JsonApi;
 
 var fixtures = require('./fixtures');
 
@@ -15,32 +15,430 @@ var App = vumigo.App;
 App.call(App);
 var $ = App.$;
 
-describe("Testing Utils Functions", function() {
+var service = require('../lib');
+var utils = require('../lib/utils');
 
-    var testing_config = {
+describe("Testing utils functions", function() {
+    var config = {
         "testing_today": "2016-05-23"
     };
-    var live_config = {};
 
+    describe("check_valid_number", function() {
+        it("only numbers is valid", function() {
+            assert(utils.check_valid_number("012345"), true);
+        });
+        it("any letters invalidates check", function() {
+            assert.ifError(utils.check_valid_number("012abc345"));
+        });
+        it("any other characters invalidates check", function() {
+            assert.equal(utils.check_valid_number("-123456"), false);
+            assert.equal(utils.check_valid_number("123-456"), false);
+            assert.equal(utils.check_valid_number("1234&56"), false);
+            assert.equal(utils.check_valid_number("1%234#56"), false);
+        });
+    });
+
+    describe("double_digit_number", function() {
+        it("single digit numbers should be prepended with '0'", function() {
+            assert.deepEqual(utils.double_digit_number(1), '01');
+            assert.deepEqual(utils.double_digit_number(4), '04');
+        });
+        it("double digits number should stay unchanged", function() {
+            assert.deepEqual(utils.double_digit_number(10), '10');
+            assert.deepEqual(utils.double_digit_number(95), '95');
+        });
+        it("doens't handle negative numbers; scrambled output", function() {
+            assert.deepEqual(utils.double_digit_number(-1), '0-1');
+        });
+    });
+
+    describe("check_number_in_range", function() {
+        it("should return true", function() {
+            assert(utils.check_number_in_range(5, 1, 10));
+            assert(utils.check_number_in_range(72, 1, 100));
+        });
+        it("should return true for min/max boundaries ", function() {
+            assert(utils.check_number_in_range(1, 1, 10));
+            assert(utils.check_number_in_range(10, 1, 10));
+        });
+        it("should return false", function() {
+            assert.ifError(utils.check_number_in_range(11, 1, 10));
+            assert.ifError(utils.check_number_in_range(77, 7, 17));
+        });
+    });
+
+    describe("is_valid_msisdn function", function() {
+        it("should not validate if passed a number that doesn't start with '0'", function() {
+            assert.equal(utils.is_valid_msisdn("12345", 10, 13), false);
+        });
+        it("should not validate if number starts with '0' but of incorrect length", function() {
+            assert.equal(utils.is_valid_msisdn("012345", 10, 13), false);  // < 10
+            assert.equal(utils.is_valid_msisdn("01234567890123", 10, 13), false);  // > 13
+        });
+        it("validate if number starts with '0' and of correct length", function() {
+            assert(utils.is_valid_msisdn("01234567890", 10, 13));
+            assert(utils.is_valid_msisdn("0123456789012", 10, 13));
+        });
+    });
+
+    describe("normalize_msisdn(raw, country_code)", function() {
+        it("return raw number unchanged if shortcode", function() {
+            assert.deepEqual(utils.normalize_msisdn("0123", "123"), "0123");
+        });
+        it.skip("remove chars that are not numbers or + from raw number", function() {
+            assert.deepEqual(utils.normalize_msisdn("012abc345", "123"), "+12312345");
+        });
+        it("starts with '00'; replace with '+', don't prepend country_code", function() {
+            assert.deepEqual(utils.normalize_msisdn("0012345", "123"), "+12345");
+        });
+        it("starts with '0'; replace with '+' + country_code", function() {
+            assert.deepEqual(utils.normalize_msisdn("012345", "123"), "+12312345");
+        });
+        it("starts with '+'; return raw number as is", function() {
+            assert.deepEqual(utils.normalize_msisdn("+12312345", "123"), "+12312345");
+        });
+        it("if raw number's length equals country_code, prepend '+'", function() {
+            assert.deepEqual(utils.normalize_msisdn("123456", "123456"), "+123456");
+        });
+    });
+
+    describe("get_timestamp", function() {
+        it("when date passed in, return the same as moment object", function() {
+            assert.deepEqual(utils.get_timestamp("YYYY-MM-DD-HH-mm-ss"),
+                new moment().format("YYYY-MM-DD-HH-mm-ss"));
+        });
+        it("no date passed, return current moment object", function() {
+            assert.deepEqual(utils.get_timestamp(),
+                new moment().format("YYYYMMDDHHmmss"));
+        });
+    });
+
+    describe("get_today", function() {
+        it("when date (config) passed in, return the same as moment object", function() {
+            assert.deepEqual(utils.get_today(config).format("YYYY-MM-DD"),
+                moment("2016-05-23").format("YYYY-MM-DD"));
+        });
+        it("no date passed, return current moment object", function() {
+            assert.deepEqual(utils.get_today().format("YYYY-MM-DD"),
+                new moment().format("YYYY-MM-DD"));
+        });
+    });
+
+    describe("get_january", function() {
+        it("get 1st jan moment date of any given year (test date)", function() {
+            assert.deepEqual(utils.get_january(config).format("YYYY-MM-DD"),
+                moment("2016-01-01").format("YYYY-MM-DD"));
+        });
+        it("get 1st jan moment date of current year", function() {
+            assert.deepEqual(utils.get_january().format("YYYY-MM-DD"),
+                new moment().format("YYYY-01-01"));
+        });
+    });
+
+    describe("is_valid_date", function() {
+        it("returns true for valid YYYY-MM-DD dates", function() {
+            assert(utils.is_valid_date("2016-05-19", "YYYY-MM-DD"));
+        });
+        it("returns true for valid YYYY/MM/DD dates", function() {
+            assert(utils.is_valid_date("2016/05/19", "YYYY/MM/DD"));
+        });
+        it("returns true for valid YYYY/DD/MM dates", function() {
+            assert(utils.is_valid_date("2016/19/05", "YYYY/DD/MM"));
+        });
+        it("returns true for valid DD MMMM 'YY dates", function() {
+            assert(utils.is_valid_date("05 May '16", "DD MMMM 'YY"));
+        });
+        it("returns false for valid date specified with unmatching format", function() {
+            assert.ifError(utils.is_valid_date("2016-05-19", "YYYY/MM/DD"));
+        });
+        it("returns false for invalid date", function() {
+            // invalid day
+            assert.equal(utils.is_valid_date("2015-05-32", "YYYY-MM-DD"), false);
+            // invalid day - leap year example
+            assert.equal(utils.is_valid_date("2015-02-29", "YYYY-MM-DD"), false);
+            // invalid month
+            assert.equal(utils.is_valid_date("2015-13-19", "YYYY-MM-DD"), false);
+            // invalid year
+            assert.equal(utils.is_valid_date("20151-05-19", "YYYY-MM-DD"), false);
+        });
+    });
+
+    describe("is_valid_year", function() {
+        it("valid; year within bounds", function() {
+            assert(utils.is_valid_year("2016", "1990", "2030"));
+            assert(utils.is_valid_year("2016", "2015", "2017"));
+            assert(utils.is_valid_year("2016", "2016", "2017"));
+            assert(utils.is_valid_year("2016", "2015", "2016"));
+            assert(utils.is_valid_year("2016", "2016", "2016"));
+        });
+        it("invalid; year outside bounds", function() {
+            assert.equal(utils.is_valid_year("2016", "2010", "2015"), false);
+            assert.equal(utils.is_valid_year("2016", "2017", "2020"), false);
+        });
+    });
+
+    describe("is_valid_day_of_month", function() {
+        it("valid day of the month", function() {
+            assert(utils.is_valid_day_of_month("1"));
+            assert(utils.is_valid_day_of_month("5"));
+            assert(utils.is_valid_day_of_month("15"));
+            assert(utils.is_valid_day_of_month("28"));
+            assert(utils.is_valid_day_of_month("30"));
+            assert(utils.is_valid_day_of_month("31"));
+        });
+        it("invalid day of the month", function() {
+            assert.equal(utils.is_valid_day_of_month("0"), false);
+            assert.equal(utils.is_valid_day_of_month("32"), false);
+        });
+    });
+
+    describe("is_weekend", function() {
+        it("should return false", function() {
+            assert.ifError(utils.is_weekend("2016-07-12"));  // wed
+            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
+        });
+        it("should return true", function() {
+            assert.ifError(utils.is_weekend("2016-07-15"));  // sat
+            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
+        });
+    });
+
+    /*describe("is_public_holiday", function() {
+        it("should return false", function() {
+            assert.ifError(utils.is_public_holiday("2016-07-12"));
+            assert.ifError(utils.is_public_holiday("2016/07/12", "YYYY/MM/DD"));
+        });
+        it("should return true", function() {
+
+        });
+    });*/
+
+    /*describe("is_out_of_hours", function() {
+        it("", function() {
+
+        });
+        it("", function() {
+
+        });
+    });*/
+
+    describe("get_entered_birth_date", function() {
+        it("without date separators specified", function() {
+            assert(utils.get_entered_birth_date("1982", "2", "1"), "1982-02-01");
+        });
+        it("with date separators specified", function() {
+            assert(utils.get_entered_birth_date("1982", "2", "1", "/"), "1982/02/01");
+        });
+    });
+
+    describe("check_valid_alpha", function() {
+        it("valid alphabetical", function() {
+            assert(utils.check_valid_alpha("abc"));
+            assert(utils.check_valid_alpha("JohnDeere"));
+        });
+        it("invalid alphabetical", function() {
+            assert.equal(utils.check_valid_alpha(""), false);
+            assert.equal(utils.check_valid_alpha(" "), false);
+            assert.equal(utils.check_valid_alpha("John Deere"), false);
+            assert.equal(utils.check_valid_alpha("A123"), false);
+            assert.equal(utils.check_valid_alpha("A#1"), false);
+        });
+    });
+
+    describe("is_alpha_numeric_only", function() {
+        it("valid alpha-numerics", function() {
+            assert(utils.is_alpha_numeric_only("John"));
+            assert(utils.is_alpha_numeric_only("John123"));
+            assert(utils.is_alpha_numeric_only("J1o2h3n"));
+        });
+        it("invalid alpha-numerics", function() {
+            assert.equal(utils.is_alpha_numeric_only(" 123"), false);
+            assert.equal(utils.is_alpha_numeric_only("Jo h n"), false);
+            assert.equal(utils.is_alpha_numeric_only("J1o#hn?"), false);
+        });
+    });
+
+    describe("is_valid_name", function() {
+        it("valid name", function() {
+            assert(utils.is_valid_name("John", 1, 5));
+            assert(utils.is_valid_name("Ba Ki-moon", 1, 15));
+            assert(utils.is_valid_name("-Jo-hn", 1, 10));
+        });
+        it("invalid name", function() {
+            assert.equal(utils.is_valid_name("123", 1, 5), false);
+            assert.equal(utils.is_valid_name("John", 1, 3), false);
+            assert.equal(utils.is_valid_name("John?", 1, 5), false);
+        });
+    });
+
+    describe("get_clean_first_word", function() {
+        it("should get and capitalise first word", function() {
+            assert.deepEqual(utils.get_clean_first_word("Only"), "ONLY");
+            assert.deepEqual(utils.get_clean_first_word("Once there was..."), "ONCE");
+            assert.deepEqual(utils.get_clean_first_word("Stop the noise"), "STOP");
+        });
+        it("should get clean first word if contains non-letters/numbers", function() {
+            assert.deepEqual(utils.get_clean_first_word("O$ne Two T3ree"), "ONE");
+            assert.deepEqual(utils.get_clean_first_word("O$1ne T2wo Th3ree"), "O1NE");
+        });
+    });
+
+    describe("is_true", function() {
+        it("valid", function() {
+            assert(utils.is_true(true));
+            assert(utils.is_true("true"));
+        });
+        it("invalid", function() {
+            assert.equal(utils.is_true(undefined), false);
+            assert.equal(utils.is_true("True"), false);
+            assert.equal(utils.is_true(false), false);
+        });
+    });
+
+    describe("make_month_choices function", function() {
+        it('should return a Choice array of correct size - forward in same year', function() {
+            // test data
+            var testDate = moment("2015-04-26");
+            var limit = 6;     // should determine the size of the returned array
+            var increment = 1; // should determine subsequent direction of array elements
+
+            // function call
+            var expectedChoiceArray = utils
+                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
+
+            // expected results
+            assert.equal(expectedChoiceArray.length, limit);
+            assert.equal(expectedChoiceArray[0].value, "201504");
+            assert.equal(expectedChoiceArray[1].value, "201505");
+            assert.equal(expectedChoiceArray[2].value, "201506");
+            assert.equal(expectedChoiceArray[3].value, "201507");
+            assert.equal(expectedChoiceArray[4].value, "201508");
+            assert.equal(expectedChoiceArray[5].value, "201509");
+        });
+        it('should return a Choice array of correct size - backwards in same year', function() {
+            // test data
+            var testDate = moment("2015-07-26");
+            var limit = 7;     // should determine the size of the returned array
+            var increment = -1; // should determine subsequent direction of array elements
+
+            // function call
+            var expectedChoiceArray = utils
+                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
+
+            // expected results
+            assert.equal(expectedChoiceArray.length, limit);
+            assert.equal(expectedChoiceArray[0].value, "201507");
+            assert.equal(expectedChoiceArray[1].value, "201506");
+            assert.equal(expectedChoiceArray[2].value, "201505");
+            assert.equal(expectedChoiceArray[3].value, "201504");
+            assert.equal(expectedChoiceArray[4].value, "201503");
+            assert.equal(expectedChoiceArray[5].value, "201502");
+            assert.equal(expectedChoiceArray[6].value, "201501");
+        });
+        it('should return a Choice array of correct size - forward across years', function() {
+            // test data
+            var testDate = moment("2015-12-26");
+            var limit = 4;     // should determine the size of the returned array
+            var increment = 1; // should determine subsequent direction of array elements
+
+            // function call
+            var expectedChoiceArray = utils
+                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
+
+            // expected results
+            assert.equal(expectedChoiceArray.length, limit);
+            assert.equal(expectedChoiceArray[0].value, "201512");
+            assert.equal(expectedChoiceArray[1].value, "201601");
+            assert.equal(expectedChoiceArray[2].value, "201602");
+            assert.equal(expectedChoiceArray[3].value, "201603");
+        });
+        it('should return an array of choices - backwards across years', function() {
+            // test data
+            var testDate = moment("2015-01-26");
+            var limit = 3;     // should determine the size of the returned array
+            var increment = -1; // should determine subsequent direction of array elements
+
+            // function call
+            var expectedChoiceArray = utils
+                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
+
+            // expected results
+            assert.equal(expectedChoiceArray.length, limit);
+            assert.equal(expectedChoiceArray[0].value, "201501");
+            assert.equal(expectedChoiceArray[1].value, "201412");
+            assert.equal(expectedChoiceArray[2].value, "201411");
+        });
+        it('should return an array of choices - forwards, with elements separated by 3 months', function() {
+            // test data
+            var testDate = moment("2015-01-26");
+            var limit = 3;     // should determine the size of the returned array
+            var increment = 3; // should determine subsequent direction of array elements
+
+            // function call
+            var expectedChoiceArray = utils
+                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
+
+            // expected results
+            assert.equal(expectedChoiceArray.length, limit);
+            assert.equal(expectedChoiceArray[0].value, "201501");
+            assert.equal(expectedChoiceArray[1].value, "201504");
+            assert.equal(expectedChoiceArray[2].value, "201507");
+        });
+    });
+});
+
+describe("Testing app- and service call functions", function() {
     var app;
     var tester;
 
+    // initialising services
+    var IdentityStore = service.IdentityStore;
+    var Hub = service.Hub;
+    var StageBasedMessaging = service.StageBasedMessaging;
+    var MessageSender = service.MessageSender;
+
+    var is;
+    var hub;
+    var sbm;
+    var ms;
+
     beforeEach(function() {
-        app = new App("state_start");
+        app = new App("state_one");
 
         var interrupt = true;
+
+        app.init = function(){
+            // initialising services
+            var base_url = app.im.config.services.identity_store.prefix;
+            var auth_token = app.im.config.services.identity_store.token;
+            is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = app.im.config.services.hub.prefix;
+            auth_token = app.im.config.services.hub.token;
+            hub = new Hub(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = app.im.config.services.staged_based_messaging.prefix;
+            auth_token = app.im.config.services.staged_based_messaging.token;
+            sbm = new StageBasedMessaging(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = app.im.config.services.message_sender.prefix;
+            auth_token = app.im.config.services.message_sender.token;
+            ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
+        };
+
         // override normal state adding
         app.add = function(name, creator) {
             app.states.add(name, function(name, opts) {
-                if (!interrupt || !Utils.timed_out(app.im))
+                if (!interrupt || !utils.timed_out(app.im))
                     return creator(name, opts);
 
                 interrupt = false;
                 opts = opts || {};
                 opts.name = name;
 
-                if (Utils.timeout_redirect(app.im)) {
-                    return app.states.create("state_start");
+                if (utils.timeout_redirect(app.im)) {
+                    return app.states.create(name, opts);
+                    // return app.states.create("state_one"); if you want to redirect to the start state
                 } else {
                     return app.states.create("state_timed_out", opts);
                 }
@@ -63,7 +461,7 @@ describe("Testing Utils Functions", function() {
                             creator_opts: creator_opts
                         };
                     } else if (choice.value === "restart") {
-                        return "state_start";
+                        return "state_one";
                     } else {
                         return "state_end";
                     }
@@ -71,41 +469,39 @@ describe("Testing Utils Functions", function() {
             });
         });
 
-        app.add("state_start", function(name) {
+        app.add("state_one", function(name) {
             return new FreeText(name, {
-                question: "This is the start state.",
-                next: "state_one"
+                question: "This is the first state.",
+                next: "state_two"
             });
         });
 
         // a HTTP GET request is made going from this state to the next
-        app.add("state_one", function(name) {
+        app.add("state_two", function(name) {
             return new FreeText(name, {
-                question: "This is the first state.",
+                question: "This is the second state.",
                 next: function(content) {
-                    return Utils
-                        .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
+                    return is.get_identity("cb245673-aa41-4302-ac47-00000000001")
                         .then(function(response) {
-                            return "state_two";
+                            return "state_three";
                         });
                 }
             });
         });
 
-        app.add("state_two", function(name) {
+        app.add("state_three", function(name) {
             return new FreeText(name, {
-                question: "This is the second state.",
-                next: "state_three"
+                question: "This is the third state.",
+                next: "state_four"
             });
         });
 
         // a HTTP POST request is made going from this state to the next/last
-        app.add("state_three", function(name) {
+        app.add("state_four", function(name) {
             return new FreeText(name, {
-                question: "This is the third state.",
+                question: "This is the forth state.",
                 next: function(content) {
-                    return Utils
-                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
+                    return is.create_identity({ "msisdn": app.im.user.addr })
                         .then(function(response) {
                             return "state_end";
                         });
@@ -116,7 +512,7 @@ describe("Testing Utils Functions", function() {
         app.add("state_end", function(name) {
             return new EndState(name, {
                 text: "This is the end state.",
-                next: "state_start"
+                next: "state_one"
             });
         });
 
@@ -130,31 +526,32 @@ describe("Testing Utils Functions", function() {
                 transport_name: 'aggregator_sms',
                 transport_type: 'sms',
                 testing_message_id: '0170b7bb-978e-4b8a-35d2-662af5b6daee',  // testing only
+                logging: 'off',  // 'off' is default; 'test' outputs to console.log, 'prod' to im.log
                 services: {
-                    identities: {
-                        api_token: 'test_token_identities',
-                        url: "http://localhost:8001/api/v1/"
+                    identity_store: {
+                        prefix: 'http://is.localhost:8001/api/v1/',
+                        token: 'test IdentityStore'
                     },
-                    registrations: {
-                        api_token: 'test_token_registrations',
-                        url: "http://localhost:8002/api/v1/"
+                    hub: {
+                        prefix: 'http://hub.localhost:8002/api/v1/',
+                        token: 'test Hub'
                     },
-                    subscriptions: {
-                        api_token: 'test_token_subscriptions',
-                        url: "http://localhost:8005/api/v1/"
+                    staged_based_messaging: {
+                        prefix: 'http://sbm.localhost:8003/api/v1/',
+                        token: 'test Staged-based Messaging'
                     },
                     message_sender: {
-                        api_token: 'test_token_message_sender',
-                        url: "http://localhost:8006/api/v1/"
+                        prefix: 'http://ms.localhost:8004/api/v1/',
+                        token: 'test Message-sender'
                     }
                 },
                 no_timeout_redirects: [
-                    'state_start',
-                    'state_two',
+                    'state_one',
+                    'state_three',
                     'state_end'
                 ],
                 timeout_redirects: [
-                    'state_three'
+                    'state_four'
                 ]
             })
             .setup(function(api) {
@@ -163,25 +560,10 @@ describe("Testing Utils Functions", function() {
             ;
     });
 
-    describe("Tests check_fixtures_used (& service_api_call) function", function() {
+    describe("check_fixtures_used function", function() {
         it("no fixtures used", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .input(
-                    "blah"  // state_start
-                )
-                .check.interaction({
-                    state: "state_one"
-                })
-                .check(function(api) {
-                    Utils.check_fixtures_used(api, []);
-                })
-                .run();
-        });
-        it("one fixture used; GET request performed", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .setup.user.state('state_one')
                 .input(
                     "blah"  // state_one
                 )
@@ -189,7 +571,22 @@ describe("Testing Utils Functions", function() {
                     state: "state_two"
                 })
                 .check(function(api) {
-                    Utils.check_fixtures_used(api, [0]);
+                    utils.check_fixtures_used(api, []);
+                })
+                .run();
+        });
+        it("one fixture used; GET request performed", function() {
+            return tester
+                .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
+                .input(
+                    "blah"  // state_two
+                )
+                .check.interaction({
+                    state: "state_three"
+                })
+                .check(function(api) {
+                    utils.check_fixtures_used(api, [2]);
                 })
                 .run();
         });
@@ -197,42 +594,42 @@ describe("Testing Utils Functions", function() {
             return tester
                 .setup.user.addr('08212345678')
                 .inputs(
-                    "blah"  // state_start
-                    , "blah"  // state_one
+                    "blah"  // state_one
                     , "blah"  // state_two
                     , "blah"  // state_three
+                    , "blah"  // state_four
                 )
                 .check.interaction({
                     state: "state_end"
                 })
                 .check(function(api) {
-                    Utils.check_fixtures_used(api, [0,1]);
+                    utils.check_fixtures_used(api, [2,3]);
                 })
                 .run();
         });
     });
 
-    describe("Tests timed_out function", function() {
+    describe("timed_out function", function() {
         it("no time-out redirect; move on to next state", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .setup.user.state('state_one')
+                .setup.user.state('state_two')
                 .inputs(
-                    "blah"  // state_one
+                    "blah"  // state_two
                     , {session_event: "close"}
                     , {session_event: "new"}
                 )
                 .check.interaction({
-                    state: "state_two"
+                    state: "state_three"
                 })
                 .run();
         });
         it("timed out; to state_timed_out", function() {
             return tester
                 .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
                 .inputs(
-                    "blah"  // state_start
-                    , {session_event: "close"}
+                    {session_event: "close"}
                     , {session_event: "new"}
                 )
                 .check.interaction({
@@ -240,40 +637,41 @@ describe("Testing Utils Functions", function() {
                 })
                 .run();
         });
-        it("choice made to 'Continue' after time out occured; go on to next state", function() {
+        // use same setup initially
+        it("choice made to 'Continue' after time out occurred; go on to next state", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .setup.user.state('state_one')
+                .setup.user.state('state_two')
                 .inputs(
                     {session_event: "close"}
                     , {session_event: "new"}
-                    , "1"
+                    , "1"  // state_two
                 )
                 .check.interaction({
-                    state: "state_one"
+                    state: "state_two"
                 })
                 .run();
         });
         it("choice made to 'Restart' after time out occured; go to start state", function() {
             return tester
                 .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
                 .inputs(
-                    "blah"  // state_start
-                    , {session_event: "close"}
+                    {session_event: "close"}
                     , {session_event: "new"}
                     , "2"
                 )
                 .check.interaction({
-                    state: "state_start"
+                    state: "state_one"
                 })
                 .run();
         });
         it("choice made to 'Exit' after time out occured; go to end state", function() {
             return tester
                 .setup.user.addr('08212345678')
+                .setup.user.state('state_two')
                 .inputs(
-                    "blah"  // state_start
-                    , {session_event: "close"}
+                    {session_event: "close"}
                     , {session_event: "new"}
                     , "3"
                 )
@@ -284,92 +682,56 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("Tests timeout_redirect function", function() {
-        it("time-out redirect; from state_three to state_start)", function() {
+    describe("timeout_redirect function", function() {
+        it("time-out redirect; from state_four to state_one)", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .setup.user.state('state_two')
+                .setup.user.state('state_three')
                 .inputs(
-                    "blah"  // state_two
+                    "blah"  // state_three
                     , {session_event: "close"}
                     , {session_event: "new"}
                 )
                 .check.interaction({
-                    state: "state_start"
+                    state: "state_four"
                 })
                 .run();
         });
     });
 
-    describe("Tests service_api_call (& check_fixtures_used) function", function() {
-        it("GET request", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .check(function(api) {
-                    return Utils
-                        .service_api_call("identities", "get", null, null, "identity/"+app.im.user.addr+"/", app.im)
-                        .then(function(response) {
-                            assert.equal(response.code, "200");
-                        });
-                })
-                .check(function(api) {
-                    Utils.check_fixtures_used(api, [0]);
-                })
-                .run();
-        });
-        it("POST request", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .check(function(api) {
-                    return Utils
-                        .service_api_call("identities", "post", null, { "msisdn": app.im.user.addr }, "", app.im)
-                        .then(function(response) {
-                            assert.equal(response.code, "201");
-                        });
-                })
-                .check(function(api) {
-                    Utils.check_fixtures_used(api, [1]);
-                })
-                .run();
-        });
-        it("PATCH request", function() {
-            return tester
-                .setup.user.addr('08212345678')
-                .check(function(api) {
-                    var endpoint = "identity/"+app.im.user.addr+"/completed";
-                    return Utils
-                        .service_api_call("identities", "patch", null, { "completed": true }, endpoint, app.im)
-                        .then(function(response) {
-                            assert.equal(response.code, "200");
-                        });
-                })
-                .check(function(api) {
-                    Utils.check_fixtures_used(api, [2]);
-                })
-                .run();
-        });
-    });
-
-    describe("Tests log_service_api_call function", function() {
+    describe("log_service_call function (IdentityStore's)", function() {
         it("logging of http GET request", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .setup.user.state('state_one')
+                .setup.user.state('state_two')
+                .setup.config.app({logging: "prod"})
                 .input(
-                    "blah"  // state_one
+                    "blah"  // state_two
                 )
                 .check.interaction({
-                    state: "state_two"
+                    state: "state_three"
                 })
                 .check(function(api) {
                     var expected_log_entry = [
-                        'Request: get http://localhost:8001/api/v1/identity/08212345678/',
+                        'Request: GET http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/',
                         'Payload: null',
                         'Params: null',
                         'Response: {"code":200,'+
-                                    '"request":{"url":"http://localhost:8001/api/v1/identity/08212345678/",'+
+                                    '"request":{"url":"http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",'+
                                     '"method":"GET"},'+
-                                    '"body":"{\\"count\\":0,\\"next\\":null,\\"previous\\":null,\\"results\\":[]}"}'
+                                    '"body":"{'+
+                                        '\\"url\\":\\"http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
+                                        '\\"id\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
+                                        '\\"version\\":1,'+
+                                        '\\"details\\":{'+
+                                            '\\"default_addr_type\\":\\"msisdn\\",'+
+                                            '\\"addresses\\":{'+
+                                                '\\"msisdn\\":{\\"+8212345678\\":{}}'+
+                                            '}'+
+                                        '},'+
+                                        '\\"created_at\\":\\"2016-06-21T06:13:29.693272Z\\",'+
+                                        '\\"updated_at\\":\\"2016-06-21T06:13:29.693298Z\\"}"'+
+                                    '}'
                     ].join('\n');
 
                     var log_string_array = api.log.store["20"];
@@ -382,23 +744,39 @@ describe("Testing Utils Functions", function() {
         it("logging of http POST request", function() {
             return tester
                 .setup.user.addr('08212345678')
-                .setup.user.state('state_three')
+                .setup.user.state('state_four')
+                .setup.config.app({logging: "prod"})
                 .input(
-                    "blah"  // state_three
+                    "blah"  // state_four
                 )
                 .check.interaction({
                     state: "state_end"
                 })
                 .check(function(api) {
                     var expected_log_entry = [
-                        'Request: post http://localhost:8001/api/v1/',
-                        'Payload: {"msisdn":"08212345678"}',
+                        'Request: POST http://is.localhost:8001/api/v1/identities/',
+                        'Payload: {"details":{"default_addr_type":"msisdn","addresses":{"msisdn":{"08212345678":{}}}}}',
                         'Params: null',
                         'Response: {"code":201,'+
-                            '"request":{"url":"http://localhost:8001/api/v1/",'+
+                            '"request":{"url":"http://is.localhost:8001/api/v1/identities/",'+
                             '"method":"POST",'+
-                            '"body":"{\\"msisdn\\":\\"08212345678\\"}"},'+
-                            '"body":"{}"}'
+                            '"body":'+
+                            '"{\\"details\\":{'+
+                                '\\"default_addr_type\\":'+
+                                '\\"msisdn\\",'+
+                                '\\"addresses\\":{'+
+                                    '\\"msisdn\\":{'+
+                                        '\\"08212345678\\":{}}}}}"},'+
+                            '"body":'+
+                                '"{\\"url\\":\\"http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
+                                '\\"id\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
+                                '\\"version\\":1,'+
+                                '\\"details\\":'+
+                                    '{\\"default_addr_type\\":\\"msisdn\\",'+
+                                    '\\"addresses\\":'+
+                                        '{\\"msisdn\\":{\\"08212345678\\":{}}}},'+
+                            '\\"created_at\\":\\"2016-06-21T06:13:29.693272Z\\",'+
+                            '\\"updated_at\\":\\"2016-06-21T06:13:29.693298Z\\"}"}'
                     ].join('\n');
 
                     var log_string_array = api.log.store["20"];
@@ -410,143 +788,22 @@ describe("Testing Utils Functions", function() {
         });
     });
 
-    describe("Tests is_valid_msisdn function", function() {
-        it("should not validate if passed a number that doesn't start with '0'", function() {
-            assert.equal(Utils.is_valid_msisdn("12345"), false);
-        });
-        it("should not validate if number starts with '0' but of incorrect length", function() {
-            assert.equal(Utils.is_valid_msisdn("012345"), false);  // < 10
-            assert.equal(Utils.is_valid_msisdn("01234567890123"), false);  // > 13
-        });
-        it("validate if number starts with '0' and of correct length", function() {
-            assert(Utils.is_valid_msisdn("01234567890"));
-            assert(Utils.is_valid_msisdn("0123456789012"));
-        });
-    });
-
-    describe("Tests get_today function", function() {
-        it("when date passed in, return the same as moment object", function() {
-            assert.deepEqual(Utils.get_today(testing_config).format("YYYY-MM-DD"),
-                moment("2016-05-23").format("YYYY-MM-DD"));
-        });
-        it("no date passed, return current moment object", function() {
-            assert.deepEqual(Utils.get_today(live_config).format("YYYY-MM-DD"),
-                new moment().format("YYYY-MM-DD"));
-        });
-    });
-
-    describe("Tests get_january function", function() {
-        it("get 1st jan moment date of current year", function() {
-            assert.deepEqual(Utils.get_january(testing_config).format("YYYY-MM-DD"),
-                moment("2016-01-01").format("YYYY-MM-DD"));
-        });
-    });
-
-    describe("Tests make_month_choices function", function() {
-        it('should return a Choice array of correct size - forward in same year', function() {
-            // test data
-            var testDate = moment("2015-04-26");
-            var limit = 6;     // should determine the size of the returned array
-            var increment = 1; // should determine subsequent direction of array elements
-
-            // function call
-            var expectedChoiceArray = Utils
-                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
-
-            // expected results
-            assert.equal(expectedChoiceArray.length, limit);
-            assert.equal(expectedChoiceArray[0].value, "201504");
-            assert.equal(expectedChoiceArray[1].value, "201505");
-            assert.equal(expectedChoiceArray[2].value, "201506");
-            assert.equal(expectedChoiceArray[3].value, "201507");
-            assert.equal(expectedChoiceArray[4].value, "201508");
-            assert.equal(expectedChoiceArray[5].value, "201509");
-        });
-        it('should return a Choice array of correct size - backwards in same year', function() {
-            // test data
-            var testDate = moment("2015-07-26");
-            var limit = 7;     // should determine the size of the returned array
-            var increment = -1; // should determine subsequent direction of array elements
-
-            // function call
-            var expectedChoiceArray = Utils
-                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
-
-            // expected results
-            assert.equal(expectedChoiceArray.length, limit);
-            assert.equal(expectedChoiceArray[0].value, "201507");
-            assert.equal(expectedChoiceArray[1].value, "201506");
-            assert.equal(expectedChoiceArray[2].value, "201505");
-            assert.equal(expectedChoiceArray[3].value, "201504");
-            assert.equal(expectedChoiceArray[4].value, "201503");
-            assert.equal(expectedChoiceArray[5].value, "201502");
-            assert.equal(expectedChoiceArray[6].value, "201501");
-        });
-        it('should return a Choice array of correct size - forward across years', function() {
-            // test data
-            var testDate = moment("2015-12-26");
-            var limit = 4;     // should determine the size of the returned array
-            var increment = 1; // should determine subsequent direction of array elements
-
-            // function call
-            var expectedChoiceArray = Utils
-                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
-
-            // expected results
-            assert.equal(expectedChoiceArray.length, limit);
-            assert.equal(expectedChoiceArray[0].value, "201512");
-            assert.equal(expectedChoiceArray[1].value, "201601");
-            assert.equal(expectedChoiceArray[2].value, "201602");
-            assert.equal(expectedChoiceArray[3].value, "201603");
-        });
-        it('should return an array of choices - backwards across years', function() {
-            // test data
-            var testDate = moment("2015-01-26");
-            var limit = 3;     // should determine the size of the returned array
-            var increment = -1; // should determine subsequent direction of array elements
-
-            // function call
-            var expectedChoiceArray = Utils
-                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
-
-            // expected results
-            assert.equal(expectedChoiceArray.length, limit);
-            assert.equal(expectedChoiceArray[0].value, "201501");
-            assert.equal(expectedChoiceArray[1].value, "201412");
-            assert.equal(expectedChoiceArray[2].value, "201411");
-        });
-        it('should return an array of choices - forwards, with elements separated by 3 months', function() {
-            // test data
-            var testDate = moment("2015-01-26");
-            var limit = 3;     // should determine the size of the returned array
-            var increment = 3; // should determine subsequent direction of array elements
-
-            // function call
-            var expectedChoiceArray = Utils
-                .make_month_choices($, testDate, limit, increment, "YYYYMM", "MMMM YY");
-
-            // expected results
-            assert.equal(expectedChoiceArray.length, limit);
-            assert.equal(expectedChoiceArray[0].value, "201501");
-            assert.equal(expectedChoiceArray[1].value, "201504");
-            assert.equal(expectedChoiceArray[2].value, "201507");
-        });
-    });
-
-    describe("IDENTITY-specfic util functions", function() {
-        describe("Testing get_identity_by_address function", function() {
+    describe("IDENTITY_STORE util functions", function() {
+        describe("Testing search_by_address function", function() {
             it("returns corresponding identity to msisdn passed in", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .get_identity_by_address({"msisdn": "08212345678"}, app.im)
-                            .then(function(identity) {
+                        return is.list_by_address({"msisdn": "08212345678"})
+                            .then(function(identities_found) {
+                                // get the first identity in the list of identities
+                                var identity = identities_found.results[0];
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                                assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "08212345678");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [3]);
+                        utils.check_fixtures_used(api, [1]);
                     })
                     .run();
             });
@@ -556,15 +813,14 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .get_identity("cb245673-aa41-4302-ac47-00000000001", app.im)
+                        return is.get_identity("cb245673-aa41-4302-ac47-00000000001", app.im)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                                 assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "+8212345678");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [4]);
+                        utils.check_fixtures_used(api, [2]);
                     })
                     .run();
             });
@@ -574,14 +830,13 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .create_identity(app.im, {"msisdn": "08212345678"}, null, null)
+                        return is.create_identity({"msisdn": "08212345678"}, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [5]);
+                        utils.check_fixtures_used(api, [3]);
                     })
                     .run();
             });
@@ -589,14 +844,17 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .create_identity(app.im, {"msisdn": "08212345678"}, null, "cb245673-aa41-4302-ac47-00000000002")
+                        return is.create_identity(
+                                {"msisdn": "08212345678"},
+                                {"operator_id": "cb245673-aa41-4302-ac47-00000000002"}
+                            )
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                                assert.equal(identity.operator, "cb245673-aa41-4302-ac47-00000000002");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [6]);
+                        utils.check_fixtures_used(api, [4]);
                     })
                     .run();
             });
@@ -604,14 +862,17 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .create_identity(app.im, {"msisdn": "08212345678"}, "cb245673-aa41-4302-ac47-00000000003", null)
+                        return is.create_identity(
+                                {"msisdn": "08212345678"},
+                                {"communicate_through_id": "cb245673-aa41-4302-ac47-00000000003"}
+                            )
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                                assert.equal(identity.communicate_through, "cb245673-aa41-4302-ac47-00000000003");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [7]);
+                        utils.check_fixtures_used(api, [5]);
                     })
                     .run();
             });
@@ -619,14 +880,21 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .create_identity(app.im, {"msisdn": "08212345678"}, "cb245673-aa41-4302-ac47-00000000003", "cb245673-aa41-4302-ac47-00000000002")
+                        return is.create_identity(
+                                {"msisdn": "08212345678"},
+                                {
+                                    "operator_id": "cb245673-aa41-4302-ac47-00000000002",
+                                    "communicate_through_id": "cb245673-aa41-4302-ac47-00000000003"
+                                }
+                            )
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                                assert.equal(identity.operator, "cb245673-aa41-4302-ac47-00000000002");
+                                assert.equal(identity.communicate_through, "cb245673-aa41-4302-ac47-00000000003");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [8]);
+                        utils.check_fixtures_used(api, [6]);
                     })
                     .run();
             });
@@ -636,14 +904,13 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .get_or_create_identity({"msisdn": "08212345678"}, app.im, null)
+                        return is.get_or_create_identity({"msisdn": "08212345678"}, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [3]);
+                        utils.check_fixtures_used(api, [1]);
                     })
                     .run();
             });
@@ -651,14 +918,13 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08211111111')
                     .check(function(api) {
-                        return Utils
-                            .get_or_create_identity({"msisdn": "08211111111"}, app.im, null)
+                        return is.get_or_create_identity({"msisdn": "08211111111"}, null)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00011111111");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [9,10]);
+                        utils.check_fixtures_used(api, [7,8]);
                     })
                     .run();
             });
@@ -668,8 +934,9 @@ describe("Testing Utils Functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .update_identity(app.im, {
+                        return is.update_identity(
+                            "cb245673-aa41-4302-ac47-00000000001",
+                            {
                                 "id": "cb245673-aa41-4302-ac47-00000000001",
                                 "details": {
                                     "addresses": {
@@ -679,208 +946,50 @@ describe("Testing Utils Functions", function() {
                                     }
                                 }
                             })
-                            .then(function(identity_id) {
-                                assert.equal(identity_id, "cb245673-aa41-4302-ac47-00000000001");
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [11]);
+                        utils.check_fixtures_used(api, [9]);
                     })
                     .run();
             });
         });
-    });
-
-    describe("SUBSCRIPTION-specfic util functions", function() {
-        describe("Testing get_subscription function", function() {
-            it("returns subscription object", function() {
-                return tester
-                    .setup.user.addr('08212345678')
-                    .check(function(api) {
-                        return Utils
-                            .get_subscription(app.im, "51fcca25-2e85-4c44-subscription-1112")
-                            .then(function(subscription) {
-                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1112");
-                                assert.equal(subscription.identity, "cb245673-aa41-4302-ac47-00000000001");
-                            });
-                    })
-                    .check(function(api) {
-                        Utils.check_fixtures_used(api, [15]);
-                    })
-                    .run();
-            });
-        });
-        describe("Testing get_active_subscriptions_by_identity function", function() {
-            it("returns subscriptions for identity", function() {
-                return tester
-                    .setup.user.addr('08212345678')
-                    .check(function(api) {
-                        return Utils
-                            .get_active_subscriptions_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
-                            .then(function(subscriptions) {
-                                assert.equal(subscriptions[0].id, "51fcca25-2e85-4c44-subscription-1111");
-                                assert.equal(subscriptions[1].id, "51fcca25-2e85-4c44-subscription-1112");
-                                assert.equal(subscriptions.length, "2");
-                            });
-                    })
-                    .check(function(api) {
-                        Utils.check_fixtures_used(api, [12]);
-                    })
-                    .run();
-            });
-        });
-        describe("Testing get_active_subscription_by_identity function", function() {
-            it("returns subscription for identity", function() {
-                return tester
-                    .setup.user.addr('08212345678')
-                    .check(function(api) {
-                        return Utils
-                            .get_active_subscription_by_identity(app.im, "cb245673-aa41-4302-ac47-00000000001")
-                            .then(function(subscription) {
-                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1111");
-                            });
-                    })
-                    .check(function(api) {
-                        Utils.check_fixtures_used(api, [12]);
-                    })
-                    .run();
-            });
-        });
-        describe("Testing has_active_subscription function", function() {
-            it("returns true for active subscription", function() {
-                return tester
-                    .setup.user.addr('08212345678')
-                    .check(function(api) {
-                        return Utils
-                            .has_active_subscription("cb245673-aa41-4302-ac47-00000000001", app.im)
-                            .then(function(subscription) {
-                                assert(subscription);
-                            });
-                    })
-                    .check(function(api) {
-                        Utils.check_fixtures_used(api, [12]);
-                    })
-                    .run();
-            });
-            it("returns false for no active subscription", function() {
-                return tester
-                    .setup.user.addr('08287654321')
-                    .check(function(api) {
-                        return Utils
-                            .has_active_subscription("cb245673-aa41-4302-ac47-00000000002", app.im)
-                            .then(function(subscription) {
-                                assert.ifError(subscription);
-                            });
-                    })
-                    .check(function(api) {
-                        Utils.check_fixtures_used(api, [13]);
-                    })
-                    .run();
-            });
-        });
-        describe("Testing update_subscription function", function() {
-            it("returns same subscription id as passed in", function() {
-                return tester
-                    .setup.user.addr('08212345678')
-                    .check(function(api) {
-                        return Utils
-                            .update_subscription(app.im, {
-                                'id': "51fcca25-2e85-4c44-subscription-1111",
-                                'identity': 'cb245673-aa41-4302-ac47-00000000001',
-                                'messageset': 1,
-                                'next_sequence_number': 2,
-                                'lang': "ibo_NG",
-                                'active': true,
-                                'completed': true
-                            })
-                            .then(function(subscription_id) {
-                                assert.equal(subscription_id, "51fcca25-2e85-4c44-subscription-1111");
-                            });
-                    })
-                    .check(function(api) {
-                        Utils.check_fixtures_used(api, [14]);
-                    })
-                    .run();
-            });
-        });
-    });
-
-    describe("MESSAGESET-specfic util functions", function() {
-        describe("Testing get_messageset function", function() {
-            it("returns messageset object", function() {
-                return tester
-                    .setup.user.addr('08212345678')
-                    .check(function(api) {
-                        return Utils
-                            .get_messageset(app.im, 2)
-                            .then(function(messageset) {
-                                assert.equal(messageset.id, 2);
-                                assert.equal(messageset.next_set, 3);
-                            });
-                    })
-                    .check(function(api) {
-                        Utils.check_fixtures_used(api, [16]);
-                    })
-                    .run();
-            });
-        });
-    });
-
-    describe("MESSAGE-SENDER-specfic util functions", function() {
-        describe("Testing save_inbound_message function", function() {
-            it("returns inbound id", function() {
-                return tester
-                    .setup.user.addr('08212345678')
-                    .check(function(api) {
-                        return Utils
-                            .save_inbound_message(app.im, "08212345678", "Testing... 1,2,3")
-                            .then(function(inbound_id) {
-                                assert.equal(inbound_id, "1");
-                            });
-                    })
-                    .check(function(api) {
-                        Utils.check_fixtures_used(api, [17]);
-                    })
-                    .run();
-            });
-        });
-    });
-
-    describe("OPTOUT-specfic util functions", function() {
         describe("Testing optout function", function() {
-            it("returns perform optout", function() {
+            it("performs optout", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .optout(app.im,
-                                "cb245673-aa41-4302-ac47-00000000001",
-                                "miscarriage",
-                                null,
-                                "08212345678",
-                                "seed-jsbox-utils",
-                                app.im.config.testing_message_id
-                            )
+                        var optout_info = {
+                            "optout_type": "stop",
+                            "identity": "cb245673-aa41-4302-ac47-00000000001",
+                            "reason": "miscarriage",
+                            "address_type": "msisdn",
+                            "address": "08212345678",
+                            "request_source": "seed-jsbox-utils",
+                            "requestor_source_id": app.im.config.testing_message_id
+                        };
+                        return is.optout(optout_info)
                             .then(function(response) {
-                                assert.equal(response.code, "201");
+                                assert.equal(response.id, 1);
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [18]);
+                        utils.check_fixtures_used(api, [16]);
                     })
                     .run();
             });
         });
     });
 
-    describe("REGISTRATION-specfic util functions", function() {
+    describe("HUB util functions", function() {
         describe("Testing create_registration function", function() {
-            it("returns registration id on performing optout", function() {
+            it("returns registration data", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return Utils
-                            .create_registration(app.im, {
+                        return hub.create_registration({
                                 stage: "prebirth",
                                 mother_id: "cb245673-aa41-4302-ac47-1234567890",
                                 data: {
@@ -892,15 +1001,189 @@ describe("Testing Utils Functions", function() {
                                     msg_type: "text"
                                 }
                             })
-                            .then(function(registration_id) {
-                                assert.equal(registration_id, "reg_for_00000000002_uuid");
+                            .then(function(registration) {
+                                assert.equal(registration.id, "reg_for_00000000002_uuid");
                             });
                     })
                     .check(function(api) {
-                        Utils.check_fixtures_used(api, [19]);
+                        utils.check_fixtures_used(api, [17]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing update_registration function", function() {
+            it("returns registration data", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return hub.update_registration({
+                                "stage": "postbirth",
+                                "mother_id": "cb245673-aa41-4302-ac47-1234567890"
+                            })
+                            .then(function(registration) {
+                                assert.equal(registration.id, "reg_for_00000000002_uuid");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [18]);
                     })
                     .run();
             });
         });
     });
+
+    describe("STAGED-BASED_MESSAGING util functions", function() {
+        describe("Testing get_subscription function", function() {
+            it("returns subscription object", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.get_subscription("51fcca25-2e85-4c44-subscription-1112")
+                            .then(function(subscription) {
+                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1112");
+                                assert.equal(subscription.identity, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [13]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_active_subscriptions_by_identity function", function() {
+            it("returns subscriptions for identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.list_active_subscriptions("cb245673-aa41-4302-ac47-00000000001")
+                            .then(function(subscriptions) {
+                                assert.equal(subscriptions.results[0].id, "51fcca25-2e85-4c44-subscription-1111");
+                                assert.equal(subscriptions.results[1].id, "51fcca25-2e85-4c44-subscription-1112");
+                                assert.equal(subscriptions.results.length, "2");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_active_subscription by identity function", function() {
+            it("returns subscription for identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.get_active_subscription("cb245673-aa41-4302-ac47-00000000001")
+                            .then(function(subscription) {
+                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1111");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing has_active_subscription function", function() {
+            it("returns true for active subscription", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.has_active_subscription("cb245673-aa41-4302-ac47-00000000001")
+                            .then(function(subscription) {
+                                assert(subscription);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10]);
+                    })
+                    .run();
+            });
+            it("returns false for no active subscription", function() {
+                return tester
+                    .setup.user.addr('08287654321')
+                    .check(function(api) {
+                        return sbm.has_active_subscription("cb245673-aa41-4302-ac47-00000000002")
+                            .then(function(subscription) {
+                                assert.ifError(subscription);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [11]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing update_subscription function", function() {
+            it("returns same subscription id as passed in", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.update_subscription({
+                                'id': "51fcca25-2e85-4c44-subscription-1111",
+                                'identity': 'cb245673-aa41-4302-ac47-00000000001',
+                                'messageset': 1,
+                                'next_sequence_number': 2,
+                                'lang': "ibo_NG",
+                                'active': true,
+                                'completed': true
+                            })
+                            .then(function(subscription) {
+                                assert.equal(subscription.id, "51fcca25-2e85-4c44-subscription-1111");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [12]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing get_messageset function", function() {
+            it("returns messageset object", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.get_messageset(2)
+                            .then(function(messageset) {
+                                assert.equal(messageset.id, 2);
+                                assert.equal(messageset.next_set, 3);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [14]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("MESSAGE-SENDER util functions", function() {
+        describe("Testing save_inbound_message function", function() {
+            it("returns inbound id", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        var msg_data = {
+                            "message_id": app.im.config.testing_message_id,
+                            "in_reply_to": null,
+                            "to_addr": app.im.config.channel,
+                            "from_addr": "08212345678",
+                            "content": "Testing... 1,2,3",
+                            "transport_name": app.im.config.transport_name,
+                            "transport_type": app.im.config.transport_type,
+                            "helper_metadata": {}
+                        };
+                        return ms.save_inbound_message(msg_data)
+                            .then(function(inbound_message) {
+                                assert.equal(inbound_message.id, "1");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [15]);
+                    })
+                    .run();
+            });
+        });
+    });
+
 });
