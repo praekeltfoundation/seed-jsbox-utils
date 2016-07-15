@@ -1,5 +1,5 @@
 {
-  "name": "seed_jsbox_utils",
+  "name": "@praekelt/seed_jsbox_utils",
   "version": "0.1.0",
   "description": "JSbox specific functions",
   "main": "lib/index.js",
