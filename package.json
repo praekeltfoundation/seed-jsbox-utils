@@ -1,6 +1,6 @@
 {
   "name": "@praekelt/seed_jsbox_utils",
-  "version": "0.1.3",
+  "version": "0.2.0",
   "description": "JSbox specific functions",
   "main": "lib/index.js",
   "scripts": {
@@ -11,8 +11,8 @@
     "url": "git://github.com/praekelt/seed-jsbox-utils.git"
   },
   "keywords": [
-      "vumi",
-      "sandbox"
+    "vumi",
+    "sandbox"
   ],
   "author": "Praekelt Foundation",
   "license": "BSD",
