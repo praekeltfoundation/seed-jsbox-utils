@@ -654,7 +654,7 @@ module.exports = function() {
         // 18: update registration cb245673-aa41-4302-ac47-00000000002
         {
             'request': {
-                'method': 'PATCH',
+                'method': 'POST',
                 'headers': {
                     'Authorization': ['Token test Hub'],
                     'Content-Type': ['application/json']
