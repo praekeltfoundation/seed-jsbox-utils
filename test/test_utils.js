@@ -1016,12 +1016,12 @@ describe("Testing app- and service call functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return hub.update_registration({
-                                "stage": "postbirth",
-                                "mother_id": "cb245673-aa41-4302-ac47-1234567890"
+                        return hub.create_change({
+                                "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                                "action": "change_stage"
                             })
-                            .then(function(registration) {
-                                assert.equal(registration.id, "reg_for_00000000002_uuid");
+                            .then(function(response) {
+                                
                             });
                     })
                     .check(function(api) {
