@@ -190,6 +190,27 @@ describe("Testing utils functions", function() {
             assert.equal(utils.is_valid_day_of_month("0"), false);
             assert.equal(utils.is_valid_day_of_month("32"), false);
         });
+        it("valid day of the month (month and year parameters provided)", function() {
+            assert(utils.is_valid_day_of_month("1", "11", "1981"));
+            assert(utils.is_valid_day_of_month("5", "03", "1956"));
+            assert(utils.is_valid_day_of_month("30", "1", "2017"));
+            assert(utils.is_valid_day_of_month("31", "12", "1900"));
+            assert(utils.is_valid_day_of_month("29", "2", "1996"));  // leap year
+        });
+        it("invalid day of the month (month and year parameters provided)", function() {
+            assert.equal(utils.is_valid_day_of_month("31", "02", "1900"), false);
+            assert.equal(utils.is_valid_day_of_month("0", "7", "1996"), false);
+        });
+        it("valid day of the month (month parameter provided", function() {
+            assert(utils.is_valid_day_of_month("1", "11"));
+            assert(utils.is_valid_day_of_month("5", "03"));
+            assert(utils.is_valid_day_of_month("31", "12"));
+            assert(utils.is_valid_day_of_month("29", "2"));
+        });
+        it("invalid day of the month (month parameter provided)", function() {
+            assert.equal(utils.is_valid_day_of_month("31", "02"), false);
+            assert.equal(utils.is_valid_day_of_month("0", "7"), false);
+        });
     });
 
     describe("is_weekend", function() {
