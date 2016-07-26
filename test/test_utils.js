@@ -178,39 +178,46 @@ describe("Testing utils functions", function() {
     });
 
     describe("is_valid_day_of_month", function() {
-        it("valid day of the month", function() {
-            assert(utils.is_valid_day_of_month("1"));
+        it("valid day parameters", function() {
+            assert(utils.is_valid_day_of_month("1")); // boundary case
             assert(utils.is_valid_day_of_month("5"));
             assert(utils.is_valid_day_of_month("15"));
             assert(utils.is_valid_day_of_month("28"));
             assert(utils.is_valid_day_of_month("30"));
-            assert(utils.is_valid_day_of_month("31"));
+            assert(utils.is_valid_day_of_month("31")); // boundary case
         });
-        it("invalid day of the month", function() {
-            assert.equal(utils.is_valid_day_of_month("0"), false);
-            assert.equal(utils.is_valid_day_of_month("32"), false);
+        it("invalid day parameters", function() {
+            assert.equal(utils.is_valid_day_of_month("0"), false); // boundary case
+            assert.equal(utils.is_valid_day_of_month("32"), false); // boundary case
+            assert.equal(utils.is_valid_day_of_month("abc"), false); // alpha
+            assert.equal(utils.is_valid_day_of_month("1.5"), false); // decimal
+            assert.equal(utils.is_valid_day_of_month("Monday"), false); // string
         });
-        it("valid day of the month (month and year parameters provided)", function() {
+        it("valid day & month parameters", function() {
+            assert(utils.is_valid_day_of_month("1", "11"));
+            assert(utils.is_valid_day_of_month("5", "03"));
+            assert(utils.is_valid_day_of_month("31", "12"));
+            assert(utils.is_valid_day_of_month("29", "2"));  // leap year case
+        });
+        it("invalid day & month parameters", function() {
+            assert.equal(utils.is_valid_day_of_month("30", "02"), false); // feb <= 29 days
+            assert.equal(utils.is_valid_day_of_month("0", "7"), false); // invalid day
+            assert.equal(utils.is_valid_day_of_month("7", "0"), false); // invalid month
+        });
+        it("valid day, month and year parameters", function() {
             assert(utils.is_valid_day_of_month("1", "11", "1981"));
             assert(utils.is_valid_day_of_month("5", "03", "1956"));
             assert(utils.is_valid_day_of_month("30", "1", "2017"));
             assert(utils.is_valid_day_of_month("31", "12", "1900"));
             assert(utils.is_valid_day_of_month("29", "2", "1996"));  // leap year
         });
-        it("invalid day of the month (month and year parameters provided)", function() {
-            assert.equal(utils.is_valid_day_of_month("31", "02", "1900"), false);
-            assert.equal(utils.is_valid_day_of_month("0", "7", "1996"), false);
+        it("invalid day, month and year parameters", function() {
+            assert.equal(utils.is_valid_day_of_month("31", "02", "1900"), false); // feb <= 29 days
+            assert.equal(utils.is_valid_day_of_month("0", "7", "1996"), false); // invalid day
+            assert.equal(utils.is_valid_day_of_month("3", "13", "1996"), false); // invalid month
+            assert.equal(utils.is_valid_day_of_month("13", "7", "-1996"), false); // invalid year
         });
-        it("valid day of the month (month parameter provided", function() {
-            assert(utils.is_valid_day_of_month("1", "11"));
-            assert(utils.is_valid_day_of_month("5", "03"));
-            assert(utils.is_valid_day_of_month("31", "12"));
-            assert(utils.is_valid_day_of_month("29", "2"));
-        });
-        it("invalid day of the month (month parameter provided)", function() {
-            assert.equal(utils.is_valid_day_of_month("31", "02"), false);
-            assert.equal(utils.is_valid_day_of_month("0", "7"), false);
-        });
+
     });
 
     describe("is_weekend", function() {
