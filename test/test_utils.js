@@ -178,17 +178,54 @@ describe("Testing utils functions", function() {
     });
 
     describe("is_valid_day_of_month", function() {
-        it("valid day of the month", function() {
-            assert(utils.is_valid_day_of_month("1"));
-            assert(utils.is_valid_day_of_month("5"));
-            assert(utils.is_valid_day_of_month("15"));
-            assert(utils.is_valid_day_of_month("28"));
-            assert(utils.is_valid_day_of_month("30"));
-            assert(utils.is_valid_day_of_month("31"));
-        });
-        it("invalid day of the month", function() {
+        it("only day is provided", function() {
+            // only 1-31 should be valid
             assert.equal(utils.is_valid_day_of_month("0"), false);
+            assert.equal(utils.is_valid_day_of_month("01"), true);
+            assert.equal(utils.is_valid_day_of_month("31"), true);
             assert.equal(utils.is_valid_day_of_month("32"), false);
+
+            // check different formatting
+            // . valid
+            assert.equal(utils.is_valid_day_of_month(1), true);
+            assert.equal(utils.is_valid_day_of_month("1"), true);
+            assert.equal(utils.is_valid_day_of_month("001"), true);
+            // . invalid
+            assert.equal(utils.is_valid_day_of_month("1.5"), false);
+            assert.equal(utils.is_valid_day_of_month("Monday"), false);
+        });
+        it("day and month is provided", function() {
+            // 31st should only be valid in certain months
+            assert.equal(utils.is_valid_day_of_month("31", "01"), true);  // jan 31
+            assert.equal(utils.is_valid_day_of_month("30", "04"), true);  // apr 30
+            assert.equal(utils.is_valid_day_of_month("31", "04"), false);  // apr 31
+            // feb 29 should be valid, not feb 30
+            assert.equal(utils.is_valid_day_of_month("29", "02"), true);  // feb 29
+            assert.equal(utils.is_valid_day_of_month("30", "02"), false);  // feb 30
+
+            // check different formatting
+            // . valid
+            assert.equal(utils.is_valid_day_of_month("1", "1"), true);  // jan 1
+            assert.equal(utils.is_valid_day_of_month(1, 1), true);  // jan 1
+            // . invalid
+            assert.equal(utils.is_valid_day_of_month(1, "January"), false);
+        });
+        it("day, month and year is provided", function() {
+            // 31st should only be valid in certain months
+            assert.equal(utils.is_valid_day_of_month("31", "01", "2016"), true);  // jan 31
+            assert.equal(utils.is_valid_day_of_month("30", "04", "2016"), true);  // apr 30
+            assert.equal(utils.is_valid_day_of_month("31", "04", "2016"), false);  // apr 31
+            // feb 29 should be valid only in leap year
+            assert.equal(utils.is_valid_day_of_month("29", "02", "2000"), true);  // leap year
+            assert.equal(utils.is_valid_day_of_month("28", "02", "2001"), true);  // normal year
+            assert.equal(utils.is_valid_day_of_month("29", "02", "2001"), false);  // normal year
+
+            // check different formatting
+            // . valid
+            assert.equal(utils.is_valid_day_of_month("1", "1", "1901"), true);  // jan 1 1901
+            assert.equal(utils.is_valid_day_of_month(1, 1, 1901), true);  // jan 1 1901
+            // . invalid
+            assert.equal(utils.is_valid_day_of_month(1, 1, "two thousand"), false);  // jan 1 2000
         });
     });
 
