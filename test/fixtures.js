@@ -616,12 +616,16 @@ module.exports = function() {
                 },
                 'url': "http://hub.localhost:8002/api/v1/registration/",
                 'data':  {
-                    "msg_receiver": "friend_only",
-                    "receiver_id": "cb245673-aa41-4302-ac47-00000000002",
-                    "operator_id": "cb245673-aa41-4302-ac47-00000000007",
-                    "gravida": "3",
-                    "language": "ibo_NG",
-                    "msg_type": "text"
+                    "stage": "prebirth",
+                    "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                    "data": {
+                        "msg_receiver": "friend_only",
+                        "receiver_id": "cb245673-aa41-4302-ac47-00000000002",
+                        "operator_id": "cb245673-aa41-4302-ac47-00000000007",
+                        "gravida": "3",
+                        "language": "ibo_NG",
+                        "msg_type": "text"
+                    }
                 }
             },
             'response': {
@@ -656,6 +660,10 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://hub.localhost:8002/api/v1/change/",
+                'data': {
+                    "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                    "action": "change_stage"
+                }
             },
             'response': {
                 'code': 201,
