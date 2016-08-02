@@ -446,19 +446,19 @@ describe("Testing app- and service call functions", function() {
 
         app.init = function(){
             // initialising services
-            var base_url = app.im.config.services.identity_store.prefix;
+            var base_url = app.im.config.services.identity_store.url;
             var auth_token = app.im.config.services.identity_store.token;
             is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = app.im.config.services.hub.prefix;
+            base_url = app.im.config.services.hub.url;
             auth_token = app.im.config.services.hub.token;
             hub = new Hub(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = app.im.config.services.staged_based_messaging.prefix;
+            base_url = app.im.config.services.staged_based_messaging.url;
             auth_token = app.im.config.services.staged_based_messaging.token;
             sbm = new StageBasedMessaging(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = app.im.config.services.message_sender.prefix;
+            base_url = app.im.config.services.message_sender.url;
             auth_token = app.im.config.services.message_sender.token;
             ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
         };
@@ -566,19 +566,19 @@ describe("Testing app- and service call functions", function() {
                 logging: 'off',  // 'off' is default; 'test' outputs to console.log, 'prod' to im.log
                 services: {
                     identity_store: {
-                        prefix: 'http://is.localhost:8001/api/v1/',
+                        url: 'http://is.localhost:8001/api/v1/',
                         token: 'test IdentityStore'
                     },
                     hub: {
-                        prefix: 'http://hub.localhost:8002/api/v1/',
+                        url: 'http://hub.localhost:8002/api/v1/',
                         token: 'test Hub'
                     },
                     staged_based_messaging: {
-                        prefix: 'http://sbm.localhost:8003/api/v1/',
+                        url: 'http://sbm.localhost:8003/api/v1/',
                         token: 'test Staged-based Messaging'
                     },
                     message_sender: {
-                        prefix: 'http://ms.localhost:8004/api/v1/',
+                        url: 'http://ms.localhost:8004/api/v1/',
                         token: 'test Message-sender'
                     }
                 },
@@ -1053,12 +1053,12 @@ describe("Testing app- and service call functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return hub.update_registration({
-                                "stage": "postbirth",
-                                "mother_id": "cb245673-aa41-4302-ac47-1234567890"
+                        return hub.create_change({
+                                "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                                "action": "change_stage"
                             })
-                            .then(function(registration) {
-                                assert.equal(registration.id, "reg_for_00000000002_uuid");
+                            .then(function(response) {
+                                assert.equal(response.id, 1);
                             });
                     })
                     .check(function(api) {
