@@ -178,17 +178,54 @@ describe("Testing utils functions", function() {
     });
 
     describe("is_valid_day_of_month", function() {
-        it("valid day of the month", function() {
-            assert(utils.is_valid_day_of_month("1"));
-            assert(utils.is_valid_day_of_month("5"));
-            assert(utils.is_valid_day_of_month("15"));
-            assert(utils.is_valid_day_of_month("28"));
-            assert(utils.is_valid_day_of_month("30"));
-            assert(utils.is_valid_day_of_month("31"));
-        });
-        it("invalid day of the month", function() {
+        it("only day is provided", function() {
+            // only 1-31 should be valid
             assert.equal(utils.is_valid_day_of_month("0"), false);
+            assert.equal(utils.is_valid_day_of_month("01"), true);
+            assert.equal(utils.is_valid_day_of_month("31"), true);
             assert.equal(utils.is_valid_day_of_month("32"), false);
+
+            // check different formatting
+            // . valid
+            assert.equal(utils.is_valid_day_of_month(1), true);
+            assert.equal(utils.is_valid_day_of_month("1"), true);
+            assert.equal(utils.is_valid_day_of_month("001"), true);
+            // . invalid
+            assert.equal(utils.is_valid_day_of_month("1.5"), false);
+            assert.equal(utils.is_valid_day_of_month("Monday"), false);
+        });
+        it("day and month is provided", function() {
+            // 31st should only be valid in certain months
+            assert.equal(utils.is_valid_day_of_month("31", "01"), true);  // jan 31
+            assert.equal(utils.is_valid_day_of_month("30", "04"), true);  // apr 30
+            assert.equal(utils.is_valid_day_of_month("31", "04"), false);  // apr 31
+            // feb 29 should be valid, not feb 30
+            assert.equal(utils.is_valid_day_of_month("29", "02"), true);  // feb 29
+            assert.equal(utils.is_valid_day_of_month("30", "02"), false);  // feb 30
+
+            // check different formatting
+            // . valid
+            assert.equal(utils.is_valid_day_of_month("1", "1"), true);  // jan 1
+            assert.equal(utils.is_valid_day_of_month(1, 1), true);  // jan 1
+            // . invalid
+            assert.equal(utils.is_valid_day_of_month(1, "January"), false);
+        });
+        it("day, month and year is provided", function() {
+            // 31st should only be valid in certain months
+            assert.equal(utils.is_valid_day_of_month("31", "01", "2016"), true);  // jan 31
+            assert.equal(utils.is_valid_day_of_month("30", "04", "2016"), true);  // apr 30
+            assert.equal(utils.is_valid_day_of_month("31", "04", "2016"), false);  // apr 31
+            // feb 29 should be valid only in leap year
+            assert.equal(utils.is_valid_day_of_month("29", "02", "2000"), true);  // leap year
+            assert.equal(utils.is_valid_day_of_month("28", "02", "2001"), true);  // normal year
+            assert.equal(utils.is_valid_day_of_month("29", "02", "2001"), false);  // normal year
+
+            // check different formatting
+            // . valid
+            assert.equal(utils.is_valid_day_of_month("1", "1", "1901"), true);  // jan 1 1901
+            assert.equal(utils.is_valid_day_of_month(1, 1, 1901), true);  // jan 1 1901
+            // . invalid
+            assert.equal(utils.is_valid_day_of_month(1, 1, "two thousand"), false);  // jan 1 2000
         });
     });
 
@@ -409,19 +446,19 @@ describe("Testing app- and service call functions", function() {
 
         app.init = function(){
             // initialising services
-            var base_url = app.im.config.services.identity_store.prefix;
+            var base_url = app.im.config.services.identity_store.url;
             var auth_token = app.im.config.services.identity_store.token;
             is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = app.im.config.services.hub.prefix;
+            base_url = app.im.config.services.hub.url;
             auth_token = app.im.config.services.hub.token;
             hub = new Hub(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = app.im.config.services.staged_based_messaging.prefix;
+            base_url = app.im.config.services.staged_based_messaging.url;
             auth_token = app.im.config.services.staged_based_messaging.token;
             sbm = new StageBasedMessaging(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = app.im.config.services.message_sender.prefix;
+            base_url = app.im.config.services.message_sender.url;
             auth_token = app.im.config.services.message_sender.token;
             ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
         };
@@ -529,19 +566,19 @@ describe("Testing app- and service call functions", function() {
                 logging: 'off',  // 'off' is default; 'test' outputs to console.log, 'prod' to im.log
                 services: {
                     identity_store: {
-                        prefix: 'http://is.localhost:8001/api/v1/',
+                        url: 'http://is.localhost:8001/api/v1/',
                         token: 'test IdentityStore'
                     },
                     hub: {
-                        prefix: 'http://hub.localhost:8002/api/v1/',
+                        url: 'http://hub.localhost:8002/api/v1/',
                         token: 'test Hub'
                     },
                     staged_based_messaging: {
-                        prefix: 'http://sbm.localhost:8003/api/v1/',
+                        url: 'http://sbm.localhost:8003/api/v1/',
                         token: 'test Staged-based Messaging'
                     },
                     message_sender: {
-                        prefix: 'http://ms.localhost:8004/api/v1/',
+                        url: 'http://ms.localhost:8004/api/v1/',
                         token: 'test Message-sender'
                     }
                 },
@@ -1016,12 +1053,12 @@ describe("Testing app- and service call functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return hub.update_registration({
-                                "stage": "postbirth",
-                                "mother_id": "cb245673-aa41-4302-ac47-1234567890"
+                        return hub.create_change({
+                                "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                                "action": "change_stage"
                             })
-                            .then(function(registration) {
-                                assert.equal(registration.id, "reg_for_00000000002_uuid");
+                            .then(function(response) {
+                                assert.equal(response.id, 1);
                             });
                     })
                     .check(function(api) {
