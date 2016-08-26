@@ -1221,6 +1221,28 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
+        describe("Testing create_outbound_message function", function() {
+            it("returns ", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        var msg_data = {
+                            "to_addr": "+278212345678",
+                            "identity": "cb245673-aa41-4302-ac47-00000000001",
+                            "content": "testing... testing... 1,2,3",
+                            "metadata": {}
+                        };
+                        return ms.create_outbound_message(msg_data)
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [19]);
+                    })
+                    .run();
+            });
+        });
     });
 
 });
