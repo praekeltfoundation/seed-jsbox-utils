@@ -115,7 +115,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": { "default": true }
                             }
                         }
                     }
@@ -131,7 +131,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": { "default": true }
                             }
                         }
                     },
@@ -155,7 +155,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": { "default": true }
                             }
                         }
                     },
@@ -172,7 +172,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": { "default": true }
                             }
                         },
                     },
@@ -197,7 +197,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": { "default": true }
                             }
                         }
                     },
@@ -214,7 +214,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": { "default": true }
                             }
                         }
                     },
@@ -238,7 +238,9 @@ module.exports = function() {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
-                            "msisdn": {"08212345678":{}}
+                            "msisdn": {
+                                "08212345678": { "default": true }
+                            }
                         }
                     },
                     "communicate_through":"cb245673-aa41-4302-ac47-00000000003",
@@ -254,7 +256,9 @@ module.exports = function() {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
-                            "msisdn": {"08212345678":{}}
+                            "msisdn": {
+                                "08212345678": { "default": true }
+                            }
                         }
                     },
                     "communicate_through":"cb245673-aa41-4302-ac47-00000000003",
@@ -302,7 +306,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08211111111": {}
+                                "08211111111": { "default": true }
                             }
                         }
                     }
@@ -318,7 +322,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08211111111": {}
+                                "08211111111": { "default": true }
                             }
                         }
                     },
