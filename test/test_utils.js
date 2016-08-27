@@ -345,6 +345,22 @@ describe("Testing utils functions", function() {
         });
     });
 
+    describe("validate_id_za", function() {
+        it("valid sa id's", function() {
+            assert(utils.validate_id_za("8104265087082"));
+            assert(utils.validate_id_za("8202010057085"));
+            assert(utils.validate_id_za("5405295094086"));
+        });
+        it("invalid sa id's (of length 13)", function() {
+            assert.ifError(utils.validate_id_za("8104267805280"));
+            assert.ifError(utils.validate_id_za("1234015009087"));
+        });
+        it("invalid sa id's (length not 13)", function() {
+            assert.ifError(utils.validate_id_za("123"));  // length 3
+            assert.ifError(utils.validate_id_za("81042650870820"));  // length 14
+        });
+    });
+
     describe("is_true", function() {
         it("valid", function() {
             assert(utils.is_true(true));
