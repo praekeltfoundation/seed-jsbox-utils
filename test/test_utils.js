@@ -320,6 +320,47 @@ describe("Testing utils functions", function() {
         });
     });
 
+    describe("extract_za_id_dob", function() {
+        it("valid dates extracted", function() {
+            assert.deepEqual(utils.extract_za_id_dob("8104267805280"),
+                moment("1981-04-26").format("YYYY-MM-DD"));
+            assert.deepEqual(utils.extract_za_id_dob("8202017805280"),
+                moment("1982-02-01").format("YYYY-MM-DD"));
+        });
+        it("invalid dates extracted", function() {
+            // 31 of Feb
+            assert.deepEqual(utils.extract_za_id_dob("8102317805280"), "Invalid date");
+        });
+        it("invalid - id number length < 6", function() {
+            // fifth digit intepreted as single-digit day
+            assert.deepEqual(utils.extract_za_id_dob("81042"),
+                moment("1981-04-02").format("YYYY-MM-DD"));
+
+            // no day found in id number will default to '01'
+            assert.deepEqual(utils.extract_za_id_dob("8104"),
+                moment("1981-04-01").format("YYYY-MM-DD"));
+
+            // 'Invalid date' when input length < 4
+            assert.deepEqual(utils.extract_za_id_dob("810"), "Invalid date");
+        });
+    });
+
+    describe("validate_id_za", function() {
+        it("valid sa id's", function() {
+            assert(utils.validate_id_za("8104265087082"));
+            assert(utils.validate_id_za("8202010057085"));
+            assert(utils.validate_id_za("5405295094086"));
+        });
+        it("invalid sa id's (of length 13)", function() {
+            assert.ifError(utils.validate_id_za("8104267805280"));
+            assert.ifError(utils.validate_id_za("1234015009087"));
+        });
+        it("invalid sa id's (length not 13)", function() {
+            assert.ifError(utils.validate_id_za("123"));  // length 3
+            assert.ifError(utils.validate_id_za("81042650870820"));  // length 14
+        });
+    });
+
     describe("is_true", function() {
         it("valid", function() {
             assert(utils.is_true(true));
@@ -792,7 +833,7 @@ describe("Testing app- and service call functions", function() {
                 .check(function(api) {
                     var expected_log_entry = [
                         'Request: POST http://is.localhost:8001/api/v1/identities/',
-                        'Payload: {"details":{"default_addr_type":"msisdn","addresses":{"msisdn":{"08212345678":{}}}}}',
+                        'Payload: {"details":{"default_addr_type":"msisdn","addresses":{"msisdn":{"08212345678":{"default":true}}}}}',
                         'Params: null',
                         'Response: {"code":201,'+
                             '"request":{"url":"http://is.localhost:8001/api/v1/identities/",'+
@@ -803,7 +844,7 @@ describe("Testing app- and service call functions", function() {
                                 '\\"msisdn\\",'+
                                 '\\"addresses\\":{'+
                                     '\\"msisdn\\":{'+
-                                        '\\"08212345678\\":{}}}}}"},'+
+                                        '\\"08212345678\\":{\\"default\\":true}}}}}"},'+
                             '"body":'+
                                 '"{\\"url\\":\\"http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
                                 '\\"id\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
@@ -811,7 +852,7 @@ describe("Testing app- and service call functions", function() {
                                 '\\"details\\":'+
                                     '{\\"default_addr_type\\":\\"msisdn\\",'+
                                     '\\"addresses\\":'+
-                                        '{\\"msisdn\\":{\\"08212345678\\":{}}}},'+
+                                        '{\\"msisdn\\":{\\"08212345678\\":{\\"default\\":true}}}},'+
                             '\\"created_at\\":\\"2016-06-21T06:13:29.693272Z\\",'+
                             '\\"updated_at\\":\\"2016-06-21T06:13:29.693298Z\\"}"}'
                     ].join('\n');
@@ -1232,6 +1273,38 @@ describe("Testing app- and service call functions", function() {
                     })
                     .check(function(api) {
                         utils.check_fixtures_used(api, [15]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing create_outbound_message function", function() {
+            it("creates outbound message", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return ms.create_outbound_message("cb245673-aa41-4302-ac47-00000000001",
+                            "+278212345678", "testing... testing... 1,2,3")
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [20]);
+                    })
+                    .run();
+            });
+            it("creates outbound message (metadata supplied)", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return ms.create_outbound_message("cb245673-aa41-4302-ac47-00000000001",
+                            "+278212345678", "testing... testing... 1,2,3", { "someFlag": true })
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [21]);
                     })
                     .run();
             });
