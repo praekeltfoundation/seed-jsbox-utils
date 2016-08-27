@@ -1058,6 +1058,21 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
+            it("performs optin", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return is.optin("cb245673-aa41-4302-ac47-00000000001",
+                            "msisdn", "08212345678")
+                            .then(function(response) {
+                                assert.equal(response.accepted, true);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [19]);
+                    })
+                    .run();
+            });
         });
     });
 
@@ -1274,7 +1289,7 @@ describe("Testing app- and service call functions", function() {
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [19]);
+                        utils.check_fixtures_used(api, [20]);
                     })
                     .run();
             });
@@ -1289,7 +1304,7 @@ describe("Testing app- and service call functions", function() {
                             });
                     })
                     .check(function(api) {
-                        utils.check_fixtures_used(api, [20]);
+                        utils.check_fixtures_used(api, [21]);
                     })
                     .run();
             });

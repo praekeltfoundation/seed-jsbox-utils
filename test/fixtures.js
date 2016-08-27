@@ -677,7 +677,30 @@ module.exports = function() {
             }
         },
 
-        // 19: create outbound message
+        // 19: Optin SUCCESS - cb245673-aa41-4302-ac47-00000000001
+        {
+            'request': {
+                'method': 'POST',
+                'headers': {
+                    'Authorization': ['Token test IdentityStore'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://is.localhost:8001/api/v1/optin/',
+                'data': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "address_type": "msisdn",
+                    "address": "08212345678"
+                }
+            },
+            'response': {
+                'code': 201,
+                'data': {
+                    "accepted": true
+                }
+            }
+        },
+
+        // 20: create outbound message
         {
             'request': {
                 'method': 'POST',
@@ -712,7 +735,7 @@ module.exports = function() {
             }
         },
 
-        // 20: create outbound message (metadata supplied)
+        // 21: create outbound message (metadata supplied)
         {
             'request': {
                 'method': 'POST',
