@@ -1021,8 +1021,11 @@ describe("Testing app- and service call functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        var address = { "msisdn": "08212345678"};
-                        return is.optin("cb245673-aa41-4302-ac47-00000000001", address)
+                        var optin_info = {
+                            "identity": "cb245673-aa41-4302-ac47-00000000001",
+                            "address_type": "msisdn",
+                            "address": "08212345678"};
+                        return is.optin(optin_info)
                             .then(function(response) {
                                 assert.equal(response.accepted, true);
                             });

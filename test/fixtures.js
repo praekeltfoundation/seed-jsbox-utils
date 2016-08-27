@@ -684,14 +684,8 @@ module.exports = function() {
                 'url': 'http://is.localhost:8001/api/v1/optin/',
                 'data': {
                     "identity": "cb245673-aa41-4302-ac47-00000000001",
-                    "details": {
-                        "default_addr_type": "msisdn",
-                        "addresses": {
-                            "msisdn": {
-                                "08212345678": {}
-                            }
-                        }
-                    }
+                    "address_type": "msisdn",
+                    "address": "08212345678"
                 }
             },
             'response': {
