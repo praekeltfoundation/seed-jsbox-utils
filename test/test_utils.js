@@ -320,6 +320,31 @@ describe("Testing utils functions", function() {
         });
     });
 
+    describe("extract_za_id_dob", function() {
+        it("valid dates extracted", function() {
+            assert.deepEqual(utils.extract_za_id_dob("8104267805280"),
+                moment("1981-04-26").format("YYYY-MM-DD"));
+            assert.deepEqual(utils.extract_za_id_dob("8202017805280"),
+                moment("1982-02-01").format("YYYY-MM-DD"));
+        });
+        it("invalid dates extracted", function() {
+            // 31 of Feb
+            assert.deepEqual(utils.extract_za_id_dob("8102317805280"), "Invalid date");
+        });
+        it("invalid - id number length < 6", function() {
+            // fifth digit intepreted as single-digit day
+            assert.deepEqual(utils.extract_za_id_dob("81042"),
+                moment("1981-04-02").format("YYYY-MM-DD"));
+
+            // no day found in id number will default to '01'
+            assert.deepEqual(utils.extract_za_id_dob("8104"),
+                moment("1981-04-01").format("YYYY-MM-DD"));
+
+            // 'Invalid date' when input length < 4
+            assert.deepEqual(utils.extract_za_id_dob("810"), "Invalid date");
+        });
+    });
+
     describe("validate_id_za", function() {
         it("valid sa id's", function() {
             assert(utils.validate_id_za("8104265087082"));
