@@ -1,6 +1,6 @@
 {
   "name": "seed-jsbox-utils",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "JSbox specific functions",
   "main": "lib/index.js",
   "scripts": {
