@@ -992,6 +992,20 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
+            it("returns null if no identity is found", function() {
+                return tester
+                    .setup.user.addr('08212345679')
+                    .check(function(api) {
+                        return is.get_identity_by_address({"msisdn": "08212345679"})
+                            .then(function(identity) {
+                                assert.equal(identity, null);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [22]);
+                    })
+                    .run();
+            });
         });
         describe("Testing get_or_create_identity function", function() {
             it("gets existing identity", function() {

@@ -773,5 +773,31 @@ module.exports = function() {
             }
         },
 
+        // 22: get identity 08212345679 by msisdn
+        {
+            'repeatable': true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'include_inactive': 'false',
+                    'details__addresses__msisdn': '08212345679'
+                },
+                'headers': {
+                    'Authorization': ['Token test IdentityStore'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://is.localhost:8001/api/v1/identities/search/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 1,
+                    "next": null,
+                    "previous": null,
+                    "results": []
+                }
+            }
+        },
+
     ];
 };
