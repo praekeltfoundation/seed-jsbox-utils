@@ -273,6 +273,7 @@ module.exports = function() {
             'request': {
                 'method': 'GET',
                 'params': {
+                    'include_inactive': 'false',
                     'details__addresses__msisdn': '08211111111'
                 },
                 'headers': {

@@ -872,7 +872,7 @@ describe("Testing app- and service call functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.list_by_address({"msisdn": "08212345678"})
+                        return is.list_by_address({"msisdn": "08212345678"}, true)
                             .then(function(identities_found) {
                                 // get the first identity in the list of identities
                                 var identity = identities_found.results[0];
@@ -977,12 +977,28 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
+        describe("Testing get_identity_by_address function", function() {
+            it("gets existing identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return is.get_identity_by_address({"msisdn": "08212345678"}, true)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [1]);
+                    })
+                    .run();
+            });
+        });
         describe("Testing get_or_create_identity function", function() {
             it("gets existing identity", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.get_or_create_identity({"msisdn": "08212345678"}, null)
+                        return is.get_or_create_identity({"msisdn": "08212345678"}, null, true)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
