@@ -273,6 +273,7 @@ module.exports = function() {
             'request': {
                 'method': 'GET',
                 'params': {
+                    'include_inactive': 'false',
                     'details__addresses__msisdn': '08211111111'
                 },
                 'headers': {
@@ -768,6 +769,32 @@ module.exports = function() {
                     'delivered': "False",
                     'version': 1,
                     'url': 'http://ms.localhost:8004/api/v1/outbound/c99bd21e-6b9d-48ba-9f07-1e8e406737fe/'
+                }
+            }
+        },
+
+        // 22: get identity 08212345679 by msisdn
+        {
+            'repeatable': true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'include_inactive': 'false',
+                    'details__addresses__msisdn': '08212345679'
+                },
+                'headers': {
+                    'Authorization': ['Token test IdentityStore'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://is.localhost:8001/api/v1/identities/search/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 1,
+                    "next": null,
+                    "previous": null,
+                    "results": []
                 }
             }
         },
