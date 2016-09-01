@@ -229,36 +229,6 @@ describe("Testing utils functions", function() {
         });
     });
 
-    describe("is_weekend", function() {
-        it("should return false", function() {
-            assert.ifError(utils.is_weekend("2016-07-12"));  // wed
-            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
-        });
-        it("should return true", function() {
-            assert.ifError(utils.is_weekend("2016-07-15"));  // sat
-            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
-        });
-    });
-
-    /*describe("is_public_holiday", function() {
-        it("should return false", function() {
-            assert.ifError(utils.is_public_holiday("2016-07-12"));
-            assert.ifError(utils.is_public_holiday("2016/07/12", "YYYY/MM/DD"));
-        });
-        it("should return true", function() {
-
-        });
-    });*/
-
-    /*describe("is_out_of_hours", function() {
-        it("", function() {
-
-        });
-        it("", function() {
-
-        });
-    });*/
-
     describe("get_entered_birth_date", function() {
         it("without date separators specified", function() {
             assert(utils.get_entered_birth_date("1982", "2", "1"), "1982-02-01");
@@ -872,7 +842,7 @@ describe("Testing app- and service call functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.list_by_address({"msisdn": "08212345678"})
+                        return is.list_by_address({"msisdn": "08212345678"}, true)
                             .then(function(identities_found) {
                                 // get the first identity in the list of identities
                                 var identity = identities_found.results[0];
@@ -977,12 +947,42 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
+        describe("Testing get_identity_by_address function", function() {
+            it("gets existing identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return is.get_identity_by_address({"msisdn": "08212345678"}, true)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [1]);
+                    })
+                    .run();
+            });
+            it("returns null if no identity is found", function() {
+                return tester
+                    .setup.user.addr('08212345679')
+                    .check(function(api) {
+                        return is.get_identity_by_address({"msisdn": "08212345679"})
+                            .then(function(identity) {
+                                assert.equal(identity, null);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [22]);
+                    })
+                    .run();
+            });
+        });
         describe("Testing get_or_create_identity function", function() {
             it("gets existing identity", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.get_or_create_identity({"msisdn": "08212345678"}, null)
+                        return is.get_or_create_identity({"msisdn": "08212345678"}, null, true)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
