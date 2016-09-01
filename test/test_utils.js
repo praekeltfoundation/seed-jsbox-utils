@@ -229,36 +229,6 @@ describe("Testing utils functions", function() {
         });
     });
 
-    describe("is_weekend", function() {
-        it("should return false", function() {
-            assert.ifError(utils.is_weekend("2016-07-12"));  // wed
-            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
-        });
-        it("should return true", function() {
-            assert.ifError(utils.is_weekend("2016-07-15"));  // sat
-            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
-        });
-    });
-
-    /*describe("is_public_holiday", function() {
-        it("should return false", function() {
-            assert.ifError(utils.is_public_holiday("2016-07-12"));
-            assert.ifError(utils.is_public_holiday("2016/07/12", "YYYY/MM/DD"));
-        });
-        it("should return true", function() {
-
-        });
-    });*/
-
-    /*describe("is_out_of_hours", function() {
-        it("", function() {
-
-        });
-        it("", function() {
-
-        });
-    });*/
-
     describe("get_entered_birth_date", function() {
         it("without date separators specified", function() {
             assert(utils.get_entered_birth_date("1982", "2", "1"), "1982-02-01");
