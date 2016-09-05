@@ -1248,6 +1248,25 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
+        describe("Testing list_messagesets function", function() {
+            it("returns messageset objects", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.list_messagesets()
+                            .then(function(messagesets) {
+                                assert.equal(messagesets.count, 2);
+                                assert.equal(messagesets.results.length, "2");
+                                assert.equal(messagesets.results[0].id, 1);
+                                assert.equal(messagesets.results[1].id, 2);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [23]);
+                    })
+                    .run();
+            });
+        });
     });
 
     describe("MESSAGE-SENDER util functions", function() {

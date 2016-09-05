@@ -799,5 +799,51 @@ module.exports = function() {
             }
         },
 
+        // 23: list messagesets
+        {
+            // 'repeatable' : true,
+            'request': {
+                'method': 'GET',
+                // 'params': {
+                // },
+                'headers': {
+                    'Authorization': ['Token test Staged-based Messaging'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sbm.localhost:8003/api/v1/messageset/'
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 2,
+                    "next": null,
+                    "previous": null,
+                    "results": [
+                        {
+                            'id': 1,
+                            'short_name': 'postbirth_mother_text_13_52',
+                            'notes': null,
+                            'next_set': 4,
+                            'default_schedule': 1,
+                            'content_type': 'text',
+                            'created_at': "2016-06-22T06:13:29.693272Z",
+                            'updated_at': "2016-06-22T06:13:29.693272Z"
+                        },
+                        {
+                            'id': 2,
+                            'short_name': 'postbirth_mother_text_0_12',
+                            'notes': null,
+                            'next_set': 3,
+                            'default_schedule': 1,
+                            'content_type': 'text',
+                            'created_at': "2016-06-22T06:13:29.693272Z",
+                            'updated_at': "2016-06-22T06:13:29.693272Z"
+                        },
+                    ]
+
+                }
+            }
+        }
+
     ];
 };
