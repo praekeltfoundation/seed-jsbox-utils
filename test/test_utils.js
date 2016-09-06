@@ -67,6 +67,14 @@ describe("Testing utils functions", function() {
         });
     });
 
+    describe("readable_msisdn", function() {
+        it("should return readable msisdn", function() {
+            assert.equal(utils.readable_msisdn("+27821234567", "+27"), "0821234567");
+            assert.equal(utils.readable_msisdn("+34821234567", "+34"), "0821234567");
+            assert.equal(utils.readable_msisdn("0821234567", "+27"), "0821234567");
+        });
+    });
+
     describe("is_valid_msisdn function", function() {
         it("should not validate if passed a number that doesn't start with '0'", function() {
             assert.equal(utils.is_valid_msisdn("12345", 10, 13), false);
