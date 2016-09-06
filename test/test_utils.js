@@ -1267,6 +1267,49 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
+        describe("Testing check_identity_subscribed function", function() {
+            it("should return true if the identity has an active subscription to the messageset", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "postbirth")
+                            .then(function(is_subscribed) {
+                                assert(is_subscribed);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10, 23]);
+                    })
+                    .run();
+            });
+            it("should return false if the identity has no active subscription to messageset", function() {
+                return tester
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "nurseconnect")
+                            .then(function(is_subscribed) {
+                                assert.equal(is_subscribed, false);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10, 23]);
+                    })
+                    .run();
+            });
+            it("should return false if the identity has no active subscriptions", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000002", "nurseconnect")
+                            .then(function(is_subscribed) {
+                                assert.equal(is_subscribed, false);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [11]);
+                    })
+                    .run();
+            });
+        });
     });
 
     describe("MESSAGE-SENDER util functions", function() {
