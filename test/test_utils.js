@@ -70,7 +70,7 @@ describe("Testing utils functions", function() {
     describe("readable_msisdn", function() {
         it("should return readable msisdn", function() {
             assert.equal(utils.readable_msisdn("+27821234567", "+27"), "0821234567");
-            assert.equal(utils.readable_msisdn("+34821234567", "+34"), "0821234567");
+            assert.equal(utils.readable_msisdn("+264821234567", "+264"), "0821234567");
             assert.equal(utils.readable_msisdn("0821234567", "+27"), "0821234567");
         });
     });
