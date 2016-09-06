@@ -28,7 +28,7 @@ describe("Testing utils functions", function() {
             assert(utils.check_valid_number("012345"), true);
         });
         it("any letters invalidates check", function() {
-            assert.ifError(utils.check_valid_number("012abc345"));
+            assert.equal(utils.check_valid_number("012abc345"), false);
         });
         it("any other characters invalidates check", function() {
             assert.equal(utils.check_valid_number("-123456"), false);
@@ -62,8 +62,16 @@ describe("Testing utils functions", function() {
             assert(utils.check_number_in_range(10, 1, 10));
         });
         it("should return false", function() {
-            assert.ifError(utils.check_number_in_range(11, 1, 10));
-            assert.ifError(utils.check_number_in_range(77, 7, 17));
+            assert.equal(utils.check_number_in_range(11, 1, 10), false);
+            assert.equal(utils.check_number_in_range(77, 7, 17), false);
+        });
+    });
+
+    describe("readable_msisdn", function() {
+        it("should return readable msisdn", function() {
+            assert.equal(utils.readable_msisdn("+27821234567", "+27"), "0821234567");
+            assert.equal(utils.readable_msisdn("+264821234567", "+264"), "0821234567");
+            assert.equal(utils.readable_msisdn("0821234567", "+27"), "0821234567");
         });
     });
 
@@ -149,7 +157,7 @@ describe("Testing utils functions", function() {
             assert(utils.is_valid_date("05 May '16", "DD MMMM 'YY"));
         });
         it("returns false for valid date specified with unmatching format", function() {
-            assert.ifError(utils.is_valid_date("2016-05-19", "YYYY/MM/DD"));
+            assert.equal(utils.is_valid_date("2016-05-19", "YYYY/MM/DD"), false);
         });
         it("returns false for invalid date", function() {
             // invalid day
@@ -322,12 +330,12 @@ describe("Testing utils functions", function() {
             assert(utils.validate_id_za("5405295094086"));
         });
         it("invalid sa id's (of length 13)", function() {
-            assert.ifError(utils.validate_id_za("8104267805280"));
-            assert.ifError(utils.validate_id_za("1234015009087"));
+            assert.equal(utils.validate_id_za("8104267805280"), false);
+            assert.equal(utils.validate_id_za("1234015009087"), false);
         });
         it("invalid sa id's (length not 13)", function() {
-            assert.ifError(utils.validate_id_za("123"));  // length 3
-            assert.ifError(utils.validate_id_za("81042650870820"));  // length 14
+            assert.equal(utils.validate_id_za("123"), false);  // length 3
+            assert.equal(utils.validate_id_za("81042650870820"), false);  // length 14
         });
     });
 
@@ -1244,6 +1252,68 @@ describe("Testing app- and service call functions", function() {
                     })
                     .check(function(api) {
                         utils.check_fixtures_used(api, [14]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing list_messagesets function", function() {
+            it("returns messageset objects", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.list_messagesets()
+                            .then(function(messagesets) {
+                                assert.equal(messagesets.count, 2);
+                                assert.equal(messagesets.results.length, "2");
+                                assert.equal(messagesets.results[0].id, 1);
+                                assert.equal(messagesets.results[1].id, 2);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [23]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing check_identity_subscribed function", function() {
+            it("should return true if the identity has an active subscription to the messageset", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "postbirth")
+                            .then(function(is_subscribed) {
+                                assert(is_subscribed);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10, 23]);
+                    })
+                    .run();
+            });
+            it("should return false if the identity has no active subscription to messageset", function() {
+                return tester
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "nurseconnect")
+                            .then(function(is_subscribed) {
+                                assert.equal(is_subscribed, false);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10, 23]);
+                    })
+                    .run();
+            });
+            it("should return false if the identity has no active subscriptions", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000002", "nurseconnect")
+                            .then(function(is_subscribed) {
+                                assert.equal(is_subscribed, false);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [11]);
                     })
                     .run();
             });
