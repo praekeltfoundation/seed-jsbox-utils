@@ -1267,6 +1267,36 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
+        describe("Testing check_identity_subscribed function", function() {
+            it("expect 'true'", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "postbirth")
+                            .then(function(is_subscribed) {
+                                assert(is_subscribed);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10, 23]);
+                    })
+                    .run();
+            });
+            it("expect 'false'", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "nurseconnect")
+                            .then(function(is_subscribed) {
+                                assert.ifError(is_subscribed);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10, 23]);
+                    })
+                    .run();
+            });
+        });
     });
 
     describe("MESSAGE-SENDER util functions", function() {
