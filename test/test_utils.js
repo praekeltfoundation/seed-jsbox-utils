@@ -321,6 +321,10 @@ describe("Testing utils functions", function() {
             // 'Invalid date' when input length < 4
             assert.deepEqual(utils.extract_za_id_dob("810"), "Invalid date");
         });
+        it("", function() {
+            assert.deepEqual(utils.extract_za_id_dob("5202017805280"),
+                moment("1952-02-01").format("YYYY-MM-DD"));
+        });
     });
 
     describe("validate_id_za", function() {
