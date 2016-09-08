@@ -452,11 +452,13 @@ describe("Testing app- and service call functions", function() {
     var Hub = service.Hub;
     var StageBasedMessaging = service.StageBasedMessaging;
     var MessageSender = service.MessageSender;
+    var ServiceRating = service.ServiceRating;
 
     var is;
     var hub;
     var sbm;
     var ms;
+    var sr;
 
     beforeEach(function() {
         app = new App("state_one");
@@ -480,6 +482,10 @@ describe("Testing app- and service call functions", function() {
             base_url = app.im.config.services.message_sender.url;
             auth_token = app.im.config.services.message_sender.token;
             ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = app.im.config.services.service_rating.url;
+            auth_token = app.im.config.services.service_rating.token;
+            sr = new ServiceRating(new JsonApi(app.im, null), auth_token, base_url);
         };
 
         // override normal state adding
@@ -599,6 +605,10 @@ describe("Testing app- and service call functions", function() {
                     message_sender: {
                         url: 'http://ms.localhost:8004/api/v1/',
                         token: 'test Message-sender'
+                    },
+                    service_rating: {
+                        url: 'http://sr.localhost:8005/api/v1/',
+                        token: 'test Service Rating'
                     }
                 },
                 no_timeout_redirects: [
@@ -782,7 +792,7 @@ describe("Testing app- and service call functions", function() {
                                         '\\"details\\":{'+
                                             '\\"default_addr_type\\":\\"msisdn\\",'+
                                             '\\"addresses\\":{'+
-                                                '\\"msisdn\\":{\\"+8212345678\\":{}}'+
+                                                '\\"msisdn\\":{\\"+278212345678\\":{}}'+
                                             '}'+
                                         '},'+
                                         '\\"created_at\\":\\"2016-06-21T06:13:29.693272Z\\",'+
@@ -872,7 +882,7 @@ describe("Testing app- and service call functions", function() {
                         return is.get_identity("cb245673-aa41-4302-ac47-00000000001", app.im)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
-                                assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "+8212345678");
+                                assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "+278212345678");
                             });
                     })
                     .check(function(api) {
@@ -1375,6 +1385,66 @@ describe("Testing app- and service call functions", function() {
                     })
                     .check(function(api) {
                         utils.check_fixtures_used(api, [21]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("SERVICE RATING util functions", function() {
+        describe("Testing get_servicerating_status function", function() {
+            it("returns ...", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr.get_servicerating_status("cb245673-aa41-4302-ac47-00000000001")
+                            .then(function(response) {
+                                assert.equal(response.results[0].identity, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [24]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing create_servicerating_feedback function", function() {
+            it("returns ...", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr
+                        .create_servicerating_feedback(
+                            "cb245673-aa41-4302-ac47-00000000001",
+                            1,
+                            "Welcome. When you signed up, were staff at the facility friendly & helpful?",
+                            "Satisfied",
+                            "satisfied",
+                            1,
+                            "1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b"
+                        )
+                        .then(function(response) {
+                            assert.equal(response.accepted, true);
+                        });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [25]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing update_servicerating_status_completed function", function() {
+            it("returns ...", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr.update_servicerating_status_completed("1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b")
+                            .then(function(response) {
+                                assert.equal(response.success, true);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [26]);
                     })
                     .run();
             });
