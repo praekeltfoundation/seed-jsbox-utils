@@ -322,6 +322,25 @@ describe("Testing utils functions", function() {
             // 'Invalid date' when input length < 4
             assert.deepEqual(utils.extract_za_id_dob("810"), "Invalid date");
         });
+        it("correct century extracted", function() {
+            assert.deepEqual(utils.extract_za_id_dob("5202017805280"),
+                moment("1952-02-01").format("YYYY-MM-DD"));
+            // boundary case - first day > '49
+            assert.deepEqual(utils.extract_za_id_dob("5001017805280"),
+                moment("1950-01-01").format("YYYY-MM-DD"));
+            // boundary case - last day < '49
+            assert.deepEqual(utils.extract_za_id_dob("4812317805280"),
+                moment("2048-12-31").format("YYYY-MM-DD"));
+            // boundary case (default moment.two_digit_year) - first day > '68
+            assert.deepEqual(utils.extract_za_id_dob("6901017805280"),
+                moment("1969-01-01").format("YYYY-MM-DD"));
+            // boundary case (default moment.two_digit_year) - last day < '68
+            assert.deepEqual(utils.extract_za_id_dob("6712317805280"),
+                moment("1967-12-31").format("YYYY-MM-DD"));
+            // year 2000
+            assert.deepEqual(utils.extract_za_id_dob("0012317805280"),
+                moment("2000-12-31").format("YYYY-MM-DD"));
+        });
     });
 
     describe("validate_id_za", function() {
