@@ -10,9 +10,9 @@ module.exports = function() {
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "details": {
                         "addresses": {
-                            "msisdn": { "08212345679":{}}
+                            "msisdn": {"08212345679": {}}
                         },
-                        "completed":true
+                        "completed": true
                     }
                 }
             },
@@ -22,9 +22,9 @@ module.exports = function() {
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "details": {
                         "addresses": {
-                            "msisdn": { "08212345679":{}}
+                            "msisdn": {"08212345679": {}}
                         },
-                        "completed":true
+                        "completed": true
                     }
                 }
             }
@@ -110,12 +110,12 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/",
-                'data':  {
+                'data': {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": { "default": true }
+                                "08212345678": {"default": true}
                             }
                         }
                     }
@@ -131,7 +131,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": { "default": true }
+                                "08212345678": {"default": true}
                             }
                         }
                     },
@@ -150,12 +150,12 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/",
-                'data':  {
+                'data': {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": { "default": true }
+                                "08212345678": {"default": true}
                             }
                         }
                     },
@@ -172,7 +172,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": { "default": true }
+                                "08212345678": {"default": true}
                             }
                         },
                     },
@@ -192,12 +192,12 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/",
-                'data':  {
+                'data': {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": { "default": true }
+                                "08212345678": {"default": true}
                             }
                         }
                     },
@@ -214,7 +214,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": { "default": true }
+                                "08212345678": {"default": true}
                             }
                         }
                     },
@@ -239,12 +239,12 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": { "default": true }
+                                "08212345678": {"default": true}
                             }
                         }
                     },
-                    "communicate_through":"cb245673-aa41-4302-ac47-00000000003",
-                    "operator":"cb245673-aa41-4302-ac47-00000000002"
+                    "communicate_through": "cb245673-aa41-4302-ac47-00000000003",
+                    "operator": "cb245673-aa41-4302-ac47-00000000002"
                 },
             },
             'response': {
@@ -257,12 +257,12 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": { "default": true }
+                                "08212345678": {"default": true}
                             }
                         }
                     },
-                    "communicate_through":"cb245673-aa41-4302-ac47-00000000003",
-                    "operator":"cb245673-aa41-4302-ac47-00000000002"
+                    "communicate_through": "cb245673-aa41-4302-ac47-00000000003",
+                    "operator": "cb245673-aa41-4302-ac47-00000000002"
                 }
             }
         },
@@ -273,7 +273,7 @@ module.exports = function() {
             'request': {
                 'method': 'GET',
                 'params': {
-                    'include_inactive': 'false',
+                    'include_inactive': 'False',
                     'details__addresses__msisdn': '08211111111'
                 },
                 'headers': {
@@ -302,12 +302,12 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/",
-                'data':  {
+                'data': {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08211111111": { "default": true }
+                                "08211111111": {"default": true}
                             }
                         }
                     }
@@ -323,7 +323,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08211111111": { "default": true }
+                                "08211111111": {"default": true}
                             }
                         }
                     },
@@ -343,7 +343,7 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
-                'data':  {
+                'data': {
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "details": {
                         "addresses": {
@@ -378,7 +378,7 @@ module.exports = function() {
                 'method': 'GET',
                 'params': {
                     'identity': 'cb245673-aa41-4302-ac47-00000000001',
-                    'active': 'true'
+                    'active': 'True'
                 },
                 'headers': {
                     'Authorization': ['Token test Staged-based Messaging'],
@@ -437,7 +437,7 @@ module.exports = function() {
                 'method': 'GET',
                 'params': {
                     'identity': 'cb245673-aa41-4302-ac47-00000000002',
-                    'active': 'true'
+                    'active': 'True'
                 },
                 'headers': {
                     'Authorization': ['Token test Staged-based Messaging'],
@@ -620,7 +620,7 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://hub.localhost:8002/api/v1/registration/",
-                'data':  {
+                'data': {
                     "stage": "prebirth",
                     "mother_id": "cb245673-aa41-4302-ac47-1234567890",
                     "data": {
@@ -779,7 +779,7 @@ module.exports = function() {
             'request': {
                 'method': 'GET',
                 'params': {
-                    'include_inactive': 'false',
+                    'include_inactive': 'False',
                     'details__addresses__msisdn': '08212345679'
                 },
                 'headers': {
@@ -801,11 +801,9 @@ module.exports = function() {
 
         // 23: list messagesets
         {
-            // 'repeatable' : true,
             'request': {
                 'method': 'GET',
-                // 'params': {
-                // },
+                'params': {},
                 'headers': {
                     'Authorization': ['Token test Staged-based Messaging'],
                     'Content-Type': ['application/json']
@@ -840,7 +838,6 @@ module.exports = function() {
                             'updated_at': "2016-06-22T06:13:29.693272Z"
                         },
                     ]
-
                 }
             }
         },
