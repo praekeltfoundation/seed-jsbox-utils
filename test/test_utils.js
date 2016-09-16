@@ -1412,15 +1412,39 @@ describe("Testing app- and service call functions", function() {
     });
 
     describe("SERVICE RATING util functions", function() {
-        describe("Testing get_servicerating_status function", function() {
-            it("returns ...", function() {
+        describe("Testing list_serviceratings function - all serviceratings", function() {
+            it("returns all serviceratings for identity", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return sr.get_servicerating_status("cb245673-aa41-4302-ac47-00000000001")
-                            .then(function(response) {
-                                assert.equal(response.results[0].identity, "cb245673-aa41-4302-ac47-00000000001");
-                            });
+                        return sr
+                        .list_serviceratings({
+                            "identity": "cb245673-aa41-4302-ac47-00000000001"
+                        })
+                        .then(function(response) {
+                            assert.equal(response.results[0].identity, "cb245673-aa41-4302-ac47-00000000001");
+                        });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [27]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing list_serviceratings function - serviceratings not completed/expired", function() {
+            it("returns service ratings not yet completed or not yet expired", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr
+                        .list_serviceratings({
+                            "identity": "cb245673-aa41-4302-ac47-00000000001",
+                            "completed": 'False',
+                            "expired": 'False'
+                        })
+                        .then(function(response) {
+                            assert.equal(response.results[0].identity, "cb245673-aa41-4302-ac47-00000000001");
+                        });
                     })
                     .check(function(api) {
                         utils.check_fixtures_used(api, [24]);

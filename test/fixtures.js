@@ -842,7 +842,7 @@ module.exports = function() {
             }
         },
 
-        // 25: get identity cb245673-aa41-4302-ac47-00000000001 service rating status
+        // 24: get identity cb245673-aa41-4302-ac47-00000000001 service rating status
         {
             'request': {
                 'method': 'GET',
@@ -874,7 +874,7 @@ module.exports = function() {
             }
         },
 
-        // 26: save servicerating question 1 feedback - cb245673-aa41-4302-ac47-00000000001
+        // 25: save servicerating question 1 feedback - cb245673-aa41-4302-ac47-00000000001
         {
             'request': {
                 'method': 'POST',
@@ -901,7 +901,7 @@ module.exports = function() {
             }
         },
 
-        // 27: patch service rating invite 1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b
+        // 26: patch service rating invite 1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b
         {
             'request': {
                 'method': 'PATCH',
@@ -917,6 +917,36 @@ module.exports = function() {
                 "code": 200,
                 "data": {
                     "success": true
+                }
+            }
+        },
+
+        // 27: get identity cb245673-aa41-4302-ac47-00000000001 service rating status
+        {
+            'request': {
+                'method': 'GET',
+                'params': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000001"
+                },
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sr.localhost:8005/api/v1/invite/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 1,
+                    "next": null,
+                    "previous": null,
+                    "results": [{
+                        "updated_at": "2016-04-04T17:06:08.411867Z",
+                        "created_at": "2016-04-04T17:06:08.411843Z",
+                        "version": 1,
+                        "id": "1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b",
+                        "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    }]
                 }
             }
         },
