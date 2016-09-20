@@ -135,7 +135,7 @@ describe("Testing utils functions", function() {
             assert.deepEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
                 moment("2016-05-23 12:30:15").format("YYYY-MM-DD hh:mm:ss"));
         });
-        it("when date (config) & format passed in, evaluates to false because of 1 sec difference in time", function() {
+        it("when date (config) & format passed in, evaluates to false because of difference in time", function() {
             assert.deepEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss")
                 === moment("2016-05-23 12:30:16").format("YYYY-MM-DD hh:mm:ss"), false);
         });
