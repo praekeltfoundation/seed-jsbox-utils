@@ -128,16 +128,16 @@ describe("Testing utils functions", function() {
                 new moment().format("YYYY-MM-DD"));
         });
         it("when date (config) passed in, return corresponding moment object", function() {
-            assert.deepEqual(utils.get_today(config).format("YYYY-MM-DD"),
-                moment("2016-05-23").format("YYYY-MM-DD"));
+            assert.deepEqual(utils.get_today(config).format(),
+                moment("2016-05-23").format());
         });
         it("when date (config) & format passed in, return corresponding moment object", function() {
-            assert.deepEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
-                moment("2016-05-23 12:30:15").format("YYYY-MM-DD hh:mm:ss"));
+            assert.deepEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format(),
+                moment("2016-05-23 12:30:15").format());
         });
         it("when date (config) & format passed in, evaluates to false because of difference in time", function() {
-            assert.deepEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss")
-                === moment("2016-05-23 12:30:16").format("YYYY-MM-DD hh:mm:ss"), false);
+            assert.deepEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format()
+                === moment("2016-05-23 12:30:16").format(), false);
         });
     });
 
