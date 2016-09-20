@@ -124,8 +124,8 @@ describe("Testing utils functions", function() {
 
     describe("get_today", function() {
         it("no date passed, return current moment object", function() {
-            assert.deepEqual(utils.get_today().format("YYYY-MM-DD"),
-                new moment().format("YYYY-MM-DD"));
+            assert.deepEqual(utils.get_today().format(),
+                new moment().format());
         });
         it("when date (config) passed in, return corresponding moment object", function() {
             assert.deepEqual(utils.get_today(config).format(),
