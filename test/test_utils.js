@@ -143,8 +143,8 @@ describe("Testing utils functions", function() {
 
     describe("get_january", function() {
         it("get 1st jan moment date of any given year (test date)", function() {
-            assert.deepEqual(utils.get_january(config).format("YYYY-MM-DD"),
-                moment("2016-01-01").format("YYYY-MM-DD"));
+            assert.deepEqual(utils.get_january(config).format(),
+                moment("2016-01-01").format());
         });
         it("get 1st jan moment date of current year", function() {
             assert.deepEqual(utils.get_january().format("YYYY-MM-DD"),
