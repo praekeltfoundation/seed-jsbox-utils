@@ -130,14 +130,20 @@ describe("Testing utils functions", function() {
         it("no date passed, return current moment object", function() {
             assert.deepEqual(utils.get_moment_date().format(), new moment().format());
         });
-        it("when date (config) passed in, return corresponding moment object", function() {
-            assert.deepEqual(utils.get_moment_date(config.testing_today).format("YYYY-MM-DD"), "2016-05-23");
+        it("when date passed in, return corresponding moment object", function() {
+            var date_to_test = config.testing_today.split(" ")[0]; // get only "YYYY-MM-DD" part of testing_today
+            assert.deepEqual(utils.get_moment_date(date_to_test).format("YYYY-MM-DD"), "2016-05-23");
         });
-        it("when date (config) & format passed in, return corresponding moment object", function() {
+        it("when date passed in, return corresponding moment object", function() {
+            // if testing_today is passed in alone and not in the default format "YYYY-MM-DD"
+            // the date returned will differ from testing_date
+            assert.notEqual(utils.get_moment_date(config.testing_today).format("YYYY-MM-DD"), "2016-05-23");
+        });
+        it("when date & format passed in, return corresponding moment object", function() {
             assert.deepEqual(utils.get_moment_date(config.testing_today, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
                 "2016-05-23 12:30:15");
         });
-        it("when date (config) & format passed in, evaluates to false because of difference in time", function() {
+        it("when date & format passed in, evaluates to false because of difference in time", function() {
             assert.notEqual(utils.get_moment_date(config.testing_today, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
                 "2016-05-23 12:30:16");
         });
