@@ -134,8 +134,8 @@ describe("Testing utils functions", function() {
                 "2016-05-23 12:30:15");
         });
         it("when date (config) & format passed in, evaluates to false because of difference in time", function() {
-            assert.deepEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss")
-                === "2016-05-23 12:30:16", false);
+            assert.notEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
+                "2016-05-23 12:30:16");
         });
     });
 
