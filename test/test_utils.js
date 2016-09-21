@@ -20,7 +20,7 @@ var utils = require('../lib/utils');
 
 describe("Testing utils functions", function() {
     var config = {
-        "testing_today": "2016-05-23"
+        "testing_today": "2016-05-23 12:30:15"
     };
 
     describe("check_valid_number", function() {
@@ -123,20 +123,25 @@ describe("Testing utils functions", function() {
     });
 
     describe("get_today", function() {
-        it("when date (config) passed in, return the same as moment object", function() {
-            assert.deepEqual(utils.get_today(config).format("YYYY-MM-DD"),
-                moment("2016-05-23").format("YYYY-MM-DD"));
-        });
         it("no date passed, return current moment object", function() {
-            assert.deepEqual(utils.get_today().format("YYYY-MM-DD"),
-                new moment().format("YYYY-MM-DD"));
+            assert.deepEqual(utils.get_today().format(), new moment().format());
+        });
+        it("when date (config) passed in, return corresponding moment object", function() {
+            assert.deepEqual(utils.get_today(config).format("YYYY-MM-DD"), "2016-05-23");
+        });
+        it("when date (config) & format passed in, return corresponding moment object", function() {
+            assert.deepEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
+                "2016-05-23 12:30:15");
+        });
+        it("when date (config) & format passed in, evaluates to false because of difference in time", function() {
+            assert.notEqual(utils.get_today(config, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
+                "2016-05-23 12:30:16");
         });
     });
 
     describe("get_january", function() {
         it("get 1st jan moment date of any given year (test date)", function() {
-            assert.deepEqual(utils.get_january(config).format("YYYY-MM-DD"),
-                moment("2016-01-01").format("YYYY-MM-DD"));
+            assert.deepEqual(utils.get_january(config).format("YYYY-MM-DD"), "2016-01-01");
         });
         it("get 1st jan moment date of current year", function() {
             assert.deepEqual(utils.get_january().format("YYYY-MM-DD"),
