@@ -74,6 +74,10 @@ describe("Testing utils functions", function() {
             assert.equal(utils.readable_msisdn("0821234567", "+27"), "0821234567");
             assert.equal(utils.readable_msisdn("+27821234567", "27"), "0821234567");
         });
+        it("should return readable msisdn if it contains no leading '+' or '0'", function() {
+            assert.equal(utils.readable_msisdn("27821234567", "+27"), "0821234567");
+            assert.equal(utils.readable_msisdn("27821234567", "27"), "0821234567");
+        });
     });
 
     describe("is_valid_msisdn function", function() {
