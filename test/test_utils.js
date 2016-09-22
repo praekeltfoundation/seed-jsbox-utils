@@ -136,8 +136,9 @@ describe("Testing utils functions", function() {
         });
         it("when date passed in, return corresponding moment object", function() {
             // if testing_today is passed in alone and not in the default format "YYYY-MM-DD"
-            // the date returned will differ from testing_date
-            assert.notEqual(utils.get_moment_date(config.testing_today).format("YYYY-MM-DD"), "2016-05-23");
+            // the today's date will be returned
+            assert.deepEqual(utils.get_moment_date(config.testing_today).format("YYYY-MM-DD"),
+                new moment().format("YYYY-MM-DD"));
         });
         it("when date & format passed in, return corresponding moment object", function() {
             assert.deepEqual(utils.get_moment_date(config.testing_today, "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
