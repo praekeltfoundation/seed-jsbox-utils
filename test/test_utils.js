@@ -19,9 +19,6 @@ var service = require('../lib');
 var utils = require('../lib/utils');
 
 describe("Testing utils functions", function() {
-    var config = {
-        "testing_today": "2016-05-23"
-    };
 
     describe("check_valid_number", function() {
         it("only numbers is valid", function() {
@@ -74,6 +71,10 @@ describe("Testing utils functions", function() {
             assert.equal(utils.readable_msisdn("0821234567", "+27"), "0821234567");
             assert.equal(utils.readable_msisdn("+27821234567", "27"), "0821234567");
         });
+        it("should return readable msisdn if it contains no leading '+' or '0'", function() {
+            assert.equal(utils.readable_msisdn("27821234567", "+27"), "0821234567");
+            assert.equal(utils.readable_msisdn("27821234567", "27"), "0821234567");
+        });
     });
 
     describe("is_valid_msisdn function", function() {
@@ -122,21 +123,32 @@ describe("Testing utils functions", function() {
         });
     });
 
-    describe("get_today", function() {
-        it("when date (config) passed in, return the same as moment object", function() {
-            assert.deepEqual(utils.get_today(config).format("YYYY-MM-DD"),
-                moment("2016-05-23").format("YYYY-MM-DD"));
-        });
+    describe("get_moment_date", function() {
         it("no date passed, return current moment object", function() {
-            assert.deepEqual(utils.get_today().format("YYYY-MM-DD"),
-                new moment().format("YYYY-MM-DD"));
+            assert.deepEqual(utils.get_moment_date(null, null).format(), new moment().format());
+        });
+        it("when date passed in that matches default date format, return corresponding moment object", function() {
+            assert.deepEqual(utils.get_moment_date("1970-08-23", null).format("YYYY-MM-DD hh:mm:ss"), "1970-08-23 12:00:00");
+        });
+        it("when date passed in that doesn't match default date format, return corresponding moment object", function() {
+            assert.deepEqual(utils.get_moment_date("2016-05-23 12:30:15", null).format("YYYY-MM-DD hh:mm:ss"), "2016-05-23 12:00:00");
+        });
+        it("when date & format passed in, return corresponding moment object 1", function() {
+            assert.deepEqual(utils.get_moment_date("2016-05-23 12:30:15", "YYYY-MM-DD").format("YYYY-MM-DD hh:mm:ss"), "2016-05-23 12:00:00");
+        });
+        it("when date & format passed in, return corresponding moment object 2", function() {
+            assert.deepEqual(utils.get_moment_date("2016-05-23 12:30:15", "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
+                "2016-05-23 12:30:15");
+        });
+        it("when date & format passed in, evaluates to false because of difference in time", function() {
+            assert.notEqual(utils.get_moment_date("2016-05-23 12:30:15", "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
+                "2016-05-23 12:30:16");
         });
     });
 
     describe("get_january", function() {
         it("get 1st jan moment date of any given year (test date)", function() {
-            assert.deepEqual(utils.get_january(config).format("YYYY-MM-DD"),
-                moment("2016-01-01").format("YYYY-MM-DD"));
+            assert.deepEqual(utils.get_january("2016-05-23 12:30:15").format("YYYY-MM-DD"), "2016-01-01");
         });
         it("get 1st jan moment date of current year", function() {
             assert.deepEqual(utils.get_january().format("YYYY-MM-DD"),
