@@ -1112,10 +1112,16 @@ describe("Testing app- and service call functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.optin("cb245673-aa41-4302-ac47-00000000001",
-                            "msisdn", "08212345678")
+                        var optin_info = {
+                            "identity": "cb245673-aa41-4302-ac47-00000000001",
+                            "address_type": "msisdn",
+                            "address": "08212345678",
+                            "request_source": "seed-jsbox-utils",
+                            "requestor_source_id": app.im.config.testing_message_id
+                        };
+                        return is.optin(optin_info)
                             .then(function(response) {
-                                assert.equal(response.accepted, true);
+                                assert.equal(response.id, 1);
                             });
                     })
                     .check(function(api) {
