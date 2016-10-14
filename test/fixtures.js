@@ -690,13 +690,15 @@ module.exports = function() {
                 'data': {
                     "identity": "cb245673-aa41-4302-ac47-00000000001",
                     "address_type": "msisdn",
-                    "address": "08212345678"
+                    "address": "08212345678",
+                    "request_source": "seed-jsbox-utils",
+                    "requestor_source_id": "0170b7bb-978e-4b8a-35d2-662af5b6daee"
                 }
             },
             'response': {
                 'code': 201,
                 'data': {
-                    "accepted": true
+                    'id': 1
                 }
             }
         },
