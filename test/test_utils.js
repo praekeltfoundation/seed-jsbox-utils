@@ -360,6 +360,7 @@ describe("Testing utils functions", function() {
             assert(utils.validate_id_za("8104265087082"));
             assert(utils.validate_id_za("8202010057085"));
             assert(utils.validate_id_za("5405295094086"));
+            assert(utils.validate_id_za("0309130230084"));
         });
         it("invalid sa id's (of length 13)", function() {
             assert.equal(utils.validate_id_za("8104267805280"), false);
