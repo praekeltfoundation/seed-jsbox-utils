@@ -309,6 +309,10 @@ describe("Testing utils functions", function() {
             assert.deepEqual(utils.get_clean_first_word("O$ne Two T3ree"), "ONE");
             assert.deepEqual(utils.get_clean_first_word("O$1ne T2wo Th3ree"), "O1NE");
         });
+        it("should get clean first word if starts with whitespace", function() {
+            assert.deepEqual(utils.get_clean_first_word(" Only"), "ONLY");
+            assert.deepEqual(utils.get_clean_first_word("    Once"), "ONCE");
+        });
     });
 
     describe("extract_za_id_dob", function() {
