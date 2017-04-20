@@ -10,9 +10,9 @@ module.exports = function() {
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "details": {
                         "addresses": {
-                            "msisdn": { "08212345679":{}}
+                            "msisdn": {"08212345679": {}}
                         },
-                        "completed":true
+                        "completed": true
                     }
                 }
             },
@@ -22,9 +22,9 @@ module.exports = function() {
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "details": {
                         "addresses": {
-                            "msisdn": { "08212345679":{}}
+                            "msisdn": {"08212345679": {}}
                         },
-                        "completed":true
+                        "completed": true
                     }
                 }
             }
@@ -91,7 +91,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "+8212345678": {}
+                                "+278212345678": {}
                             }
                         }
                     },
@@ -110,12 +110,12 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/",
-                'data':  {
+                'data': {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": {"default": true}
                             }
                         }
                     }
@@ -131,7 +131,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": {"default": true}
                             }
                         }
                     },
@@ -150,12 +150,12 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/",
-                'data':  {
+                'data': {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": {"default": true}
                             }
                         }
                     },
@@ -172,7 +172,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": {"default": true}
                             }
                         },
                     },
@@ -192,12 +192,12 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/",
-                'data':  {
+                'data': {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": {"default": true}
                             }
                         }
                     },
@@ -214,7 +214,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08212345678": {}
+                                "08212345678": {"default": true}
                             }
                         }
                     },
@@ -238,11 +238,13 @@ module.exports = function() {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
-                            "msisdn": {"08212345678":{}}
+                            "msisdn": {
+                                "08212345678": {"default": true}
+                            }
                         }
                     },
-                    "communicate_through":"cb245673-aa41-4302-ac47-00000000003",
-                    "operator":"cb245673-aa41-4302-ac47-00000000002"
+                    "communicate_through": "cb245673-aa41-4302-ac47-00000000003",
+                    "operator": "cb245673-aa41-4302-ac47-00000000002"
                 },
             },
             'response': {
@@ -254,11 +256,13 @@ module.exports = function() {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
-                            "msisdn": {"08212345678":{}}
+                            "msisdn": {
+                                "08212345678": {"default": true}
+                            }
                         }
                     },
-                    "communicate_through":"cb245673-aa41-4302-ac47-00000000003",
-                    "operator":"cb245673-aa41-4302-ac47-00000000002"
+                    "communicate_through": "cb245673-aa41-4302-ac47-00000000003",
+                    "operator": "cb245673-aa41-4302-ac47-00000000002"
                 }
             }
         },
@@ -269,6 +273,7 @@ module.exports = function() {
             'request': {
                 'method': 'GET',
                 'params': {
+                    'include_inactive': 'False',
                     'details__addresses__msisdn': '08211111111'
                 },
                 'headers': {
@@ -297,12 +302,12 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/",
-                'data':  {
+                'data': {
                     "details": {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08211111111": {}
+                                "08211111111": {"default": true}
                             }
                         }
                     }
@@ -318,7 +323,7 @@ module.exports = function() {
                         "default_addr_type": "msisdn",
                         "addresses": {
                             "msisdn": {
-                                "08211111111": {}
+                                "08211111111": {"default": true}
                             }
                         }
                     },
@@ -338,7 +343,7 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
-                'data':  {
+                'data': {
                     "id": "cb245673-aa41-4302-ac47-00000000001",
                     "details": {
                         "addresses": {
@@ -373,7 +378,7 @@ module.exports = function() {
                 'method': 'GET',
                 'params': {
                     'identity': 'cb245673-aa41-4302-ac47-00000000001',
-                    'active': 'true'
+                    'active': 'True'
                 },
                 'headers': {
                     'Authorization': ['Token test Staged-based Messaging'],
@@ -432,7 +437,7 @@ module.exports = function() {
                 'method': 'GET',
                 'params': {
                     'identity': 'cb245673-aa41-4302-ac47-00000000002',
-                    'active': 'true'
+                    'active': 'True'
                 },
                 'headers': {
                     'Authorization': ['Token test Staged-based Messaging'],
@@ -615,7 +620,7 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://hub.localhost:8002/api/v1/registration/",
-                'data':  {
+                'data': {
                     "stage": "prebirth",
                     "mother_id": "cb245673-aa41-4302-ac47-1234567890",
                     "data": {
@@ -660,33 +665,293 @@ module.exports = function() {
                     'Content-Type': ['application/json']
                 },
                 'url': "http://hub.localhost:8002/api/v1/change/",
-                'data':  {
-                    "stage": "postbirth",
-                    "mother_id": "cb245673-aa41-4302-ac47-1234567890"
+                'data': {
+                    "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                    "action": "change_stage"
+                }
+            },
+            'response': {
+                'code': 201,
+                'data': {
+                    'id': 1
+                }
+            }
+        },
+
+        // 19: Optin SUCCESS - cb245673-aa41-4302-ac47-00000000001
+        {
+            'request': {
+                'method': 'POST',
+                'headers': {
+                    'Authorization': ['Token test IdentityStore'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://is.localhost:8001/api/v1/optin/',
+                'data': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "address_type": "msisdn",
+                    "address": "08212345678",
+                    "request_source": "seed-jsbox-utils",
+                    "requestor_source_id": "0170b7bb-978e-4b8a-35d2-662af5b6daee"
+                }
+            },
+            'response': {
+                'code': 201,
+                'data': {
+                    'id': 1
+                }
+            }
+        },
+
+        // 20: create outbound message
+        {
+            'request': {
+                'method': 'POST',
+                'params': {},
+                'headers': {
+                    'Authorization': ['Token test Message-sender'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://ms.localhost:8004/api/v1/outbound/',
+                'data': {
+                    "to_addr": "+278212345678",
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "content": "testing... testing... 1,2,3",
+                    "metadata": {}
                 }
             },
             'response': {
                 "code": 201,
                 "data": {
-                    "id": "reg_for_00000000002_uuid",
-                    "stage": "postbirth",
-                    "mother_id": "cb245673-aa41-4302-ac47-1234567890",
-                    "data": {
-                        "msg_receiver": "friend_only",
-                        "receiver_id": "cb245673-aa41-4302-ac47-00000000002",
-                        "operator_id": "cb245673-aa41-4302-ac47-00000000007",
-                        "language": "ibo_NG",
-                        "msg_type": "text"
-                    },
-                    "validated": false,
-                    "source": "source",
-                    "created_at": "2015-07-10T06:13:29.693272Z",
-                    "updated_at": "2016-06-22T06:13:29.693298Z",
-                    "created_by": "user",
-                    "updated_by": "user"
+                    'attempts': 0,
+                    'updated_at': '2016-08-18T11:32:17.750207Z',
+                    'content': "testing... testing... 1,2,3",
+                    'created_at': '2016-08-18T11:32:17.750236Z',
+                    'vumi_message_id': '075a32da-e1e4-4424-be46-1d09b71056fd',
+                    'to_addr': "+278212345678",
+                    'metadata': {},
+                    'id': 'c99bd21e-6b9d-48ba-9f07-1e8e406737fe',
+                    'delivered': "False",
+                    'version': 1,
+                    'url': 'http://ms.localhost:8004/api/v1/outbound/c99bd21e-6b9d-48ba-9f07-1e8e406737fe/'
                 }
             }
-        }
+        },
+
+        // 21: create outbound message (metadata supplied)
+        {
+            'request': {
+                'method': 'POST',
+                'params': {},
+                'headers': {
+                    'Authorization': ['Token test Message-sender'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://ms.localhost:8004/api/v1/outbound/',
+                'data': {
+                    "to_addr": "+278212345678",
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "content": "testing... testing... 1,2,3",
+                    "metadata": {
+                        "someFlag": true
+                    }
+                }
+            },
+            'response': {
+                "code": 201,
+                "data": {
+                    'attempts': 0,
+                    'updated_at': '2016-08-18T11:32:17.750207Z',
+                    'content': "testing... testing... 1,2,3",
+                    'created_at': '2016-08-18T11:32:17.750236Z',
+                    'vumi_message_id': '075a32da-e1e4-4424-be46-1d09b71056fd',
+                    'to_addr': "+278212345678",
+                    'metadata': { "someFlag": true },
+                    'id': 'c99bd21e-6b9d-48ba-9f07-1e8e406737fe',
+                    'delivered': "False",
+                    'version': 1,
+                    'url': 'http://ms.localhost:8004/api/v1/outbound/c99bd21e-6b9d-48ba-9f07-1e8e406737fe/'
+                }
+            }
+        },
+
+        // 22: get identity 08212345679 by msisdn
+        {
+            'repeatable': true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'include_inactive': 'False',
+                    'details__addresses__msisdn': '08212345679'
+                },
+                'headers': {
+                    'Authorization': ['Token test IdentityStore'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://is.localhost:8001/api/v1/identities/search/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 1,
+                    "next": null,
+                    "previous": null,
+                    "results": []
+                }
+            }
+        },
+
+        // 23: list messagesets
+        {
+            'request': {
+                'method': 'GET',
+                'params': {},
+                'headers': {
+                    'Authorization': ['Token test Staged-based Messaging'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sbm.localhost:8003/api/v1/messageset/'
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 2,
+                    "next": null,
+                    "previous": null,
+                    "results": [
+                        {
+                            'id': 1,
+                            'short_name': 'postbirth_mother_text_13_52',
+                            'notes': null,
+                            'next_set': 4,
+                            'default_schedule': 1,
+                            'content_type': 'text',
+                            'created_at': "2016-06-22T06:13:29.693272Z",
+                            'updated_at': "2016-06-22T06:13:29.693272Z"
+                        },
+                        {
+                            'id': 2,
+                            'short_name': 'postbirth_mother_text_0_12',
+                            'notes': null,
+                            'next_set': 3,
+                            'default_schedule': 1,
+                            'content_type': 'text',
+                            'created_at': "2016-06-22T06:13:29.693272Z",
+                            'updated_at': "2016-06-22T06:13:29.693272Z"
+                        },
+                    ]
+                }
+            }
+        },
+
+        // 24: get identity cb245673-aa41-4302-ac47-00000000001 service rating status
+        {
+            'request': {
+                'method': 'GET',
+                'params': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "completed": 'False',
+                    "expired": 'False'
+                },
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sr.localhost:8005/api/v1/invite/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 1,
+                    "next": null,
+                    "previous": null,
+                    "results": [{
+                        "updated_at": "2016-04-04T17:06:08.411867Z",
+                        "created_at": "2016-04-04T17:06:08.411843Z",
+                        "version": 1,
+                        "id": "1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b",
+                        "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    }]
+                }
+            }
+        },
+
+        // 25: save servicerating question 1 feedback - cb245673-aa41-4302-ac47-00000000001
+        {
+            'request': {
+                'method': 'POST',
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sr.localhost:8005/api/v1/rating/',
+                'data': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "invite": "1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b",
+                    "version": 1,
+                    "question_id": 1,
+                    "question_text": "Welcome. When you signed up, were staff at the facility friendly & helpful?",
+                    "answer_text": "Satisfied",
+                    "answer_value": "satisfied"
+                }
+            },
+            'response': {
+                'code': 201,
+                'data': {
+                    'accepted': true
+                }
+            }
+        },
+
+        // 26: patch service rating invite 1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b
+        {
+            'request': {
+                'method': 'PATCH',
+                'headers': {
+                    'Authorization': ['Token test_key']
+                },
+                'url': 'http://sr.localhost:8005/api/v1/invite/1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b/',
+                "data": {
+                    "completed": 'True'
+                }
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "success": true
+                }
+            }
+        },
+
+        // 27: get identity cb245673-aa41-4302-ac47-00000000001 service rating status
+        {
+            'request': {
+                'method': 'GET',
+                'params': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000001"
+                },
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sr.localhost:8005/api/v1/invite/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "count": 1,
+                    "next": null,
+                    "previous": null,
+                    "results": [{
+                        "updated_at": "2016-04-04T17:06:08.411867Z",
+                        "created_at": "2016-04-04T17:06:08.411843Z",
+                        "version": 1,
+                        "id": "1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b",
+                        "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    }]
+                }
+            }
+        },
 
     ];
 };

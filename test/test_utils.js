@@ -19,16 +19,13 @@ var service = require('../lib');
 var utils = require('../lib/utils');
 
 describe("Testing utils functions", function() {
-    var config = {
-        "testing_today": "2016-05-23"
-    };
 
     describe("check_valid_number", function() {
         it("only numbers is valid", function() {
             assert(utils.check_valid_number("012345"), true);
         });
         it("any letters invalidates check", function() {
-            assert.ifError(utils.check_valid_number("012abc345"));
+            assert.equal(utils.check_valid_number("012abc345"), false);
         });
         it("any other characters invalidates check", function() {
             assert.equal(utils.check_valid_number("-123456"), false);
@@ -62,8 +59,21 @@ describe("Testing utils functions", function() {
             assert(utils.check_number_in_range(10, 1, 10));
         });
         it("should return false", function() {
-            assert.ifError(utils.check_number_in_range(11, 1, 10));
-            assert.ifError(utils.check_number_in_range(77, 7, 17));
+            assert.equal(utils.check_number_in_range(11, 1, 10), false);
+            assert.equal(utils.check_number_in_range(77, 7, 17), false);
+        });
+    });
+
+    describe("readable_msisdn", function() {
+        it("should return readable msisdn", function() {
+            assert.equal(utils.readable_msisdn("+27821234567", "+27"), "0821234567");
+            assert.equal(utils.readable_msisdn("+264821234567", "+264"), "0821234567");
+            assert.equal(utils.readable_msisdn("0821234567", "+27"), "0821234567");
+            assert.equal(utils.readable_msisdn("+27821234567", "27"), "0821234567");
+        });
+        it("should return readable msisdn if it contains no leading '+' or '0'", function() {
+            assert.equal(utils.readable_msisdn("27821234567", "+27"), "0821234567");
+            assert.equal(utils.readable_msisdn("27821234567", "27"), "0821234567");
         });
     });
 
@@ -113,21 +123,32 @@ describe("Testing utils functions", function() {
         });
     });
 
-    describe("get_today", function() {
-        it("when date (config) passed in, return the same as moment object", function() {
-            assert.deepEqual(utils.get_today(config).format("YYYY-MM-DD"),
-                moment("2016-05-23").format("YYYY-MM-DD"));
-        });
+    describe("get_moment_date", function() {
         it("no date passed, return current moment object", function() {
-            assert.deepEqual(utils.get_today().format("YYYY-MM-DD"),
-                new moment().format("YYYY-MM-DD"));
+            assert.deepEqual(utils.get_moment_date(null, null).format(), new moment().format());
+        });
+        it("when date passed in that matches default date format, return corresponding moment object", function() {
+            assert.deepEqual(utils.get_moment_date("1970-08-23", null).format("YYYY-MM-DD hh:mm:ss"), "1970-08-23 12:00:00");
+        });
+        it("when date passed in that doesn't match default date format, return corresponding moment object", function() {
+            assert.deepEqual(utils.get_moment_date("2016-05-23 12:30:15", null).format("YYYY-MM-DD hh:mm:ss"), "2016-05-23 12:00:00");
+        });
+        it("when date & format passed in, return corresponding moment object 1", function() {
+            assert.deepEqual(utils.get_moment_date("2016-05-23 12:30:15", "YYYY-MM-DD").format("YYYY-MM-DD hh:mm:ss"), "2016-05-23 12:00:00");
+        });
+        it("when date & format passed in, return corresponding moment object 2", function() {
+            assert.deepEqual(utils.get_moment_date("2016-05-23 12:30:15", "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
+                "2016-05-23 12:30:15");
+        });
+        it("when date & format passed in, evaluates to false because of difference in time", function() {
+            assert.notEqual(utils.get_moment_date("2016-05-23 12:30:15", "YYYY-MM-DD hh:mm:ss").format("YYYY-MM-DD hh:mm:ss"),
+                "2016-05-23 12:30:16");
         });
     });
 
     describe("get_january", function() {
         it("get 1st jan moment date of any given year (test date)", function() {
-            assert.deepEqual(utils.get_january(config).format("YYYY-MM-DD"),
-                moment("2016-01-01").format("YYYY-MM-DD"));
+            assert.deepEqual(utils.get_january("2016-05-23 12:30:15").format("YYYY-MM-DD"), "2016-01-01");
         });
         it("get 1st jan moment date of current year", function() {
             assert.deepEqual(utils.get_january().format("YYYY-MM-DD"),
@@ -149,7 +170,7 @@ describe("Testing utils functions", function() {
             assert(utils.is_valid_date("05 May '16", "DD MMMM 'YY"));
         });
         it("returns false for valid date specified with unmatching format", function() {
-            assert.ifError(utils.is_valid_date("2016-05-19", "YYYY/MM/DD"));
+            assert.equal(utils.is_valid_date("2016-05-19", "YYYY/MM/DD"), false);
         });
         it("returns false for invalid date", function() {
             // invalid day
@@ -178,49 +199,56 @@ describe("Testing utils functions", function() {
     });
 
     describe("is_valid_day_of_month", function() {
-        it("valid day of the month", function() {
-            assert(utils.is_valid_day_of_month("1"));
-            assert(utils.is_valid_day_of_month("5"));
-            assert(utils.is_valid_day_of_month("15"));
-            assert(utils.is_valid_day_of_month("28"));
-            assert(utils.is_valid_day_of_month("30"));
-            assert(utils.is_valid_day_of_month("31"));
-        });
-        it("invalid day of the month", function() {
+        it("only day is provided", function() {
+            // only 1-31 should be valid
             assert.equal(utils.is_valid_day_of_month("0"), false);
+            assert.equal(utils.is_valid_day_of_month("01"), true);
+            assert.equal(utils.is_valid_day_of_month("31"), true);
             assert.equal(utils.is_valid_day_of_month("32"), false);
+
+            // check different formatting
+            // . valid
+            assert.equal(utils.is_valid_day_of_month(1), true);
+            assert.equal(utils.is_valid_day_of_month("1"), true);
+            assert.equal(utils.is_valid_day_of_month("001"), true);
+            // . invalid
+            assert.equal(utils.is_valid_day_of_month("1.5"), false);
+            assert.equal(utils.is_valid_day_of_month("Monday"), false);
+        });
+        it("day and month is provided", function() {
+            // 31st should only be valid in certain months
+            assert.equal(utils.is_valid_day_of_month("31", "01"), true);  // jan 31
+            assert.equal(utils.is_valid_day_of_month("30", "04"), true);  // apr 30
+            assert.equal(utils.is_valid_day_of_month("31", "04"), false);  // apr 31
+            // feb 29 should be valid, not feb 30
+            assert.equal(utils.is_valid_day_of_month("29", "02"), true);  // feb 29
+            assert.equal(utils.is_valid_day_of_month("30", "02"), false);  // feb 30
+
+            // check different formatting
+            // . valid
+            assert.equal(utils.is_valid_day_of_month("1", "1"), true);  // jan 1
+            assert.equal(utils.is_valid_day_of_month(1, 1), true);  // jan 1
+            // . invalid
+            assert.equal(utils.is_valid_day_of_month(1, "January"), false);
+        });
+        it("day, month and year is provided", function() {
+            // 31st should only be valid in certain months
+            assert.equal(utils.is_valid_day_of_month("31", "01", "2016"), true);  // jan 31
+            assert.equal(utils.is_valid_day_of_month("30", "04", "2016"), true);  // apr 30
+            assert.equal(utils.is_valid_day_of_month("31", "04", "2016"), false);  // apr 31
+            // feb 29 should be valid only in leap year
+            assert.equal(utils.is_valid_day_of_month("29", "02", "2000"), true);  // leap year
+            assert.equal(utils.is_valid_day_of_month("28", "02", "2001"), true);  // normal year
+            assert.equal(utils.is_valid_day_of_month("29", "02", "2001"), false);  // normal year
+
+            // check different formatting
+            // . valid
+            assert.equal(utils.is_valid_day_of_month("1", "1", "1901"), true);  // jan 1 1901
+            assert.equal(utils.is_valid_day_of_month(1, 1, 1901), true);  // jan 1 1901
+            // . invalid
+            assert.equal(utils.is_valid_day_of_month(1, 1, "two thousand"), false);  // jan 1 2000
         });
     });
-
-    describe("is_weekend", function() {
-        it("should return false", function() {
-            assert.ifError(utils.is_weekend("2016-07-12"));  // wed
-            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
-        });
-        it("should return true", function() {
-            assert.ifError(utils.is_weekend("2016-07-15"));  // sat
-            assert.ifError(utils.is_weekend("2016/07/12", "YYYY/MM/DD"));
-        });
-    });
-
-    /*describe("is_public_holiday", function() {
-        it("should return false", function() {
-            assert.ifError(utils.is_public_holiday("2016-07-12"));
-            assert.ifError(utils.is_public_holiday("2016/07/12", "YYYY/MM/DD"));
-        });
-        it("should return true", function() {
-
-        });
-    });*/
-
-    /*describe("is_out_of_hours", function() {
-        it("", function() {
-
-        });
-        it("", function() {
-
-        });
-    });*/
 
     describe("get_entered_birth_date", function() {
         it("without date separators specified", function() {
@@ -280,6 +308,71 @@ describe("Testing utils functions", function() {
         it("should get clean first word if contains non-letters/numbers", function() {
             assert.deepEqual(utils.get_clean_first_word("O$ne Two T3ree"), "ONE");
             assert.deepEqual(utils.get_clean_first_word("O$1ne T2wo Th3ree"), "O1NE");
+        });
+        it("should get clean first word if starts with whitespace", function() {
+            assert.deepEqual(utils.get_clean_first_word(" Only"), "ONLY");
+            assert.deepEqual(utils.get_clean_first_word("    Once"), "ONCE");
+        });
+    });
+
+    describe("extract_za_id_dob", function() {
+        it("valid dates extracted", function() {
+            assert.deepEqual(utils.extract_za_id_dob("8104267805280"),
+                moment("1981-04-26").format("YYYY-MM-DD"));
+            assert.deepEqual(utils.extract_za_id_dob("8202017805280"),
+                moment("1982-02-01").format("YYYY-MM-DD"));
+        });
+        it("invalid dates extracted", function() {
+            // 31 of Feb
+            assert.deepEqual(utils.extract_za_id_dob("8102317805280"), "Invalid date");
+        });
+        it("invalid - id number length < 6", function() {
+            // fifth digit intepreted as single-digit day
+            assert.deepEqual(utils.extract_za_id_dob("81042"),
+                moment("1981-04-02").format("YYYY-MM-DD"));
+
+            // no day found in id number will default to '01'
+            assert.deepEqual(utils.extract_za_id_dob("8104"),
+                moment("1981-04-01").format("YYYY-MM-DD"));
+
+            // 'Invalid date' when input length < 4
+            assert.deepEqual(utils.extract_za_id_dob("810"), "Invalid date");
+        });
+        it("correct century extracted", function() {
+            assert.deepEqual(utils.extract_za_id_dob("5202017805280"),
+                moment("1952-02-01").format("YYYY-MM-DD"));
+            // boundary case - first day > '49
+            assert.deepEqual(utils.extract_za_id_dob("5001017805280"),
+                moment("1950-01-01").format("YYYY-MM-DD"));
+            // boundary case - last day < '49
+            assert.deepEqual(utils.extract_za_id_dob("4812317805280"),
+                moment("2048-12-31").format("YYYY-MM-DD"));
+            // boundary case (default moment.two_digit_year) - first day > '68
+            assert.deepEqual(utils.extract_za_id_dob("6901017805280"),
+                moment("1969-01-01").format("YYYY-MM-DD"));
+            // boundary case (default moment.two_digit_year) - last day < '68
+            assert.deepEqual(utils.extract_za_id_dob("6712317805280"),
+                moment("1967-12-31").format("YYYY-MM-DD"));
+            // year 2000
+            assert.deepEqual(utils.extract_za_id_dob("0012317805280"),
+                moment("2000-12-31").format("YYYY-MM-DD"));
+        });
+    });
+
+    describe("validate_id_za", function() {
+        it("valid sa id's", function() {
+            assert(utils.validate_id_za("8104265087082"));
+            assert(utils.validate_id_za("8202010057085"));
+            assert(utils.validate_id_za("5405295094086"));
+            assert(utils.validate_id_za("0309130230084"));
+        });
+        it("invalid sa id's (of length 13)", function() {
+            assert.equal(utils.validate_id_za("8104267805280"), false);
+            assert.equal(utils.validate_id_za("1234015009087"), false);
+        });
+        it("invalid sa id's (length not 13)", function() {
+            assert.equal(utils.validate_id_za("123"), false);  // length 3
+            assert.equal(utils.validate_id_za("81042650870820"), false);  // length 14
         });
     });
 
@@ -396,11 +489,13 @@ describe("Testing app- and service call functions", function() {
     var Hub = service.Hub;
     var StageBasedMessaging = service.StageBasedMessaging;
     var MessageSender = service.MessageSender;
+    var ServiceRating = service.ServiceRating;
 
     var is;
     var hub;
     var sbm;
     var ms;
+    var sr;
 
     beforeEach(function() {
         app = new App("state_one");
@@ -409,21 +504,25 @@ describe("Testing app- and service call functions", function() {
 
         app.init = function(){
             // initialising services
-            var base_url = app.im.config.services.identity_store.prefix;
+            var base_url = app.im.config.services.identity_store.url;
             var auth_token = app.im.config.services.identity_store.token;
             is = new IdentityStore(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = app.im.config.services.hub.prefix;
+            base_url = app.im.config.services.hub.url;
             auth_token = app.im.config.services.hub.token;
             hub = new Hub(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = app.im.config.services.staged_based_messaging.prefix;
+            base_url = app.im.config.services.staged_based_messaging.url;
             auth_token = app.im.config.services.staged_based_messaging.token;
             sbm = new StageBasedMessaging(new JsonApi(app.im, null), auth_token, base_url);
 
-            base_url = app.im.config.services.message_sender.prefix;
+            base_url = app.im.config.services.message_sender.url;
             auth_token = app.im.config.services.message_sender.token;
             ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
+
+            base_url = app.im.config.services.service_rating.url;
+            auth_token = app.im.config.services.service_rating.token;
+            sr = new ServiceRating(new JsonApi(app.im, null), auth_token, base_url);
         };
 
         // override normal state adding
@@ -529,20 +628,24 @@ describe("Testing app- and service call functions", function() {
                 logging: 'off',  // 'off' is default; 'test' outputs to console.log, 'prod' to im.log
                 services: {
                     identity_store: {
-                        prefix: 'http://is.localhost:8001/api/v1/',
+                        url: 'http://is.localhost:8001/api/v1/',
                         token: 'test IdentityStore'
                     },
                     hub: {
-                        prefix: 'http://hub.localhost:8002/api/v1/',
+                        url: 'http://hub.localhost:8002/api/v1/',
                         token: 'test Hub'
                     },
                     staged_based_messaging: {
-                        prefix: 'http://sbm.localhost:8003/api/v1/',
+                        url: 'http://sbm.localhost:8003/api/v1/',
                         token: 'test Staged-based Messaging'
                     },
                     message_sender: {
-                        prefix: 'http://ms.localhost:8004/api/v1/',
+                        url: 'http://ms.localhost:8004/api/v1/',
                         token: 'test Message-sender'
+                    },
+                    service_rating: {
+                        url: 'http://sr.localhost:8005/api/v1/',
+                        token: 'test Service Rating'
                     }
                 },
                 no_timeout_redirects: [
@@ -726,7 +829,7 @@ describe("Testing app- and service call functions", function() {
                                         '\\"details\\":{'+
                                             '\\"default_addr_type\\":\\"msisdn\\",'+
                                             '\\"addresses\\":{'+
-                                                '\\"msisdn\\":{\\"+8212345678\\":{}}'+
+                                                '\\"msisdn\\":{\\"+278212345678\\":{}}'+
                                             '}'+
                                         '},'+
                                         '\\"created_at\\":\\"2016-06-21T06:13:29.693272Z\\",'+
@@ -755,7 +858,7 @@ describe("Testing app- and service call functions", function() {
                 .check(function(api) {
                     var expected_log_entry = [
                         'Request: POST http://is.localhost:8001/api/v1/identities/',
-                        'Payload: {"details":{"default_addr_type":"msisdn","addresses":{"msisdn":{"08212345678":{}}}}}',
+                        'Payload: {"details":{"default_addr_type":"msisdn","addresses":{"msisdn":{"08212345678":{"default":true}}}}}',
                         'Params: null',
                         'Response: {"code":201,'+
                             '"request":{"url":"http://is.localhost:8001/api/v1/identities/",'+
@@ -766,7 +869,7 @@ describe("Testing app- and service call functions", function() {
                                 '\\"msisdn\\",'+
                                 '\\"addresses\\":{'+
                                     '\\"msisdn\\":{'+
-                                        '\\"08212345678\\":{}}}}}"},'+
+                                        '\\"08212345678\\":{\\"default\\":true}}}}}"},'+
                             '"body":'+
                                 '"{\\"url\\":\\"http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/\\",'+
                                 '\\"id\\":\\"cb245673-aa41-4302-ac47-00000000001\\",'+
@@ -774,7 +877,7 @@ describe("Testing app- and service call functions", function() {
                                 '\\"details\\":'+
                                     '{\\"default_addr_type\\":\\"msisdn\\",'+
                                     '\\"addresses\\":'+
-                                        '{\\"msisdn\\":{\\"08212345678\\":{}}}},'+
+                                        '{\\"msisdn\\":{\\"08212345678\\":{\\"default\\":true}}}},'+
                             '\\"created_at\\":\\"2016-06-21T06:13:29.693272Z\\",'+
                             '\\"updated_at\\":\\"2016-06-21T06:13:29.693298Z\\"}"}'
                     ].join('\n');
@@ -794,7 +897,7 @@ describe("Testing app- and service call functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.list_by_address({"msisdn": "08212345678"})
+                        return is.list_by_address({"msisdn": "08212345678"}, true)
                             .then(function(identities_found) {
                                 // get the first identity in the list of identities
                                 var identity = identities_found.results[0];
@@ -816,7 +919,7 @@ describe("Testing app- and service call functions", function() {
                         return is.get_identity("cb245673-aa41-4302-ac47-00000000001", app.im)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
-                                assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "+8212345678");
+                                assert.equal(Object.keys(identity.details.addresses.msisdn)[0], "+278212345678");
                             });
                     })
                     .check(function(api) {
@@ -899,12 +1002,42 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
+        describe("Testing get_identity_by_address function", function() {
+            it("gets existing identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return is.get_identity_by_address({"msisdn": "08212345678"}, true)
+                            .then(function(identity) {
+                                assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [1]);
+                    })
+                    .run();
+            });
+            it("returns null if no identity is found", function() {
+                return tester
+                    .setup.user.addr('08212345679')
+                    .check(function(api) {
+                        return is.get_identity_by_address({"msisdn": "08212345679"})
+                            .then(function(identity) {
+                                assert.equal(identity, null);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [22]);
+                    })
+                    .run();
+            });
+        });
         describe("Testing get_or_create_identity function", function() {
             it("gets existing identity", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return is.get_or_create_identity({"msisdn": "08212345678"}, null)
+                        return is.get_or_create_identity({"msisdn": "08212345678"}, null, true)
                             .then(function(identity) {
                                 assert.equal(identity.id, "cb245673-aa41-4302-ac47-00000000001");
                             });
@@ -980,6 +1113,27 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
+            it("performs optin", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        var optin_info = {
+                            "identity": "cb245673-aa41-4302-ac47-00000000001",
+                            "address_type": "msisdn",
+                            "address": "08212345678",
+                            "request_source": "seed-jsbox-utils",
+                            "requestor_source_id": app.im.config.testing_message_id
+                        };
+                        return is.optin(optin_info)
+                            .then(function(response) {
+                                assert.equal(response.id, 1);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [19]);
+                    })
+                    .run();
+            });
         });
     });
 
@@ -1016,12 +1170,12 @@ describe("Testing app- and service call functions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return hub.update_registration({
-                                "stage": "postbirth",
-                                "mother_id": "cb245673-aa41-4302-ac47-1234567890"
+                        return hub.create_change({
+                                "mother_id": "cb245673-aa41-4302-ac47-1234567890",
+                                "action": "change_stage"
                             })
-                            .then(function(registration) {
-                                assert.equal(registration.id, "reg_for_00000000002_uuid");
+                            .then(function(response) {
+                                assert.equal(response.id, 1);
                             });
                     })
                     .check(function(api) {
@@ -1155,6 +1309,68 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
+        describe("Testing list_messagesets function", function() {
+            it("returns messageset objects", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.list_messagesets()
+                            .then(function(messagesets) {
+                                assert.equal(messagesets.count, 2);
+                                assert.equal(messagesets.results.length, "2");
+                                assert.equal(messagesets.results[0].id, 1);
+                                assert.equal(messagesets.results[1].id, 2);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [23]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing check_identity_subscribed function", function() {
+            it("should return true if the identity has an active subscription to the messageset", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "postbirth")
+                            .then(function(is_subscribed) {
+                                assert(is_subscribed);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10, 23]);
+                    })
+                    .run();
+            });
+            it("should return false if the identity has no active subscription to messageset", function() {
+                return tester
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "nurseconnect")
+                            .then(function(is_subscribed) {
+                                assert.equal(is_subscribed, false);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [10, 23]);
+                    })
+                    .run();
+            });
+            it("should return false if the identity has no active subscriptions", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000002", "nurseconnect")
+                            .then(function(is_subscribed) {
+                                assert.equal(is_subscribed, false);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [11]);
+                    })
+                    .run();
+            });
+        });
     });
 
     describe("MESSAGE-SENDER util functions", function() {
@@ -1180,6 +1396,122 @@ describe("Testing app- and service call functions", function() {
                     })
                     .check(function(api) {
                         utils.check_fixtures_used(api, [15]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing create_outbound_message function", function() {
+            it("creates outbound message", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return ms.create_outbound_message("cb245673-aa41-4302-ac47-00000000001",
+                            "+278212345678", "testing... testing... 1,2,3")
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [20]);
+                    })
+                    .run();
+            });
+            it("creates outbound message (metadata supplied)", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return ms.create_outbound_message("cb245673-aa41-4302-ac47-00000000001",
+                            "+278212345678", "testing... testing... 1,2,3", { "someFlag": true })
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [21]);
+                    })
+                    .run();
+            });
+        });
+    });
+
+    describe("SERVICE RATING util functions", function() {
+        describe("Testing list_serviceratings function - all serviceratings", function() {
+            it("returns all serviceratings for identity", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr
+                        .list_serviceratings({
+                            "identity": "cb245673-aa41-4302-ac47-00000000001"
+                        })
+                        .then(function(response) {
+                            assert.equal(response.results[0].identity, "cb245673-aa41-4302-ac47-00000000001");
+                        });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [27]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing list_serviceratings function - serviceratings not completed/expired", function() {
+            it("returns service ratings not yet completed or not yet expired", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr
+                        .list_serviceratings({
+                            "identity": "cb245673-aa41-4302-ac47-00000000001",
+                            "completed": 'False',
+                            "expired": 'False'
+                        })
+                        .then(function(response) {
+                            assert.equal(response.results[0].identity, "cb245673-aa41-4302-ac47-00000000001");
+                        });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [24]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing create_servicerating_feedback function", function() {
+            it("returns ...", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr
+                        .create_servicerating_feedback(
+                            "cb245673-aa41-4302-ac47-00000000001",
+                            1,
+                            "Welcome. When you signed up, were staff at the facility friendly & helpful?",
+                            "Satisfied",
+                            "satisfied",
+                            1,
+                            "1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b"
+                        )
+                        .then(function(response) {
+                            assert.equal(response.accepted, true);
+                        });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [25]);
+                    })
+                    .run();
+            });
+        });
+        describe("Testing update_servicerating_status_completed function", function() {
+            it("returns ...", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr.update_servicerating_status_completed("1b47bab8-1c37-44a2-94e6-85c3ee9a8c8b")
+                            .then(function(response) {
+                                assert.equal(response.success, true);
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [26]);
                     })
                     .run();
             });
