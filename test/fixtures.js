@@ -953,5 +953,43 @@ module.exports = function() {
             }
         },
 
+        // 28: create outbound message (different channel)
+        {
+            'request': {
+                'method': 'POST',
+                'params': {},
+                'headers': {
+                    'Authorization': ['Token test Message-sender'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://ms.localhost:8004/api/v1/outbound/',
+                'data': {
+                    "to_addr": "+278212345678",
+                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "content": "testing... testing... 1,2,3",
+                    "metadata": {
+                        "someFlag": true
+                    },
+                    "channel": "CHANNEL"
+                }
+            },
+            'response': {
+                "code": 201,
+                "data": {
+                    'attempts': 0,
+                    'updated_at': '2016-08-18T11:32:17.750207Z',
+                    'content': "testing... testing... 1,2,3",
+                    'created_at': '2016-08-18T11:32:17.750236Z',
+                    'vumi_message_id': '075a32da-e1e4-4424-be46-1d09b71056fd',
+                    'to_addr': "+278212345678",
+                    'metadata': { "someFlag": true },
+                    'id': 'c99bd21e-6b9d-48ba-9f07-1e8e406737fe',
+                    'delivered': "False",
+                    'version': 1,
+                    'url': 'http://ms.localhost:8004/api/v1/outbound/c99bd21e-6b9d-48ba-9f07-1e8e406737fe/'
+                }
+            }
+        },
+
     ];
 };

@@ -519,6 +519,7 @@ describe("Testing app- and service call functions", function() {
             base_url = app.im.config.services.message_sender.url;
             auth_token = app.im.config.services.message_sender.token;
             ms = new MessageSender(new JsonApi(app.im, null), auth_token, base_url);
+            ms2 = new MessageSender(new JsonApi(app.im, null), auth_token, base_url, "CHANNEL");
 
             base_url = app.im.config.services.service_rating.url;
             auth_token = app.im.config.services.service_rating.token;
@@ -1428,6 +1429,21 @@ describe("Testing app- and service call functions", function() {
                     })
                     .check(function(api) {
                         utils.check_fixtures_used(api, [21]);
+                    })
+                    .run();
+            });
+            it("creates outbound message (diff channel)", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return ms2.create_outbound_message("cb245673-aa41-4302-ac47-00000000001",
+                            "+278212345678", "testing... testing... 1,2,3", { "someFlag": true })
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [28]);
                     })
                     .run();
             });
