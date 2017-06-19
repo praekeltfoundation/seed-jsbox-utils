@@ -1401,7 +1401,94 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
-        describe("Testing create_outbound_message function", function() {
+        describe('Testing create_outbound function', function () {
+            it('should create an outbound message', function () {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return ms.create_outbound("cb245673-aa41-4302-ac47-00000000001",
+                            "+278212345678", "testing... testing... 1,2,3")
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [20]);
+                    })
+                    .run();
+            });
+            it("creates outbound message (metadata supplied)", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return ms.create_outbound(
+                                "cb245673-aa41-4302-ac47-00000000001",
+                                "+278212345678",
+                                "testing... testing... 1,2,3", {
+                                    metadata: {
+                                        "someFlag": true
+                                    }
+                                })
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [21]);
+                    })
+                    .run();
+            });
+            it("creates outbound message (default channel)", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return ms2.create_outbound(
+                                "cb245673-aa41-4302-ac47-00000000001",
+                                "+278212345678",
+                                "testing... testing... 1,2,3", {
+                                    metadata: {
+                                        "someFlag": true
+                                    }
+                                })
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [28]);
+                    })
+                    .run();
+            });
+
+            it("creates outbound message (specific channel)", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        // NOTE:    we're using ms here (not ms2), it does not
+                        //          have a default channel specified, specifying
+                        //          it explicitly as the params should use the same
+                        //          fixture as ms2's diff channel test
+                        return ms.create_outbound(
+                            "cb245673-aa41-4302-ac47-00000000001",
+                            "+278212345678",
+                            "testing... testing... 1,2,3", {
+                                metadata: {
+                                    "someFlag": true
+                                },
+                                channel: 'CHANNEL'
+                            })
+                            .then(function(outbound_message) {
+                                assert.equal(outbound_message.content, "testing... testing... 1,2,3");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [28]);
+                    })
+                    .run();
+            });
+
+        });
+        describe("Testing deprecated create_outbound_message function", function() {
             it("creates outbound message", function() {
                 return tester
                     .setup.user.addr('08212345678')
