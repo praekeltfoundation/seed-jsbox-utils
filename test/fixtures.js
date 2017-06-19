@@ -715,7 +715,7 @@ module.exports = function() {
                 'url': 'http://ms.localhost:8004/api/v1/outbound/',
                 'data': {
                     "to_addr": "+278212345678",
-                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "to_identity": "cb245673-aa41-4302-ac47-00000000001",
                     "content": "testing... testing... 1,2,3",
                     "metadata": {}
                 }
@@ -750,7 +750,7 @@ module.exports = function() {
                 'url': 'http://ms.localhost:8004/api/v1/outbound/',
                 'data': {
                     "to_addr": "+278212345678",
-                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "to_identity": "cb245673-aa41-4302-ac47-00000000001",
                     "content": "testing... testing... 1,2,3",
                     "metadata": {
                         "someFlag": true
@@ -965,7 +965,7 @@ module.exports = function() {
                 'url': 'http://ms.localhost:8004/api/v1/outbound/',
                 'data': {
                     "to_addr": "+278212345678",
-                    "identity": "cb245673-aa41-4302-ac47-00000000001",
+                    "to_identity": "cb245673-aa41-4302-ac47-00000000001",
                     "content": "testing... testing... 1,2,3",
                     "metadata": {
                         "someFlag": true
