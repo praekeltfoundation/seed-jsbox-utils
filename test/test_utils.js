@@ -1,4 +1,5 @@
 var assert = require('assert');
+var sinon = require('sinon');
 var moment = require('moment');
 var vumigo = require('vumigo_v02');
 var JsonApi = vumigo.http.api.JsonApi;
@@ -1329,12 +1330,13 @@ describe("Testing app- and service call functions", function() {
                     .run();
             });
         });
-        describe("Testing check_identity_subscribed function", function() {
-            it("should return true if the identity has an active subscription to the messageset", function() {
+
+        describe("Testing is_identity_subscribed function", function() {
+            it("returns true if the identity has an active subscription to any messageset", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "postbirth")
+                        return sbm.is_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", [/postbirth/, /madeupmessageset/])
                             .then(function(is_subscribed) {
                                 assert(is_subscribed);
                             });
@@ -1344,10 +1346,12 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
-            it("should return false if the identity has no active subscription to messageset", function() {
+
+            it("returns false if the identity has no active subscription to all messagesets", function() {
                 return tester
+                    .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", "nurseconnect")
+                        return sbm.is_identity_subscribed("cb245673-aa41-4302-ac47-00000000001", [/madeupmessageset/, /anotherfakeset/])
                             .then(function(is_subscribed) {
                                 assert.equal(is_subscribed, false);
                             });
@@ -1357,11 +1361,12 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
-            it("should return false if the identity has no active subscriptions", function() {
+
+           it("returns false if the identity has no active subscriptions", function() {
                 return tester
                     .setup.user.addr('08212345678')
                     .check(function(api) {
-                        return sbm.check_identity_subscribed("cb245673-aa41-4302-ac47-00000000002", "nurseconnect")
+                        return sbm.is_identity_subscribed("cb245673-aa41-4302-ac47-00000000002", [/whatever/])
                             .then(function(is_subscribed) {
                                 assert.equal(is_subscribed, false);
                             });
@@ -1370,6 +1375,17 @@ describe("Testing app- and service call functions", function() {
                         utils.check_fixtures_used(api, [11]);
                     })
                     .run();
+            });
+
+        });
+
+        describe("Testing check_identity_subscribed function", function() {
+            it("calls is_identity_subscribed with a RegExp", function() {
+                sbm.is_identity_subscribed = sinon.spy();
+
+                sbm.check_identity_subscribed('foo', 'bar');
+
+                sinon.assert.calledWith(sbm.is_identity_subscribed, 'foo', [/bar/]);
             });
         });
     });
