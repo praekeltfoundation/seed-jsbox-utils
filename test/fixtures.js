@@ -47,7 +47,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 1,
                     "next": null,
                     "previous": null,
                     "results": [{
@@ -285,7 +284,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 0,
                     "next": null,
                     "previous": null,
                     "results": []
@@ -389,7 +387,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 2,
                     "next": null,
                     "previous": null,
                     "results": [
@@ -448,7 +445,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 0,
                     "next": null,
                     "previous": null,
                     "results": []
@@ -793,7 +789,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 1,
                     "next": null,
                     "previous": null,
                     "results": []
@@ -815,7 +810,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 2,
                     "next": null,
                     "previous": null,
                     "results": [
@@ -862,7 +856,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 1,
                     "next": null,
                     "previous": null,
                     "results": [{
@@ -939,7 +932,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 1,
                     "next": null,
                     "previous": null,
                     "results": [{

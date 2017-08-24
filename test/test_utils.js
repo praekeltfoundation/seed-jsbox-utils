@@ -1318,7 +1318,6 @@ describe("Testing app- and service call functions", function() {
                     .check(function(api) {
                         return sbm.list_messagesets()
                             .then(function(messagesets) {
-                                assert.equal(messagesets.count, 2);
                                 assert.equal(messagesets.results.length, "2");
                                 assert.equal(messagesets.results[0].id, 1);
                                 assert.equal(messagesets.results[1].id, 2);
