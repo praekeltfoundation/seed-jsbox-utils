@@ -1119,5 +1119,106 @@ module.exports = function() {
             }
         },
 
+        // 33: first page of subscriptions for identity cb245673-aa41-4302-ac47-00000000003
+        {
+            'repeatable' : true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                    'active': 'True'
+                },
+                'headers': {
+                    'Authorization': ['Token test Staged-based Messaging'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sbm.localhost:8003/api/v1/subscriptions/'
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": 'http://sbm.localhost:8003/api/v1/subscriptions/?cursor=1&identity=cb245673-aa41-4302-ac47-00000000003&active=True',
+                    "previous": null,
+                    "results": [
+                        {
+                            'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111',
+                            'id': '51fcca25-2e85-4c44-subscription-1111',
+                            'version': 1,
+                            'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                            'messageset': 1,
+                            'next_sequence_number': 1,
+                            'lang': "ibo_NG",
+                            'active': true,
+                            'completed': false,
+                            'schedule': 1,
+                            'process_status': 0,
+                            'metadata': {},
+                            'created_at': "2015-07-10T06:13:29.693272Z",
+                            'updated_at': "2015-07-10T06:13:29.693272Z"
+                        },
+                        {
+                            'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112',
+                            'id': '51fcca25-2e85-4c44-subscription-1112',
+                            'version': 1,
+                            'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                            'messageset': 1,
+                            'next_sequence_number': 1,
+                            'lang': "ibo_NG",
+                            'active': true,
+                            'completed': false,
+                            'schedule': 1,
+                            'process_status': 0,
+                            'metadata': {},
+                            'created_at': "2015-07-10T06:13:29.693272Z",
+                            'updated_at': "2015-07-10T06:13:29.693272Z"
+                        }
+                    ]
+                }
+            }
+        },
+
+        // 34: second page of subscriptions for identity cb245673-aa41-4302-ac47-00000000003
+        {
+            'repeatable' : true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                    'active': 'True',
+                    'cursor': '1'
+                },
+                'headers': {
+                    'Authorization': ['Token test Staged-based Messaging'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sbm.localhost:8003/api/v1/subscriptions/'
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": null,
+                    "previous": 'http://sbm.localhost:8003/api/v1/subscriptions/?cursor=0&identity=cb245673-aa41-4302-ac47-00000000003&active=True',
+                    "results": [
+                        {
+                            'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1113',
+                            'id': '51fcca25-2e85-4c44-subscription-1113',
+                            'version': 1,
+                            'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                            'messageset': 1,
+                            'next_sequence_number': 1,
+                            'lang': "ibo_NG",
+                            'active': true,
+                            'completed': false,
+                            'schedule': 1,
+                            'process_status': 0,
+                            'metadata': {},
+                            'created_at': "2015-07-10T06:13:29.693272Z",
+                            'updated_at': "2015-07-10T06:13:29.693272Z"
+                        }
+                    ]
+                }
+            }
+        },
+
     ];
 };

@@ -1244,6 +1244,23 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
+            it("handles pagination of the result set", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.list_active_subscriptions("cb245673-aa41-4302-ac47-00000000003")
+                            .then(function(subscriptions) {
+                                assert.equal(subscriptions.results.length, "3");
+                                assert.equal(subscriptions.results[0].id, "51fcca25-2e85-4c44-subscription-1111");
+                                assert.equal(subscriptions.results[1].id, "51fcca25-2e85-4c44-subscription-1112");
+                                assert.equal(subscriptions.results[2].id, "51fcca25-2e85-4c44-subscription-1113");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [33, 34]);
+                    })
+                    .run();
+            });
         });
         describe("Testing get_active_subscription by identity function", function() {
             it("returns subscription for identity", function() {
