@@ -1592,6 +1592,28 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
+            it("handles pagination of the result set", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr
+                        .list_serviceratings({
+                            "identity": "cb245673-aa41-4302-ac47-00000000002"
+                        })
+                        .then(function(response) {
+                            // get the first identity in the list of identities
+                            assert.equal(response.results.length, 2);
+                            var result1 = response.results[0];
+                            assert.equal(result1.id, "result-1-1c37-44a2-94e6-85c3ee9a8c8b");
+                            var result2 = response.results[1];
+                            assert.equal(result2.id, "result-2-1c37-44a2-94e6-85c3ee9a8c8b");
+                        });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [31, 32]);
+                    })
+                    .run();
+            });
         });
         describe("Testing list_serviceratings function - serviceratings not completed/expired", function() {
             it("returns service ratings not yet completed or not yet expired", function() {

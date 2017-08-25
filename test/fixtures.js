@@ -1060,5 +1060,64 @@ module.exports = function() {
             }
         },
 
+        // 31: get first page of identity cb245673-aa41-4302-ac47-00000000002 service rating status
+        {
+            'request': {
+                'method': 'GET',
+                'params': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000002"
+                },
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sr.localhost:8005/api/v1/invite/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": 'http://sr.localhost:8005/api/v1/invite/?cursor=1&identity=cb245673-aa41-4302-ac47-00000000002',
+                    "previous": null,
+                    "results": [{
+                        "updated_at": "2016-04-04T17:06:08.411867Z",
+                        "created_at": "2016-04-04T17:06:08.411843Z",
+                        "version": 1,
+                        "id": "result-1-1c37-44a2-94e6-85c3ee9a8c8b",
+                        "identity": "cb245673-aa41-4302-ac47-00000000002",
+                    }]
+                }
+            }
+        },
+
+        // 32: get second page of identity cb245673-aa41-4302-ac47-00000000001 service rating status
+        {
+            'request': {
+                'method': 'GET',
+                'params': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000002",
+                    "cursor": "1"
+                },
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sr.localhost:8005/api/v1/invite/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": null,
+                    "previous": 'http://sr.localhost:8005/api/v1/invite/?cursor=0',
+                    "results": [{
+                        "updated_at": "2016-04-04T17:06:08.411867Z",
+                        "created_at": "2016-04-04T17:06:08.411843Z",
+                        "version": 1,
+                        "id": "result-2-1c37-44a2-94e6-85c3ee9a8c8b",
+                        "identity": "cb245673-aa41-4302-ac47-00000000002",
+                    }]
+                }
+            }
+        },
+
     ];
 };
