@@ -983,5 +983,82 @@ module.exports = function() {
             }
         },
 
+        // 29: get first page of paginated identity list by msisdn 08212345679
+        {
+            'repeatable': true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'details__addresses__msisdn': '08212345679'
+                },
+                'headers': {
+                    'Authorization': ['Token test IdentityStore'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://is.localhost:8001/api/v1/identities/search/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": "http://is.localhost:8001/api/v1/identities/search/?cursor=1&details__addresses__msisdn=08212345679",
+                    "previous": null,
+                    "results": [{
+                        "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                        "id": "cb245673-aa41-4302-ac47-00000000001",
+                        "version": 1,
+                        "details": {
+                            "default_addr_type": "msisdn",
+                            "addresses": {
+                                "msisdn": {
+                                    "08212345679": {}
+                                }
+                            }
+                        },
+                        "created_at": "2016-06-21T06:13:29.693272Z",
+                        "updated_at": "2016-06-21T06:13:29.693298Z"
+                    }]
+                }
+            }
+        },
+
+        // 30: get next page of paginated identity list by msisdn 08212345679
+        {
+            'repeatable': true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'cursor': '1',
+                    'details__addresses__msisdn': '08212345679'
+                },
+                'headers': {
+                    'Authorization': ['Token test IdentityStore'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://is.localhost:8001/api/v1/identities/search/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": null,
+                    "previous": "http://is.localhost:8001/api/v1/identities/search/?cursor=0&details__addresses__msisdn=08212345679",
+                    "results": [{
+                        "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000002/",
+                        "id": "cb245673-aa41-4302-ac47-00000000002",
+                        "version": 1,
+                        "details": {
+                            "default_addr_type": "msisdn",
+                            "addresses": {
+                                "msisdn": {
+                                    "08212345679": {}
+                                }
+                            }
+                        },
+                        "created_at": "2016-06-21T06:13:29.693272Z",
+                        "updated_at": "2016-06-21T06:13:29.693298Z"
+                    }]
+                }
+            }
+        },
+
     ];
 };

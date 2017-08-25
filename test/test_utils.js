@@ -912,6 +912,27 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
+            it("handles pagination of the result set", function() {
+                return tester
+                    .setup.user.addr('08212345679')
+                    .check(function(api) {
+                        return is.list_by_address({"msisdn": "08212345679"}, true)
+                            .then(function(identities_found) {
+                                // get the first identity in the list of identities
+                                assert.equal(identities_found.results.length, 2);
+                                var identity1 = identities_found.results[0];
+                                assert.equal(identity1.id, "cb245673-aa41-4302-ac47-00000000001");
+                                assert.equal(Object.keys(identity1.details.addresses.msisdn)[0], "08212345679");
+                                var identity2 = identities_found.results[1];
+                                assert.equal(identity2.id, "cb245673-aa41-4302-ac47-00000000002");
+                                assert.equal(Object.keys(identity2.details.addresses.msisdn)[0], "08212345679");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [29, 30]);
+                    })
+                    .run();
+            });
         });
         describe("Testing get_identity function", function() {
             it("returns corresponding identity by identity id passed in", function() {
