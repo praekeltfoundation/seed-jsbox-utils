@@ -47,7 +47,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 1,
                     "next": null,
                     "previous": null,
                     "results": [{
@@ -285,7 +284,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 0,
                     "next": null,
                     "previous": null,
                     "results": []
@@ -389,7 +387,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 2,
                     "next": null,
                     "previous": null,
                     "results": [
@@ -448,7 +445,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 0,
                     "next": null,
                     "previous": null,
                     "results": []
@@ -793,7 +789,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 1,
                     "next": null,
                     "previous": null,
                     "results": []
@@ -815,7 +810,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 2,
                     "next": null,
                     "previous": null,
                     "results": [
@@ -862,7 +856,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 1,
                     "next": null,
                     "previous": null,
                     "results": [{
@@ -939,7 +932,6 @@ module.exports = function() {
             'response': {
                 "code": 200,
                 "data": {
-                    "count": 1,
                     "next": null,
                     "previous": null,
                     "results": [{
@@ -987,6 +979,243 @@ module.exports = function() {
                     'delivered': "False",
                     'version': 1,
                     'url': 'http://ms.localhost:8004/api/v1/outbound/c99bd21e-6b9d-48ba-9f07-1e8e406737fe/'
+                }
+            }
+        },
+
+        // 29: get first page of paginated identity list by msisdn 08212345679
+        {
+            'repeatable': true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'details__addresses__msisdn': '08212345679'
+                },
+                'headers': {
+                    'Authorization': ['Token test IdentityStore'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://is.localhost:8001/api/v1/identities/search/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": "http://is.localhost:8001/api/v1/identities/search/?cursor=1&details__addresses__msisdn=08212345679",
+                    "previous": null,
+                    "results": [{
+                        "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                        "id": "cb245673-aa41-4302-ac47-00000000001",
+                        "version": 1,
+                        "details": {
+                            "default_addr_type": "msisdn",
+                            "addresses": {
+                                "msisdn": {
+                                    "08212345679": {}
+                                }
+                            }
+                        },
+                        "created_at": "2016-06-21T06:13:29.693272Z",
+                        "updated_at": "2016-06-21T06:13:29.693298Z"
+                    }]
+                }
+            }
+        },
+
+        // 30: get next page of paginated identity list by msisdn 08212345679
+        {
+            'repeatable': true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'cursor': '1',
+                    'details__addresses__msisdn': '08212345679'
+                },
+                'headers': {
+                    'Authorization': ['Token test IdentityStore'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://is.localhost:8001/api/v1/identities/search/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": null,
+                    "previous": "http://is.localhost:8001/api/v1/identities/search/?cursor=0&details__addresses__msisdn=08212345679",
+                    "results": [{
+                        "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000002/",
+                        "id": "cb245673-aa41-4302-ac47-00000000002",
+                        "version": 1,
+                        "details": {
+                            "default_addr_type": "msisdn",
+                            "addresses": {
+                                "msisdn": {
+                                    "08212345679": {}
+                                }
+                            }
+                        },
+                        "created_at": "2016-06-21T06:13:29.693272Z",
+                        "updated_at": "2016-06-21T06:13:29.693298Z"
+                    }]
+                }
+            }
+        },
+
+        // 31: get first page of identity cb245673-aa41-4302-ac47-00000000002 service rating status
+        {
+            'request': {
+                'method': 'GET',
+                'params': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000002"
+                },
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sr.localhost:8005/api/v1/invite/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": 'http://sr.localhost:8005/api/v1/invite/?cursor=1&identity=cb245673-aa41-4302-ac47-00000000002',
+                    "previous": null,
+                    "results": [{
+                        "updated_at": "2016-04-04T17:06:08.411867Z",
+                        "created_at": "2016-04-04T17:06:08.411843Z",
+                        "version": 1,
+                        "id": "result-1-1c37-44a2-94e6-85c3ee9a8c8b",
+                        "identity": "cb245673-aa41-4302-ac47-00000000002",
+                    }]
+                }
+            }
+        },
+
+        // 32: get second page of identity cb245673-aa41-4302-ac47-00000000001 service rating status
+        {
+            'request': {
+                'method': 'GET',
+                'params': {
+                    "identity": "cb245673-aa41-4302-ac47-00000000002",
+                    "cursor": "1"
+                },
+                'headers': {
+                    'Authorization': ['Token test_key'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sr.localhost:8005/api/v1/invite/',
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": null,
+                    "previous": 'http://sr.localhost:8005/api/v1/invite/?cursor=0',
+                    "results": [{
+                        "updated_at": "2016-04-04T17:06:08.411867Z",
+                        "created_at": "2016-04-04T17:06:08.411843Z",
+                        "version": 1,
+                        "id": "result-2-1c37-44a2-94e6-85c3ee9a8c8b",
+                        "identity": "cb245673-aa41-4302-ac47-00000000002",
+                    }]
+                }
+            }
+        },
+
+        // 33: first page of subscriptions for identity cb245673-aa41-4302-ac47-00000000003
+        {
+            'repeatable' : true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                    'active': 'True'
+                },
+                'headers': {
+                    'Authorization': ['Token test Staged-based Messaging'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sbm.localhost:8003/api/v1/subscriptions/'
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": 'http://sbm.localhost:8003/api/v1/subscriptions/?cursor=1&identity=cb245673-aa41-4302-ac47-00000000003&active=True',
+                    "previous": null,
+                    "results": [
+                        {
+                            'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1111',
+                            'id': '51fcca25-2e85-4c44-subscription-1111',
+                            'version': 1,
+                            'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                            'messageset': 1,
+                            'next_sequence_number': 1,
+                            'lang': "ibo_NG",
+                            'active': true,
+                            'completed': false,
+                            'schedule': 1,
+                            'process_status': 0,
+                            'metadata': {},
+                            'created_at': "2015-07-10T06:13:29.693272Z",
+                            'updated_at': "2015-07-10T06:13:29.693272Z"
+                        },
+                        {
+                            'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1112',
+                            'id': '51fcca25-2e85-4c44-subscription-1112',
+                            'version': 1,
+                            'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                            'messageset': 1,
+                            'next_sequence_number': 1,
+                            'lang': "ibo_NG",
+                            'active': true,
+                            'completed': false,
+                            'schedule': 1,
+                            'process_status': 0,
+                            'metadata': {},
+                            'created_at': "2015-07-10T06:13:29.693272Z",
+                            'updated_at': "2015-07-10T06:13:29.693272Z"
+                        }
+                    ]
+                }
+            }
+        },
+
+        // 34: second page of subscriptions for identity cb245673-aa41-4302-ac47-00000000003
+        {
+            'repeatable' : true,
+            'request': {
+                'method': 'GET',
+                'params': {
+                    'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                    'active': 'True',
+                    'cursor': '1'
+                },
+                'headers': {
+                    'Authorization': ['Token test Staged-based Messaging'],
+                    'Content-Type': ['application/json']
+                },
+                'url': 'http://sbm.localhost:8003/api/v1/subscriptions/'
+            },
+            'response': {
+                "code": 200,
+                "data": {
+                    "next": null,
+                    "previous": 'http://sbm.localhost:8003/api/v1/subscriptions/?cursor=0&identity=cb245673-aa41-4302-ac47-00000000003&active=True',
+                    "results": [
+                        {
+                            'url': 'http://sbm.localhost:8003/api/v1/subscriptions/51fcca25-2e85-4c44-subscription-1113',
+                            'id': '51fcca25-2e85-4c44-subscription-1113',
+                            'version': 1,
+                            'identity': 'cb245673-aa41-4302-ac47-00000000003',
+                            'messageset': 1,
+                            'next_sequence_number': 1,
+                            'lang': "ibo_NG",
+                            'active': true,
+                            'completed': false,
+                            'schedule': 1,
+                            'process_status': 0,
+                            'metadata': {},
+                            'created_at': "2015-07-10T06:13:29.693272Z",
+                            'updated_at': "2015-07-10T06:13:29.693272Z"
+                        }
+                    ]
                 }
             }
         },

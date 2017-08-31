@@ -912,6 +912,27 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
+            it("handles pagination of the result set", function() {
+                return tester
+                    .setup.user.addr('08212345679')
+                    .check(function(api) {
+                        return is.list_by_address({"msisdn": "08212345679"}, true)
+                            .then(function(identities_found) {
+                                // get the first identity in the list of identities
+                                assert.equal(identities_found.results.length, 2);
+                                var identity1 = identities_found.results[0];
+                                assert.equal(identity1.id, "cb245673-aa41-4302-ac47-00000000001");
+                                assert.equal(Object.keys(identity1.details.addresses.msisdn)[0], "08212345679");
+                                var identity2 = identities_found.results[1];
+                                assert.equal(identity2.id, "cb245673-aa41-4302-ac47-00000000002");
+                                assert.equal(Object.keys(identity2.details.addresses.msisdn)[0], "08212345679");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [29, 30]);
+                    })
+                    .run();
+            });
         });
         describe("Testing get_identity function", function() {
             it("returns corresponding identity by identity id passed in", function() {
@@ -1223,6 +1244,23 @@ describe("Testing app- and service call functions", function() {
                     })
                     .run();
             });
+            it("handles pagination of the result set", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sbm.list_active_subscriptions("cb245673-aa41-4302-ac47-00000000003")
+                            .then(function(subscriptions) {
+                                assert.equal(subscriptions.results.length, "3");
+                                assert.equal(subscriptions.results[0].id, "51fcca25-2e85-4c44-subscription-1111");
+                                assert.equal(subscriptions.results[1].id, "51fcca25-2e85-4c44-subscription-1112");
+                                assert.equal(subscriptions.results[2].id, "51fcca25-2e85-4c44-subscription-1113");
+                            });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [33, 34]);
+                    })
+                    .run();
+            });
         });
         describe("Testing get_active_subscription by identity function", function() {
             it("returns subscription for identity", function() {
@@ -1318,7 +1356,6 @@ describe("Testing app- and service call functions", function() {
                     .check(function(api) {
                         return sbm.list_messagesets()
                             .then(function(messagesets) {
-                                assert.equal(messagesets.count, 2);
                                 assert.equal(messagesets.results.length, "2");
                                 assert.equal(messagesets.results[0].id, 1);
                                 assert.equal(messagesets.results[1].id, 2);
@@ -1569,6 +1606,28 @@ describe("Testing app- and service call functions", function() {
                     })
                     .check(function(api) {
                         utils.check_fixtures_used(api, [27]);
+                    })
+                    .run();
+            });
+            it("handles pagination of the result set", function() {
+                return tester
+                    .setup.user.addr('08212345678')
+                    .check(function(api) {
+                        return sr
+                        .list_serviceratings({
+                            "identity": "cb245673-aa41-4302-ac47-00000000002"
+                        })
+                        .then(function(response) {
+                            // get the first identity in the list of identities
+                            assert.equal(response.results.length, 2);
+                            var result1 = response.results[0];
+                            assert.equal(result1.id, "result-1-1c37-44a2-94e6-85c3ee9a8c8b");
+                            var result2 = response.results[1];
+                            assert.equal(result2.id, "result-2-1c37-44a2-94e6-85c3ee9a8c8b");
+                        });
+                    })
+                    .check(function(api) {
+                        utils.check_fixtures_used(api, [31, 32]);
                     })
                     .run();
             });
