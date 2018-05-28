@@ -791,7 +791,22 @@ module.exports = function() {
                 "data": {
                     "next": null,
                     "previous": null,
-                    "results": []
+                    "results": [{
+                        "url": "http://is.localhost:8001/api/v1/identities/cb245673-aa41-4302-ac47-00000000001/",
+                        "id": "cb245673-aa41-4302-ac47-00000000001",
+                        "version": 1,
+                        "details": {
+                            "default_addr_type": "msisdn",
+                            "addresses": {
+                                "msisdn": {
+                                    "08212345678": {"default": true},
+                                    "08212345679": {"default": false}
+                                }
+                            }
+                        },
+                        "created_at": "2016-06-21T06:13:29.693272Z",
+                        "updated_at": "2016-06-21T06:13:29.693298Z"
+                    }]
                 }
             }
         },
