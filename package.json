@@ -21,7 +21,7 @@
   },
   "homepage": "https://github.com/praekelt/seed-jsbox-utils",
   "dependencies": {
-    "vumigo_v02": "~0.2",
+    "vumigo_v02": "~0.3",
     "moment": "~2.19.3",
     "q": "~0.9.7",
     "lodash": "~4.17.11"
