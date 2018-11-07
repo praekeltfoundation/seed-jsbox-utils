@@ -1299,7 +1299,7 @@ describe("Testing app- and service call functions", function() {
                     .check(function(api) {
                         return sbm.has_active_subscription("cb245673-aa41-4302-ac47-00000000002")
                             .then(function(subscription) {
-                                assert.ifError(subscription);
+                                assert.equal(subscription, false);
                             });
                     })
                     .check(function(api) {
