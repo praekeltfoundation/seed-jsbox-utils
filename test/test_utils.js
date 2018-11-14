@@ -185,6 +185,28 @@ describe("Testing utils functions", function() {
         });
     });
 
+    describe("is_valid_edd", function() {
+        beforeEach(function() {
+            config = {testing_today: "2016-05-23"};
+        });
+
+        it("return false for edd dates before today", function() {
+            assert.equal(utils.is_valid_edd("2016-05-19", "YYYY-MM-DD", config, 43), false);
+        });
+
+        it("return false for edd dates to far ahead", function() {
+            assert.equal(utils.is_valid_edd("2017-03-23", "YYYY-MM-DD", config, 43), false);
+        });
+
+        it("return true for a value edd date", function() {
+            assert(utils.is_valid_edd("2017-02-23", "YYYY-MM-DD", config, 43));
+        });
+
+        it("return false and doesn't fail when testing_today not in config", function() {
+            assert.equal(utils.is_valid_edd("2012-02-23", "YYYY-MM-DD", {}, 43), false);
+        });
+    });
+
     describe("is_valid_year", function() {
         it("valid; year within bounds", function() {
             assert(utils.is_valid_year("2016", "1990", "2030"));
