@@ -21,10 +21,11 @@
   },
   "homepage": "https://github.com/praekelt/seed-jsbox-utils",
   "dependencies": {
-    "vumigo_v02": "~0.3",
+    "libphonenumber-js": "^1.7.22",
+    "lodash": "~4.17.11",
     "moment": "~2.19.3",
     "q": "~0.9.7",
-    "lodash": "~4.17.11"
+    "vumigo_v02": "~0.3"
   },
   "devDependencies": {
     "grunt": "~1.0.3",
