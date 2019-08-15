@@ -79,37 +79,29 @@ describe("Testing utils functions", function() {
     });
 
     describe("is_valid_msisdn function", function() {
-        it("should not validate if passed a number that doesn't start with '0'", function() {
-            assert.equal(utils.is_valid_msisdn("12345", 10, 13), false);
+        it("invalid phone number", function() {
+            assert.equal(utils.is_valid_msisdn("12345", "ZA"), false);
         });
-        it("should not validate if number starts with '0' but of incorrect length", function() {
-            assert.equal(utils.is_valid_msisdn("012345", 10, 13), false);  // < 10
-            assert.equal(utils.is_valid_msisdn("01234567890123", 10, 13), false);  // > 13
+        it("unparseable phone number", function() {
+            assert.equal(utils.is_valid_msisdn("abc", "ZA"), false);
         });
-        it("validate if number starts with '0' and of correct length", function() {
-            assert(utils.is_valid_msisdn("01234567890", 10, 13));
-            assert(utils.is_valid_msisdn("0123456789012", 10, 13));
+        it("valid phone number", function() {
+            assert.equal(utils.is_valid_msisdn("0820001001", "ZA"), true);
         });
     });
 
     describe("normalize_msisdn(raw, country_code)", function() {
         it("return raw number unchanged if shortcode", function() {
-            assert.deepEqual(utils.normalize_msisdn("0123", "123"), "0123");
-        });
-        it.skip("remove chars that are not numbers or + from raw number", function() {
-            assert.deepEqual(utils.normalize_msisdn("012abc345", "123"), "+12312345");
+            assert.deepEqual(utils.normalize_msisdn("0123", "ZA"), "0123");
         });
         it("starts with '00'; replace with '+', don't prepend country_code", function() {
-            assert.deepEqual(utils.normalize_msisdn("0012345", "123"), "+12345");
+            assert.deepEqual(utils.normalize_msisdn("0012345", "ZA"), "+12345");
         });
         it("starts with '0'; replace with '+' + country_code", function() {
-            assert.deepEqual(utils.normalize_msisdn("012345", "123"), "+12312345");
+            assert.deepEqual(utils.normalize_msisdn("012345", "ZA"), "+2712345");
         });
         it("starts with '+'; return raw number as is", function() {
-            assert.deepEqual(utils.normalize_msisdn("+12312345", "123"), "+12312345");
-        });
-        it("if raw number's length equals country_code, prepend '+'", function() {
-            assert.deepEqual(utils.normalize_msisdn("123456", "123456"), "+123456");
+            assert.deepEqual(utils.normalize_msisdn("+2712345", "ZA"), "+2712345");
         });
     });
 
