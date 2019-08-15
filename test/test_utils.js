@@ -103,6 +103,9 @@ describe("Testing utils functions", function() {
         it("starts with '+'; return raw number as is", function() {
             assert.deepEqual(utils.normalize_msisdn("+2712345", "ZA"), "+2712345");
         });
+        it("starts with country code; add + to beginning", function() {
+            assert.deepEqual(utils.normalize_msisdn("2712345", "ZA"), "+2712345");
+        });
     });
 
     describe("get_timestamp", function() {
